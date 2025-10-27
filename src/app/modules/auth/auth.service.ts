@@ -57,7 +57,8 @@ const loginUserIntoDB = async (payload: {
 //google login
 const googleLogin = async (payload: {
   email: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   fcmToken: string;
 }) => {
   const user = await prisma.user.findUnique({
@@ -80,7 +81,8 @@ const googleLogin = async (payload: {
   const newUser = await prisma.user.create({
     data: {
       email: payload.email,
-      fullName: payload.fullName,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
       password: "",
       fcmToken: payload.fcmToken,
     },
@@ -131,7 +133,7 @@ const sendForgotPasswordOtpDB = async (email: string) => {
   const html = `
      <div style="font-family: Arial, sans-serif; color: #333;">
        <h2>Password Reset Request</h2>
-       <p>Hi <b>${existringUser.fullName}</b>,</p>
+       <p>Hi <b>${existringUser.firstName}</b>,</p>
        <p>Your OTP for password reset is:</p>
        <h1 style="color: #007BFF;">${otp}</h1>
        <p>This OTP is valid for <b>5 minutes</b>. If you did not request this, please ignore this email.</p>
@@ -208,7 +210,8 @@ const myProfile = async (userId: string) => {
     where: { id: userId },
     select: {
       id: true,
-      fullName: true,
+      firstName: true,
+      lastName: true,
       profileImage: true,
       email: true,
     },
