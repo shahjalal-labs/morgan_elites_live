@@ -8,10 +8,10 @@ generator client {
 }
 
 model User {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
   firstName    String
   lastName     String
-  email        String     @unique
+  email        String         @unique
   password     String
   fcmToken     String?
   profileImage String?
@@ -20,12 +20,14 @@ model User {
   dob          DateTime?
   phoneNumber  String?
   address      String?
-  gender       Gender     @default(Other)
-  role         UserRole   @default(User)
-  status       UserStatus @default(Active)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  gender       Gender         @default(Other)
+  role         UserRole       @default(User)
+  status       UserStatus     @default(Active)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
   Event        Event[]
+  EventLike    EventLike[]
+  EventComment EventComment[]
 
   @@map("users")
 }
@@ -40,17 +42,45 @@ model PendingUser {
 }
 
 model Event {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String    @db.ObjectId
-  eventType    EventType @default(Schedule)
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String         @db.ObjectId
+  eventType    EventType      @default(Schedule)
   text         String
   scheduleDate DateTime?
-  payAmount    Float     @default(0)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payAmount    Float          @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  EventLike    EventLike[]
+  EventComment EventComment[]
 
   @@map("events")
+}
+
+model EventLike {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId   String   @db.ObjectId
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@map("event_likes")
+}
+
+model EventComment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId   String   @db.ObjectId
+  userId    String   @db.ObjectId
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("event_comments")
 }
 
 enum EventType {

@@ -11,12 +11,22 @@ const createEvent = catchAsync(async (req, res) => {
   });
 });
 
-const getAllEvents = catchAsync(async (req, res) => {
-  const result = await eventServices.getAllEvents();
+const getScheduleEvents = catchAsync(async (req, res) => {
+  const result = await eventServices.getScheduleEvents(req.user.id, req.query);
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "All events has been retrived successfully",
+    message: "All schedule events has been retrived successfully",
+    data: result,
+  });
+});
+
+const getFundingEvents = catchAsync(async (req, res) => {
+  const result = await eventServices.getFundingEvents(req.user.id, req.query);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "All funding events has been retrived successfully",
     data: result,
   });
 });
@@ -49,10 +59,24 @@ const deleteEvent = catchAsync(async (req, res) => {
   });
 });
 
+const eventLikeUnlike = catchAsync(async (req, res) => {
+  const result = await eventServices.eventLikeUnlike(
+    req.user.id,
+    req.params.eventId
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: result,
+  });
+});
+
 export const eventControllers = {
   createEvent,
-  getAllEvents,
+  getScheduleEvents,
+  getFundingEvents,
   getEventById,
   updateEvent,
   deleteEvent,
+  eventLikeUnlike,
 };

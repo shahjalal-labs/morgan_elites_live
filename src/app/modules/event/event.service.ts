@@ -1,7 +1,14 @@
 import { Event } from "@prisma/client";
 import prisma from "../../../shared/prisma";
+import { paginationHelper } from "../../../shared/pagination";
+import ApiError from "../../../errors/ApiErrors";
 
 const createEvent = async (data: Event, userId: string) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
   await prisma.event.create({
     data: {
       ...data,
@@ -11,9 +18,108 @@ const createEvent = async (data: Event, userId: string) => {
   return;
 };
 
-const getAllEvents = async () => {
-  const results = await prisma.event.findMany();
-  return results;
+const getScheduleEvents = async (userId: string, query: any) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const { page, limit, skip } = paginationHelper(query);
+  const events = await prisma.event.findMany({
+    where: {
+      eventType: "Schedule",
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+      _count: {
+        select: {
+          EventLike: true,
+          EventComment: true,
+        },
+      },
+      EventLike: {
+        where: { userId },
+        select: { id: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip,
+  });
+
+  const eventsWithLikeStatus = events.map((event) => ({
+    ...event,
+    isLiked: event.EventLike.length > 0,
+  }));
+
+  const totalCount = events.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  return {
+    totalCount,
+    totalPages,
+    currentPage: page,
+    events: eventsWithLikeStatus,
+  };
+};
+
+const getFundingEvents = async (userId: string, query: any) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const { page, limit, skip } = paginationHelper(query);
+  const events = await prisma.event.findMany({
+    where: {
+      eventType: "Funding",
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+      _count: {
+        select: {
+          EventLike: true,
+          EventComment: true,
+        },
+      },
+      EventLike: {
+        where: { userId },
+        select: { id: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip,
+  });
+
+  const eventsWithLikeStatus = events.map((event) => ({
+    ...event,
+    isLiked: event.EventLike.length > 0,
+  }));
+
+  const totalCount = events.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  return {
+    totalCount,
+    totalPages,
+    currentPage: page,
+    events: eventsWithLikeStatus,
+  };
 };
 
 const getEventById = async (id: string) => {
@@ -31,10 +137,43 @@ const deleteEvent = async (id: string) => {
   return;
 };
 
+const eventLikeUnlike = async (userId: string, eventId: string) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const eventInfo = await prisma.event.findUnique({
+    where: { id: eventId },
+  });
+  if (!eventInfo) throw new ApiError(404, "Event not found");
+
+  const isLike = await prisma.eventLike.findUnique({
+    where: { eventId_userId: { eventId, userId } },
+  });
+
+  if (isLike) {
+    await prisma.eventLike.delete({
+      where: { eventId_userId: { eventId, userId } },
+    });
+    return "Event unlike successfully";
+  } else {
+    await prisma.eventLike.create({
+      data: {
+        eventId,
+        userId,
+      },
+    });
+    return "Event like successfully";
+  }
+};
+
 export const eventServices = {
   createEvent,
-  getAllEvents,
+  getScheduleEvents,
+  getFundingEvents,
   getEventById,
   updateEvent,
   deleteEvent,
+  eventLikeUnlike,
 };
