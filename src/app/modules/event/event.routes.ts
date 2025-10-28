@@ -11,5 +11,8 @@ router.get("/:id", eventControllers.getEventById);
 router.patch("/:id", eventControllers.updateEvent);
 router.delete("/:id", eventControllers.deleteEvent);
 router.post("/like-unlike/:eventId", auth(), eventControllers.eventLikeUnlike);
+router.post("/comment/:eventId", auth(), eventControllers.eventComment);
+router.post("/reply-comment/:commentId", auth(), eventControllers.replyComment);
+router.get("/comment/:eventId", auth(), eventControllers.getEventComments);
 
 export const eventRoutes = router;

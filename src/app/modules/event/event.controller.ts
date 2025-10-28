@@ -71,6 +71,45 @@ const eventLikeUnlike = catchAsync(async (req, res) => {
   });
 });
 
+const eventComment = catchAsync(async (req, res) => {
+  await eventServices.eventComment(
+    req.user.id,
+    req.params.eventId,
+    req.body.comment
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Comment created successfully",
+  });
+});
+
+const replyComment = catchAsync(async (req, res) => {
+  await eventServices.replyComment(
+    req.user.id,
+    req.params.commentId,
+    req.body.replyComment
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Reply Comment created successfully",
+  });
+});
+
+const getEventComments = catchAsync(async (req, res) => {
+  const data = await eventServices.getEventComments(
+    req.user.id,
+    req.params.eventId
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Event comments retrived successfully",
+    data,
+  });
+});
+
 export const eventControllers = {
   createEvent,
   getScheduleEvents,
@@ -79,4 +118,7 @@ export const eventControllers = {
   updateEvent,
   deleteEvent,
   eventLikeUnlike,
+  eventComment,
+  replyComment,
+  getEventComments,
 };

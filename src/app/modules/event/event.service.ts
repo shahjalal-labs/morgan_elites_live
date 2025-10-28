@@ -168,6 +168,102 @@ const eventLikeUnlike = async (userId: string, eventId: string) => {
   }
 };
 
+const eventComment = async (
+  userId: string,
+  eventId: string,
+  comment: string
+) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const eventInfo = await prisma.event.findUnique({
+    where: { id: eventId },
+  });
+  if (!eventInfo) throw new ApiError(404, "Event not found");
+
+  await prisma.eventComment.create({
+    data: {
+      eventId,
+      userId,
+      comment,
+    },
+  });
+  return;
+};
+
+const replyComment = async (
+  userId: string,
+  commentId: string,
+  replyComment: string
+) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const commentInfo = await prisma.eventComment.findUnique({
+    where: { id: commentId },
+  });
+  if (!commentInfo) throw new ApiError(404, "Comment not found");
+
+  await prisma.replyComment.create({
+    data: {
+      userId,
+      commentId,
+      replyComment,
+    },
+  });
+  return;
+};
+
+const getEventComments = async (userId: string, eventId: string) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const eventInfo = await prisma.event.findUnique({
+    where: { id: eventId },
+    select: {
+      id: true,
+      EventComment: {
+        select: {
+          id: true,
+          comment: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              profileImage: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+          ReplyComment: {
+            select: {
+              id: true,
+              replyComment: true,
+              createdAt: true,
+              user: {
+                select: {
+                  id: true,
+                  profileImage: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!eventInfo) throw new ApiError(404, "Event not found");
+  return eventInfo;
+};
+
 export const eventServices = {
   createEvent,
   getScheduleEvents,
@@ -176,4 +272,7 @@ export const eventServices = {
   updateEvent,
   deleteEvent,
   eventLikeUnlike,
+  eventComment,
+  replyComment,
+  getEventComments,
 };
