@@ -242,6 +242,11 @@ const myProfile = async (userId: string) => {
       lastName: true,
       profileImage: true,
       email: true,
+      profession: true,
+      address: true,
+      gender: true,
+      dob: true,
+      bio: true,
     },
   });
   if (!user) {
