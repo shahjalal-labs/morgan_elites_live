@@ -21,9 +21,7 @@ const loginUserIntoDB = async (payload: {
     },
   });
 
-  if (!user) {
-    throw new ApiError(404, "User not found");
-  }
+  if (!user) throw new ApiError(404, "User not found");
 
   const isPasswordValid = await bcrypt.compare(
     payload.password,
@@ -43,6 +41,16 @@ const loginUserIntoDB = async (payload: {
     },
   });
 
+  const isSetup =
+    user.firstName !== null &&
+    user.lastName !== null &&
+    user.profession !== null &&
+    user.bio !== null &&
+    user.phoneNumber !== null &&
+    user.gender !== "Other" &&
+    user.dob !== null &&
+    user.address !== null;
+
   const accessToken = jwtHelpers.generateToken(
     { id: user.id, email: user.email, role: user.role },
     config.jwt.jwt_secret as string,
@@ -51,6 +59,9 @@ const loginUserIntoDB = async (payload: {
 
   return {
     accessToken,
+    id: user.id,
+    role: user.role,
+    isSetup: isSetup,
   };
 };
 
@@ -73,8 +84,22 @@ const googleLogin = async (payload: {
       config.jwt.jwt_secret as string,
       config.jwt.expires_in as string
     );
+
+    const isSetup =
+      user.firstName !== null &&
+      user.lastName !== null &&
+      user.profession !== null &&
+      user.bio !== null &&
+      user.phoneNumber !== null &&
+      user.gender !== "Other" &&
+      user.dob !== null &&
+      user.address !== null;
+
     return {
       accessToken,
+      id: user.id,
+      role: user.role,
+      isSetup: isSetup,
     };
   }
 
@@ -96,6 +121,9 @@ const googleLogin = async (payload: {
 
   return {
     accessToken,
+    id: newUser.id,
+    role: newUser.role,
+    isSetup: false,
   };
 };
 
