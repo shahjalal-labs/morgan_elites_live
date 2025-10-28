@@ -229,11 +229,9 @@ const updateProfileIntoDB = async (
   userData: User,
   file: Express.Multer.File
 ) => {
-  console.log("file:", file, "data:", userData);
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) {
-    throw new ApiError(404, "user not found for edit user");
-  }
+  if (!user) throw new ApiError(404, "user not found for edit user");
+
   let profileImage;
   if (file) {
     profileImage = await uploadInSpace(file, "users/profileImage");

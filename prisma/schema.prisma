@@ -15,6 +15,12 @@ model User {
   password     String
   fcmToken     String?
   profileImage String?
+  profession   String?
+  bio          String?
+  dob          DateTime?
+  phoneNumber  String?
+  address      String?
+  gender       Gender     @default(Other)
   role         UserRole   @default(User)
   status       UserStatus @default(Active)
   createdAt    DateTime   @default(now())
@@ -41,4 +47,10 @@ enum UserStatus {
 enum UserRole {
   User
   Admin
+}
+
+enum Gender {
+  Other
+  Male
+  Female
 }
