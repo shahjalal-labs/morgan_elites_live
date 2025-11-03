@@ -6,7 +6,7 @@ const authLoginSchema = z.object({
 
 const googleLoginSchema = z.object({
   email: z.string().email("Invalid email address"),
-  fullName: z.string().min(1, "Full Name is required"),
+  firstName: z.string().min(1, "First Name is required"),
   fcmToken: z.string().min(1, "FCM token is required"),
 });
 
