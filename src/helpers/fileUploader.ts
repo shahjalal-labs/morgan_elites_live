@@ -33,6 +33,7 @@ const upload = multer({
 // upload single image
 const profileImage = upload.single("profileImage");
 const coverPhoto = upload.single("coverPhoto");
+const groupPhoto = upload.single("groupPhoto");
 
 // upload multiple image
 const uploadMultiple = upload.fields([
@@ -45,4 +46,5 @@ export const fileUploader = {
   uploadMultiple,
   profileImage,
   coverPhoto,
+  groupPhoto,
 };

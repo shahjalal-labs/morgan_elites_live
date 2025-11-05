@@ -1,6 +1,7 @@
 import { S3Client, S3ClientConfig, ObjectCannedACL } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import path from "path";
+import ApiError from "../errors/ApiErrors";
 
 const DO_CONFIG = {
   endpoint: "https://nyc3.digitaloceanspaces.com",
@@ -54,19 +55,20 @@ export const uploadInSpace = async (
 ): Promise<string> => {
   try {
     if (!file) {
-      throw new Error("No file provided");
+      throw new ApiError(404, "No file provided");
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      throw new Error(
+      throw new ApiError(
+        400,
         `File size exceeds maximum limit of ${MAX_FILE_SIZE / 1024 / 1024}MB`
       );
     }
 
     // Validate file type
     if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-      throw new Error("File type not allowed");
+      throw new ApiError(400, "File type not allowed");
     }
 
     // Generate a unique filename with original extension
@@ -97,7 +99,8 @@ export const uploadInSpace = async (
     return fileUrl;
   } catch (error) {
     // console.error("Error uploading file to DigitalOcean Spaces:", error);
-    throw new Error(
+    throw new ApiError(
+      400,
       error instanceof Error
         ? `Failed to upload file: ${error.message}`
         : "Failed to upload file to DigitalOcean Spaces"

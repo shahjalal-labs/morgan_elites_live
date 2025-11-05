@@ -8,27 +8,33 @@ generator client {
 }
 
 model User {
-  id           String         @id @default(auto()) @map("_id") @db.ObjectId
-  firstName    String
-  lastName     String
-  email        String         @unique
-  password     String
-  fcmToken     String?
-  profileImage String?
-  profession   String?
-  bio          String?
-  dob          DateTime?
-  phoneNumber  String?
-  address      String?
-  gender       Gender         @default(Other)
-  role         UserRole       @default(User)
-  status       UserStatus     @default(Active)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  Event        Event[]
-  EventLike    EventLike[]
-  EventComment EventComment[]
-  ReplyComment ReplyComment[]
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  firstName             String
+  lastName              String
+  email                 String                  @unique
+  password              String
+  fcmToken              String?
+  profileImage          String?
+  profession            String?
+  bio                   String?
+  dob                   DateTime?
+  phoneNumber           String?
+  address               String?
+  gender                Gender                  @default(Other)
+  role                  UserRole                @default(User)
+  status                UserStatus              @default(Active)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  Event                 Event[]
+  EventLike             EventLike[]
+  EventComment          EventComment[]
+  ReplyComment          ReplyComment[]
+  Group                 Group[]
+  GroupMember           GroupMember[]
+  GroupPost             GroupPost[]
+  CommentGroupPost      CommentGroupPost[]
+  ReplyCommentGroupPost ReplyCommentGroupPost[]
+  LikeGroupPost         LikeGroupPost[]
 
   @@map("users")
 }
@@ -96,6 +102,96 @@ model ReplyComment {
   eventComment EventComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@map("comment_replies")
+}
+
+model Group {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  creatorId   String?       @db.ObjectId
+  groupName   String
+  description String
+  photo       String
+  isPublic    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  creator     User?         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  groupMember GroupMember[]
+  groupPost   GroupPost[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  groupId   String?     @db.ObjectId
+  memberId  String?     @db.ObjectId
+  status    GroupStatus @default(Invited)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  member    User?       @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  group     Group?      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, memberId])
+  @@map("group_members")
+}
+
+model GroupPost {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  groupId          String?            @db.ObjectId
+  userId           String?            @db.ObjectId
+  content          String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  user             User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group            Group?             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  commentGroupPost CommentGroupPost[]
+  likeGroupPost    LikeGroupPost[]
+
+  @@map("group_posts")
+}
+
+model CommentGroupPost {
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  userId                String?                 @db.ObjectId
+  postId                String?                 @db.ObjectId
+  comment               String
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  user                  User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupPost             GroupPost?              @relation(fields: [postId], references: [id], onDelete: Cascade)
+  replyCommentGroupPost ReplyCommentGroupPost[]
+
+  @@map("group_post_comments")
+}
+
+model ReplyCommentGroupPost {
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String?           @db.ObjectId
+  commentId    String?           @db.ObjectId
+  replyComment String
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  user         User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment      CommentGroupPost? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@map("group_post_comments_replies")
+}
+
+model LikeGroupPost {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?    @db.ObjectId
+  postId    String?    @db.ObjectId
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupPost GroupPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("group_post_likes")
+}
+
+enum GroupStatus {
+  Invited
+  Joined
 }
 
 enum EventType {
