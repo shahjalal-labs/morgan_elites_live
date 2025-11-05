@@ -162,21 +162,6 @@ const updateGroup = async (
   return;
 };
 
-const createGroupPost = async (
-  userId: string,
-  groupId: string,
-  content: string
-) => {
-  await prisma.groupPost.create({
-    data: {
-      userId,
-      groupId,
-      content,
-    },
-  });
-  return;
-};
-
 const groupInfo = async (groupId: string, userId: string) => {
   const groupInfo = await prisma.group.findUnique({
     where: {
@@ -200,34 +185,34 @@ const groupInfo = async (groupId: string, userId: string) => {
               profileImage: true,
             },
           },
-          commentGroupPost: {
-            select: {
-              id: true,
-              user: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-              comment: true,
-              replyCommentGroupPost: {
-                select: {
-                  id: true,
-                  user: {
-                    select: {
-                      id: true,
-                      firstName: true,
-                      lastName: true,
-                    },
-                  },
-                  replyComment: true,
-                  createdAt: true,
-                },
-              },
-              createdAt: true,
-            },
-          },
+          // commentGroupPost: {
+          //   select: {
+          //     id: true,
+          //     user: {
+          //       select: {
+          //         id: true,
+          //         firstName: true,
+          //         lastName: true,
+          //       },
+          //     },
+          //     comment: true,
+          //     replyCommentGroupPost: {
+          //       select: {
+          //         id: true,
+          //         user: {
+          //           select: {
+          //             id: true,
+          //             firstName: true,
+          //             lastName: true,
+          //           },
+          //         },
+          //         replyComment: true,
+          //         createdAt: true,
+          //       },
+          //     },
+          //     createdAt: true,
+          //   },
+          // },
           _count: {
             select: {
               commentGroupPost: true,
@@ -261,6 +246,101 @@ const groupInfo = async (groupId: string, userId: string) => {
   };
 
   return transformed;
+};
+
+const postInfo = async (postId: string, userId: string) => {
+  const post = await prisma.groupPost.findUnique({
+    where: {
+      id: postId,
+    },
+    select: {
+      id: true,
+      content: true,
+      userId: true,
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+        },
+      },
+      commentGroupPost: {
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+          comment: true,
+          replyCommentGroupPost: {
+            select: {
+              id: true,
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+              replyComment: true,
+              createdAt: true,
+            },
+          },
+          createdAt: true,
+        },
+      },
+      _count: {
+        select: {
+          commentGroupPost: true,
+          likeGroupPost: true,
+        },
+      },
+      likeGroupPost: {
+        where: { userId },
+        select: { id: true },
+      },
+      createdAt: true,
+    },
+  });
+
+  if (!post) throw new ApiError(404, "Group post not found");
+
+  // ✅ Convert like array → boolean
+  const isLiked = post.likeGroupPost.length > 0;
+
+  return {
+    ...post,
+    isLiked, // add boolean value
+  };
+};
+
+const createGroupPost = async (
+  userId: string,
+  groupId: string,
+  content: string
+) => {
+  await prisma.groupPost.create({
+    data: {
+      userId,
+      groupId,
+      content,
+    },
+  });
+  return;
+};
+
+const deletePost = async (postId: string, userId: string) => {
+  const postInfo = await prisma.groupPost.findUnique({ where: { id: postId } });
+  if (!postInfo) throw new ApiError(404, "Post not found for delete");
+  if (postInfo.userId !== userId)
+    throw new ApiError(403, "You cannot delete this post");
+
+  await prisma.groupPost.delete({ where: { id: postId, userId } });
+  return;
 };
 
 const commentPost = async (postId: string, userId: string, comment: string) => {
@@ -310,11 +390,6 @@ const likePost = async (postId: string, userId: string) => {
     },
   });
   return "Liked this post";
-};
-
-const deletePost = async (postId: string, userId: string) => {
-  await prisma.groupPost.delete({ where: { id: postId, userId } });
-  return;
 };
 
 const allUsers = async (query: any, groupId: string) => {
@@ -374,6 +449,7 @@ export const groupServices = {
   deleteGroup,
   createGroupPost,
   groupInfo,
+  postInfo,
   commentPost,
   replyCommentPost,
   likePost,

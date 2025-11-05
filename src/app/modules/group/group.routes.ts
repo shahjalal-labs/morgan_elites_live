@@ -23,6 +23,7 @@ router.post(
 );
 router.delete("/leave-group/:groupId", auth(), groupControllers.leaveGroup);
 router.get("/:groupId", auth(), groupControllers.groupInfo);
+router.get("/postinfo/:postId", auth(), groupControllers.postInfo);
 router.patch(
   "/:id",
   auth(),
@@ -40,6 +41,6 @@ router.post(
   auth(),
   groupControllers.replyCommentPost
 );
-router.get("/all-users/:groupId", auth(), groupControllers.allUsers);
+router.get("/all-users/invite/:groupId", auth(), groupControllers.allUsers);
 
 export const groupRoute = router;

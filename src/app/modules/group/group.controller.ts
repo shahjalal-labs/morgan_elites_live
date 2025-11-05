@@ -116,6 +116,16 @@ const groupInfo = catchAsync(async (req, res) => {
   });
 });
 
+const postInfo = catchAsync(async (req, res) => {
+  const data = await groupServices.postInfo(req.params.postId, req.user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Post info has been retrived successfully",
+    data,
+  });
+});
+
 const commentPost = catchAsync(async (req, res) => {
   await groupServices.commentPost(
     req.params.postId,
@@ -134,8 +144,7 @@ const likePost = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "Like status updated this post successfully",
-    data,
+    message: data,
   });
 });
 
@@ -182,6 +191,7 @@ export const groupControllers = {
   deleteGroup,
   createGroupPost,
   groupInfo,
+  postInfo,
   commentPost,
   replyCommentPost,
   likePost,
