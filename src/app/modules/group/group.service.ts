@@ -13,6 +13,8 @@ const createGroup = async (
     throw new ApiError(400, "Please upload a group photo");
   }
 
+  console.log(data);
+
   const groupPhoto = await uploadInSpace(file, "group/images");
 
   await prisma.$transaction(async (tx) => {
