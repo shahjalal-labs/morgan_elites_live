@@ -5,7 +5,7 @@ import { paginationHelper } from "../../../shared/pagination";
 import { uploadInSpace } from "../../../helpers/uploadInSpace";
 
 const createGroup = async (
-  data: Group,
+  data: any,
   creatorId: string,
   file: Express.Multer.File
 ) => {
@@ -14,7 +14,6 @@ const createGroup = async (
   }
 
   const groupPhoto = await uploadInSpace(file, "group/images");
-  console.log(groupPhoto);
 
   await prisma.$transaction(async (tx) => {
     const group = await tx.group.create({
@@ -22,6 +21,7 @@ const createGroup = async (
         ...data,
         creatorId,
         photo: groupPhoto,
+        isPublic: data.isPublic === "false" ? false : true,
       },
     });
 
