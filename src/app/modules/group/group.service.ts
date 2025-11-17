@@ -418,6 +418,7 @@ const allUsers = async (query: any, groupId: string) => {
       firstName: true,
       lastName: true,
       profileImage: true,
+      profession: true,
     },
     orderBy: {
       createdAt: "desc",
