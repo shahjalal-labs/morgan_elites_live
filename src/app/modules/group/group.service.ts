@@ -9,11 +9,7 @@ const createGroup = async (
   creatorId: string,
   file: Express.Multer.File
 ) => {
-  if (!file) {
-    throw new ApiError(400, "Please upload a group photo");
-  }
-
-  console.log(data);
+  if (!file) throw new ApiError(400, "Please upload a group photo");
 
   const groupPhoto = await uploadInSpace(file, "group/images");
 
@@ -406,11 +402,10 @@ const allUsers = async (query: any, groupId: string) => {
 
   const where: any = {
     id: { notIn: excludedUserIds },
-    role: "DOCTOR",
   };
 
   if (search) {
-    where.username = {
+    where.firstName = {
       contains: search,
       mode: "insensitive",
     };
