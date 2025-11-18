@@ -280,6 +280,41 @@ const updateProfileIntoDB = async (
   return;
 };
 
+const changePassword = async (
+  oldPassword: string,
+  newPassword: string,
+  userId: string
+) => {
+  const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+  if (!existingUser) {
+    throw new ApiError(404, "user not found");
+  }
+
+  const isPasswordValid = await bcrypt.compare(
+    oldPassword,
+    existingUser?.password
+  );
+
+  if (!isPasswordValid) {
+    throw new ApiError(401, "Your old password is wrong!");
+  }
+
+  const hashedPassword = await bcrypt.hash(
+    newPassword,
+    Number(config.jwt.gen_salt)
+  );
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  });
+  return;
+};
+
 export const authService = {
   loginUserIntoDB,
   googleLogin,
@@ -289,4 +324,5 @@ export const authService = {
   sendForgotPasswordOtpDB,
   verifyForgotPasswordOtpCodeDB,
   resetForgotPasswordDB,
+  changePassword,
 };
