@@ -7,6 +7,8 @@ const router = express.Router();
 router.post("/", auth(), eventControllers.createEvent);
 router.get("/schedule/event", auth(), eventControllers.getScheduleEvents);
 router.get("/funding/event", auth(), eventControllers.getFundingEvents);
+router.get("/my-schedule/event", auth(), eventControllers.getMyScheduleEvents);
+router.get("/my-funding/event", auth(), eventControllers.getMyFundingEvents);
 router.get("/:id", eventControllers.getEventById);
 router.patch("/:id", eventControllers.updateEvent);
 router.delete("/:id", eventControllers.deleteEvent);

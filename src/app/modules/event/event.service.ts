@@ -122,6 +122,112 @@ const getFundingEvents = async (userId: string, query: any) => {
   };
 };
 
+const getMyScheduleEvents = async (userId: string, query: any) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const { page, limit, skip } = paginationHelper(query);
+  const events = await prisma.event.findMany({
+    where: {
+      eventType: "Schedule",
+      userId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+      _count: {
+        select: {
+          EventLike: true,
+          EventComment: true,
+        },
+      },
+      EventLike: {
+        where: { userId },
+        select: { id: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip,
+  });
+
+  const eventsWithLikeStatus = events.map((event) => ({
+    ...event,
+    isLiked: event.EventLike.length > 0,
+  }));
+
+  const totalCount = events.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  return {
+    totalCount,
+    totalPages,
+    currentPage: page,
+    events: eventsWithLikeStatus,
+  };
+};
+
+const getMyFundingEvents = async (userId: string, query: any) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const { page, limit, skip } = paginationHelper(query);
+  const events = await prisma.event.findMany({
+    where: {
+      eventType: "Funding",
+      userId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+      _count: {
+        select: {
+          EventLike: true,
+          EventComment: true,
+        },
+      },
+      EventLike: {
+        where: { userId },
+        select: { id: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip,
+  });
+
+  const eventsWithLikeStatus = events.map((event) => ({
+    ...event,
+    isLiked: event.EventLike.length > 0,
+  }));
+
+  const totalCount = events.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  return {
+    totalCount,
+    totalPages,
+    currentPage: page,
+    events: eventsWithLikeStatus,
+  };
+};
+
 const getEventById = async (id: string) => {
   const result = await prisma.event.findUnique({ where: { id } });
   return result;
@@ -268,6 +374,8 @@ export const eventServices = {
   createEvent,
   getScheduleEvents,
   getFundingEvents,
+  getMyScheduleEvents,
+  getMyFundingEvents,
   getEventById,
   updateEvent,
   deleteEvent,
