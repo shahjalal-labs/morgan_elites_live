@@ -171,6 +171,7 @@ const groupInfo = async (groupId: string, userId: string) => {
       groupName: true,
       photo: true,
       description: true,
+      creatorId: true,
       groupPost: {
         select: {
           id: true,
@@ -184,34 +185,6 @@ const groupInfo = async (groupId: string, userId: string) => {
               profileImage: true,
             },
           },
-          // commentGroupPost: {
-          //   select: {
-          //     id: true,
-          //     user: {
-          //       select: {
-          //         id: true,
-          //         firstName: true,
-          //         lastName: true,
-          //       },
-          //     },
-          //     comment: true,
-          //     replyCommentGroupPost: {
-          //       select: {
-          //         id: true,
-          //         user: {
-          //           select: {
-          //             id: true,
-          //             firstName: true,
-          //             lastName: true,
-          //           },
-          //         },
-          //         replyComment: true,
-          //         createdAt: true,
-          //       },
-          //     },
-          //     createdAt: true,
-          //   },
-          // },
           _count: {
             select: {
               commentGroupPost: true,
@@ -232,19 +205,22 @@ const groupInfo = async (groupId: string, userId: string) => {
     },
   });
 
-  // Transform: remove likeGroupPost and add isLike + isOwner
-  const transformed = {
-    ...groupInfo,
-    groupPost: groupInfo?.groupPost.map(
-      ({ likeGroupPost, userId: postOwnerId, ...rest }) => ({
-        ...rest,
-        isLike: likeGroupPost.length > 0,
-        isOwner: postOwnerId === userId, // ✅ true if this is my post
-      })
-    ),
-  };
+  if (!groupInfo) throw new ApiError(404, "Group not found");
 
-  return transformed;
+  // Transform: remove likeGroupPost and add isLike + isOwner
+  const transformedPosts = groupInfo.groupPost.map(
+    ({ likeGroupPost, userId: postOwnerId, ...rest }) => ({
+      ...rest,
+      isLike: likeGroupPost.length > 0,
+      isOwner: postOwnerId === userId, // post owner
+    })
+  );
+
+  return {
+    ...groupInfo,
+    groupPost: transformedPosts,
+    isOwner: groupInfo.creatorId === userId, // ✅ group owner check
+  };
 };
 
 const postInfo = async (postId: string, userId: string) => {
