@@ -136,7 +136,7 @@ const deleteGroup = async (groupId: string, creatorId: string) => {
 const updateGroup = async (
   groupId: string,
   userId: string,
-  data: Group,
+  data: any,
   file: Express.Multer.File
 ) => {
   const groupInfo = await prisma.group.findUnique({ where: { id: groupId } });
@@ -153,6 +153,7 @@ const updateGroup = async (
     where: { id: groupId },
     data: {
       ...data,
+      isPublic: data.isPublic === "false" ? false : true || groupInfo?.isPublic,
       photo: groupPhoto,
     },
   });
