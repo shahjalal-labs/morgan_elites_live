@@ -208,18 +208,46 @@ const groupInfo = async (groupId: string, userId: string) => {
   if (!groupInfo) throw new ApiError(404, "Group not found");
 
   // Transform: remove likeGroupPost and add isLike + isOwner
-  const transformedPosts = groupInfo.groupPost.map(
-    ({ likeGroupPost, userId: postOwnerId, ...rest }) => ({
-      ...rest,
-      isLike: likeGroupPost.length > 0,
-      isOwner: postOwnerId === userId, // post owner
-    })
+  // const transformedPosts = groupInfo.groupPost.map(
+  //   ({ likeGroupPost, userId: postOwnerId, ...rest }) => ({
+  //     ...rest,
+  //     isLike: likeGroupPost.length > 0,
+  //     isOwner: postOwnerId === userId, // post owner
+  //   })
+  // );
+
+  // return {
+  //   ...groupInfo,
+  //   groupPost: transformedPosts,
+  //   isOwner: groupInfo.creatorId === userId, // ✅ group owner check
+  // };
+
+  const transformedPosts = await Promise.all(
+    groupInfo.groupPost.map(
+      async ({ userId: postOwnerId, user, likeGroupPost, ...rest }) => {
+        const follow = await prisma.follow.findUnique({
+          where: {
+            pairKey: [userId, postOwnerId].sort().join("_"),
+          },
+        });
+
+        return {
+          ...rest,
+          user: {
+            ...user,
+            isFollow: !!follow,
+          },
+          isLike: likeGroupPost.length > 0,
+          isOwner: postOwnerId === userId,
+        };
+      }
+    )
   );
 
   return {
     ...groupInfo,
     groupPost: transformedPosts,
-    isOwner: groupInfo.creatorId === userId, // ✅ group owner check
+    isOwner: groupInfo.creatorId === userId,
   };
 };
 
@@ -414,6 +442,38 @@ const allUsers = async (query: any, groupId: string) => {
   };
 };
 
+const followUnfollow = async (user1Id: string, user2Id: string) => {
+  const user1Info = await prisma.user.findUnique({ where: { id: user1Id } });
+  if (!user1Info) throw new ApiError(404, "User not found");
+
+  const user2Info = await prisma.user.findUnique({ where: { id: user2Id } });
+  if (!user2Info) throw new ApiError(404, "User not found");
+
+  const isFollow = await prisma.follow.findUnique({
+    where: {
+      pairKey: [user1Id, user2Id].sort().join("_"),
+    },
+  });
+
+  if (isFollow) {
+    await prisma.follow.delete({
+      where: {
+        pairKey: [user1Id, user2Id].sort().join("_"),
+      },
+    });
+    return "Unfollow successfull";
+  } else {
+    await prisma.follow.create({
+      data: {
+        user1Id,
+        user2Id,
+        pairKey: [user1Id, user2Id].sort().join("_"),
+      },
+    });
+    return "Follow successfull";
+  }
+};
+
 export const groupServices = {
   createGroup,
   discoverGroups,
@@ -430,4 +490,5 @@ export const groupServices = {
   likePost,
   deletePost,
   allUsers,
+  followUnfollow,
 };

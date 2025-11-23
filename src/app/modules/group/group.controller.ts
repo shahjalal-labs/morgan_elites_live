@@ -180,6 +180,18 @@ const allUsers = catchAsync(async (req, res) => {
   });
 });
 
+const followUnfollow = catchAsync(async (req, res) => {
+  const data = await groupServices.followUnfollow(
+    req.params.userId,
+    req.user.id
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: data,
+  });
+});
+
 export const groupControllers = {
   createGroup,
   discoverGroups,
@@ -197,4 +209,5 @@ export const groupControllers = {
   likePost,
   deletePost,
   allUsers,
+  followUnfollow,
 };

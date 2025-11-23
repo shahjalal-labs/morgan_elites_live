@@ -42,5 +42,10 @@ router.post(
   groupControllers.replyCommentPost
 );
 router.get("/all-users/invite/:groupId", auth(), groupControllers.allUsers);
+router.post(
+  "/follow-unfollow/:userId",
+  auth(),
+  groupControllers.followUnfollow
+);
 
 export const groupRoute = router;

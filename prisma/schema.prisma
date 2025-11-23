@@ -190,6 +190,17 @@ model LikeGroupPost {
   @@map("group_post_likes")
 }
 
+model Follow {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user1Id   String   @db.ObjectId
+  user2Id   String   @db.ObjectId
+  pairKey   String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("follows")
+}
+
 model LiveStreaming {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   userId       String   @db.ObjectId
