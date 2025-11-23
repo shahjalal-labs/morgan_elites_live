@@ -6,7 +6,7 @@ interface CustomWebSocket extends WebSocket {
   userId?: string;
 }
 
-const connectedUsers = new Set<CustomWebSocket>();
+const connectedUsers = new Map<string, CustomWebSocket>();
 let wss;
 
 export function setupWebSocketServer(server: any) {
@@ -15,20 +15,17 @@ export function setupWebSocketServer(server: any) {
   wss.on("connection", async (ws: CustomWebSocket, req: Request) => {
     const authToken = req.headers["x-token"] as string;
     const decoded = verifyWebSocketToken(ws, authToken);
-    if (!decoded) {
-      return;
-    }
+    if (!decoded) return;
+
     const userId = decoded.id;
     ws.userId = userId;
-    connectedUsers.add(ws);
+
+    // Store user websocket
+    connectedUsers.set(userId, ws);
 
     const interval = setInterval(() => {
       if (ws.readyState === WebSocket.OPEN) ws.ping();
     }, 30000);
-
-    const connectedUserIds = Array.from(connectedUsers)
-      .map((ws) => ws.userId)
-      .filter((id) => id !== undefined);
 
     ws.on("message", async (message: any) => {
       try {
@@ -45,9 +42,8 @@ export function setupWebSocketServer(server: any) {
               );
             }
 
-            const receiverSocket = Array.from(connectedUsers).find(
-              (client) => client.userId === receiverId
-            );
+            // get receiver socket from Map
+            const receiverSocket = connectedUsers.get(receiverId);
 
             if (
               !receiverSocket ||
@@ -75,24 +71,21 @@ export function setupWebSocketServer(server: any) {
 
           default:
             ws.send(
-              JSON.stringify({ type: "error", message: "Invalid message type" })
+              JSON.stringify({
+                type: "error",
+                message: "Invalid message type",
+              })
             );
         }
-      } catch (err: unknown) {
-        if (err instanceof SyntaxError) {
-          ws.send(JSON.stringify({ type: "error", message: "Bad JSON" }));
-        } else if (err instanceof Error) {
-          ws.send(JSON.stringify({ type: "error", message: err }));
-        } else {
-          ws.send(
-            JSON.stringify({ type: "error", message: "Unexpected error" })
-          );
-        }
+      } catch (err) {
+        ws.send(
+          JSON.stringify({ type: "error", message: "Invalid JSON format" })
+        );
       }
     });
 
-    ws.on("close", async () => {
-      connectedUsers?.delete(ws);
+    ws.on("close", () => {
+      connectedUsers.delete(userId);
       console.log("WebSocket client disconnected!");
       clearInterval(interval);
     });
