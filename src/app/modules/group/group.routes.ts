@@ -47,5 +47,6 @@ router.post(
   auth(),
   groupControllers.followUnfollow
 );
+router.get("/my/following", auth(), groupControllers.myFollowing);
 
 export const groupRoute = router;

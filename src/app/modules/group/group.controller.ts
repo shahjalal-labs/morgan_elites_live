@@ -182,13 +182,24 @@ const allUsers = catchAsync(async (req, res) => {
 
 const followUnfollow = catchAsync(async (req, res) => {
   const data = await groupServices.followUnfollow(
-    req.params.userId,
-    req.user.id
+    req.user.id,
+    req.params.userId
   );
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: data,
+  });
+});
+
+const myFollowing = catchAsync(async (req, res) => {
+  const { id } = req.user;
+  const followings = await groupServices.myFollowing(id, req.query);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Your followings has been retrieved successfully",
+    data: followings,
   });
 });
 
@@ -210,4 +221,5 @@ export const groupControllers = {
   deletePost,
   allUsers,
   followUnfollow,
+  myFollowing,
 };

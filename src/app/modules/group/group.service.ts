@@ -227,7 +227,7 @@ const groupInfo = async (groupId: string, userId: string) => {
       async ({ userId: postOwnerId, user, likeGroupPost, ...rest }) => {
         const follow = await prisma.follow.findUnique({
           where: {
-            pairKey: [userId, postOwnerId].sort().join("_"),
+            user1Id_user2Id: { user1Id: userId, user2Id: postOwnerId ?? "" },
           },
         });
 
@@ -451,14 +451,14 @@ const followUnfollow = async (user1Id: string, user2Id: string) => {
 
   const isFollow = await prisma.follow.findUnique({
     where: {
-      pairKey: [user1Id, user2Id].sort().join("_"),
+      user1Id_user2Id: { user1Id, user2Id },
     },
   });
 
   if (isFollow) {
     await prisma.follow.delete({
       where: {
-        pairKey: [user1Id, user2Id].sort().join("_"),
+        user1Id_user2Id: { user1Id, user2Id },
       },
     });
     return "Unfollow successfull";
@@ -467,11 +467,53 @@ const followUnfollow = async (user1Id: string, user2Id: string) => {
       data: {
         user1Id,
         user2Id,
-        pairKey: [user1Id, user2Id].sort().join("_"),
       },
     });
     return "Follow successfull";
   }
+};
+
+const myFollowing = async (userId: string, query: any) => {
+  const { search } = query;
+  const userInfo = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const searchTerms = search ? search.trim().split(/\s+/) : [];
+
+  const followings = await prisma.follow.findMany({
+    where: {
+      user1Id: userId,
+      ...(search && {
+        user: {
+          OR: [
+            {
+              AND: searchTerms.map((t: any) => ({
+                OR: [
+                  { firstName: { contains: t, mode: "insensitive" } },
+                  { lastName: { contains: t, mode: "insensitive" } },
+                ],
+              })),
+            },
+            { firstName: { contains: search, mode: "insensitive" } },
+            { lastName: { contains: search, mode: "insensitive" } },
+          ],
+        },
+      }),
+    },
+    select: {
+      user1Id: true,
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+    },
+  });
+  return followings;
 };
 
 export const groupServices = {
@@ -491,4 +533,5 @@ export const groupServices = {
   deletePost,
   allUsers,
   followUnfollow,
+  myFollowing,
 };
