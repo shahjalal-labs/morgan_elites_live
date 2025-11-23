@@ -1,4 +1,7 @@
+import { LiveStreaming } from "@prisma/client";
+import ApiError from "../../../errors/ApiErrors";
 import { generateZegoToken } from "../../../helpers/zegoToken";
+import prisma from "../../../shared/prisma";
 
 const generateToken = async (userId: string, roomId: string) => {
   console.log(userId);
@@ -15,6 +18,54 @@ const generateToken = async (userId: string, roomId: string) => {
   };
 };
 
+const createLiveStreaming = async (userId: string, payload: LiveStreaming) => {
+  const userInfo = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const streamInfo = await prisma.liveStreaming.create({
+    data: {
+      ...payload,
+      userId,
+    },
+  });
+  return streamInfo;
+};
+
+const getStreamInfo = async (streamId: string, userId: string) => {
+  const streamInfo = await prisma.liveStreaming.findUnique({
+    where: { id: streamId, userId },
+  });
+
+  if (!streamInfo)
+    throw new ApiError(404, "This streaming closed by only the Host");
+
+  return streamInfo;
+};
+
+const closeLiveStreaming = async (streamId: string, userId: string) => {
+  const streamInfo = await prisma.liveStreaming.findUnique({
+    where: { id: streamId, userId },
+  });
+  if (!streamInfo)
+    // throw new ApiError(404, "This streaming closed by only the Host");
+    return;
+  if (!streamInfo.isLive)
+    throw new ApiError(400, "This streaming already ended");
+
+  await prisma.liveStreaming.update({
+    where: {
+      id: streamId,
+    },
+    data: {
+      isLive: false,
+    },
+  });
+  return;
+};
+
 export const liveServices = {
   generateToken,
+  createLiveStreaming,
+  getStreamInfo,
+  closeLiveStreaming,
 };

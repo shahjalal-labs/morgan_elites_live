@@ -13,6 +13,44 @@ const generateToken = catchAsync(async (req, res) => {
   });
 });
 
+const createLiveStreaming = catchAsync(async (req, res) => {
+  const streamInfo = await liveServices.createLiveStreaming(
+    req.user.id,
+    req.body
+  );
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Live streaming created successfully",
+    data: streamInfo,
+  });
+});
+
+const getStreamInfo = catchAsync(async (req, res) => {
+  const data = await liveServices.getStreamInfo(
+    req.params.streamId,
+    req.user.id
+  );
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Live streaming info retrived successfully",
+    data,
+  });
+});
+
+const closeLiveStreaming = catchAsync(async (req, res) => {
+  await liveServices.closeLiveStreaming(req.params.streamId, req.user.id);
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Live streaming ended successfully",
+  });
+});
+
 export const liveControllers = {
   generateToken,
+  createLiveStreaming,
+  getStreamInfo,
+  closeLiveStreaming,
 };
