@@ -55,10 +55,27 @@ const getScheduleEvents = async (userId: string, query: any) => {
     skip,
   });
 
-  const eventsWithLikeStatus = events.map((event) => ({
-    ...event,
-    isLiked: event.EventLike.length > 0,
-  }));
+  const eventsWithRelations = await Promise.all(
+    events.map(async (event) => {
+      const follow = await prisma.follow.findUnique({
+        where: {
+          user1Id_user2Id: {
+            user1Id: userId,
+            user2Id: event.user.id,
+          },
+        },
+      });
+
+      return {
+        ...event,
+        user: {
+          ...event.user,
+          isFollow: !!follow,
+        },
+        isLiked: event.EventLike.length > 0,
+      };
+    })
+  );
 
   const totalCount = events.length;
   const totalPages = Math.ceil(totalCount / limit);
@@ -66,7 +83,7 @@ const getScheduleEvents = async (userId: string, query: any) => {
     totalCount,
     totalPages,
     currentPage: page,
-    events: eventsWithLikeStatus,
+    events: eventsWithRelations,
   };
 };
 
@@ -107,10 +124,27 @@ const getFundingEvents = async (userId: string, query: any) => {
     skip,
   });
 
-  const eventsWithLikeStatus = events.map((event) => ({
-    ...event,
-    isLiked: event.EventLike.length > 0,
-  }));
+  const eventsWithRelations = await Promise.all(
+    events.map(async (event) => {
+      const follow = await prisma.follow.findUnique({
+        where: {
+          user1Id_user2Id: {
+            user1Id: userId,
+            user2Id: event.user.id,
+          },
+        },
+      });
+
+      return {
+        ...event,
+        user: {
+          ...event.user,
+          isFollow: !!follow,
+        },
+        isLiked: event.EventLike.length > 0,
+      };
+    })
+  );
 
   const totalCount = events.length;
   const totalPages = Math.ceil(totalCount / limit);
@@ -118,7 +152,7 @@ const getFundingEvents = async (userId: string, query: any) => {
     totalCount,
     totalPages,
     currentPage: page,
-    events: eventsWithLikeStatus,
+    events: eventsWithRelations,
   };
 };
 
