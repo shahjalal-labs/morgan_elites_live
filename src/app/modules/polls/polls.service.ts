@@ -18,9 +18,9 @@ const getAllPollss = async () => {
   return results;
 };
 
-const getPollsById = async (id: string, userId: string) => {
+const getPollsById = async (streamId: string, userId: string) => {
   const result = await prisma.polls.findUnique({
-    where: { id },
+    where: { streamId },
     select: {
       id: true,
       userId: true,
@@ -93,9 +93,9 @@ const submitVote = async (pollsId: string, userId: string, option: string) => {
   return;
 };
 
-const pollsResult = async (id: string, userId: string) => {
+const pollsResult = async (streamId: string, userId: string) => {
   const result = await prisma.polls.findUnique({
-    where: { id },
+    where: { streamId },
     select: {
       id: true,
       userId: true,
@@ -108,7 +108,7 @@ const pollsResult = async (id: string, userId: string) => {
 
   // Fetch all votes with user info
   const votes = await prisma.submitVote.findMany({
-    where: { pollsId: id },
+    where: { pollsId: result.id },
     include: {
       user: {
         select: {

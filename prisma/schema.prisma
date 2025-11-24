@@ -221,7 +221,7 @@ model LiveStreaming {
 model Polls {
   id          String       @id @default(auto()) @map("_id") @db.ObjectId
   userId      String       @db.ObjectId
-  streamId    String       @db.ObjectId
+  streamId    String       @unique @db.ObjectId
   question    String
   options     String[]
   createdAt   DateTime     @default(now())
