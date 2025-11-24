@@ -1,6 +1,7 @@
 import { WebSocket, WebSocketServer } from "ws";
 import { Request } from "express";
 import { verifyWebSocketToken } from "./socket.service";
+import prisma from "../../../shared/prisma";
 
 interface CustomWebSocket extends WebSocket {
   userId?: string;
@@ -29,7 +30,9 @@ export function setupWebSocketServer(server: any) {
 
     ws.on("message", async (message: any) => {
       try {
-        const { type, receiverId, coHostLink } = JSON.parse(message.toString());
+        const { type, receiverId, coHostLink, streamId } = JSON.parse(
+          message.toString()
+        );
 
         switch (type) {
           case "add-contributor": {
@@ -57,12 +60,31 @@ export function setupWebSocketServer(server: any) {
               );
             }
 
+            const senderInfo = await prisma.user.findUnique({
+              where: { id: ws.userId },
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                profileImage: true,
+                profession: true,
+              },
+            });
+            if (!senderInfo)
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Sender not found",
+                })
+              );
+
             // send ONLY to receiver
             receiverSocket.send(
               JSON.stringify({
                 type: "contribution-request",
-                from: ws.userId,
-                messages: coHostLink,
+                from: senderInfo,
+                link: coHostLink,
+                streamId: streamId,
               })
             );
 

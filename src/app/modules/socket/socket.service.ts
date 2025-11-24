@@ -1,11 +1,13 @@
 import config from "../../../config";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 
-export function verifyWebSocketToken(ws: any, token: string) {
+export function verifyWebSocketToken(
+  ws: any,
+  token: string | undefined | null
+) {
+  // No token provided
   if (!token) {
-    ws.send(
-      JSON.stringify({ type: "error", message: "You are not authenticated" })
-    );
+    sendWsError(ws, "You are not authenticated");
     return null;
   }
 
@@ -16,12 +18,22 @@ export function verifyWebSocketToken(ws: any, token: string) {
     );
     return decoded;
   } catch (error: any) {
-    const errorMessage =
-      error.name === "TokenExpiredError"
-        ? "Token has expired!"
-        : "Invalid token!";
+    let message = "Invalid token!";
 
-    ws.send(JSON.stringify({ type: "error", message: errorMessage }));
+    if (error?.name === "TokenExpiredError") {
+      message = "Token has expired!";
+    }
+
+    sendWsError(ws, message);
     return null;
+  }
+}
+
+/**
+ * Safely sends a standardized error structure to the client
+ */
+function sendWsError(ws: any, message: string) {
+  if (ws && ws.readyState === ws.OPEN) {
+    ws.send(JSON.stringify({ type: "error", message }));
   }
 }
