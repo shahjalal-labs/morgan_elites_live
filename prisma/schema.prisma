@@ -37,6 +37,7 @@ model User {
   LikeGroupPost         LikeGroupPost[]
   liveStreamings        LiveStreaming[]
   follows               Follow[]
+  submitVotes           SubmitVote[]
 
   @@map("users")
 }
@@ -215,6 +216,33 @@ model LiveStreaming {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("live_streamings")
+}
+
+model Polls {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String       @db.ObjectId
+  streamId    String       @db.ObjectId
+  question    String
+  options     String[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  submitVotes SubmitVote[]
+
+  @@map("polls")
+}
+
+model SubmitVote {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  pollsId   String   @db.ObjectId
+  option    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  polls     Polls    @relation(fields: [pollsId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pollsId])
+  @@map("submit_votes")
 }
 
 enum GroupStatus {

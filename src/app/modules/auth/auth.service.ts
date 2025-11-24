@@ -247,13 +247,34 @@ const myProfile = async (userId: string) => {
       gender: true,
       dob: true,
       bio: true,
+      _count: {
+        select: {
+          Event: true,
+        },
+      },
     },
   });
   if (!user) {
     throw new ApiError(404, "user not found!");
   }
 
-  return user;
+  const followingCount = await prisma.follow.count({
+    where: {
+      user1Id: userId,
+    },
+  });
+
+  const followersCount = await prisma.follow.count({
+    where: {
+      user2Id: userId,
+    },
+  });
+
+  return {
+    ...user,
+    followingCount,
+    followersCount,
+  };
 };
 
 // update user profile only logged in user

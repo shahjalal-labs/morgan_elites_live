@@ -516,6 +516,49 @@ const myFollowing = async (userId: string, query: any) => {
   return followings;
 };
 
+const myFollowers = async (userId: string, query: any) => {
+  const { search } = query;
+  const userInfo = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const searchTerms = search ? search.trim().split(/\s+/) : [];
+
+  const followers = await prisma.follow.findMany({
+    where: {
+      user2Id: userId,
+      ...(search && {
+        user: {
+          OR: [
+            {
+              AND: searchTerms.map((t: any) => ({
+                OR: [
+                  { firstName: { contains: t, mode: "insensitive" } },
+                  { lastName: { contains: t, mode: "insensitive" } },
+                ],
+              })),
+            },
+            { firstName: { contains: search, mode: "insensitive" } },
+            { lastName: { contains: search, mode: "insensitive" } },
+          ],
+        },
+      }),
+    },
+    select: {
+      user1Id: true,
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+    },
+  });
+  return followers;
+};
+
 export const groupServices = {
   createGroup,
   discoverGroups,
@@ -534,4 +577,5 @@ export const groupServices = {
   allUsers,
   followUnfollow,
   myFollowing,
+  myFollowers,
 };

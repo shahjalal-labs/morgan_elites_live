@@ -4,6 +4,7 @@ import { authRoute } from "../modules/auth/auth.routes";
 import { eventRoutes } from "../modules/event/event.routes";
 import { groupRoute } from "../modules/group/group.routes";
 import { liveRoutes } from "../modules/live/live.routes";
+import { pollsRoutes } from "../modules/polls/polls.routes";
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ const moduleRoutes = [
   { path: "/event", route: eventRoutes },
   { path: "/group", route: groupRoute },
   { path: "/live", route: liveRoutes },
+  { path: "/polls", route: pollsRoutes },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

@@ -203,6 +203,17 @@ const myFollowing = catchAsync(async (req, res) => {
   });
 });
 
+const myFollowers = catchAsync(async (req, res) => {
+  const { id } = req.user;
+  const followers = await groupServices.myFollowers(id, req.query);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Your followers has been retrieved successfully",
+    data: followers,
+  });
+});
+
 export const groupControllers = {
   createGroup,
   discoverGroups,
@@ -222,4 +233,5 @@ export const groupControllers = {
   allUsers,
   followUnfollow,
   myFollowing,
+  myFollowers,
 };
