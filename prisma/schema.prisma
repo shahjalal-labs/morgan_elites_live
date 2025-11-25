@@ -20,6 +20,7 @@ model User {
   dob                   DateTime?
   phoneNumber           String?
   address               String?
+  stripeAccountId       String?
   gender                Gender                  @default(Other)
   role                  UserRole                @default(User)
   status                UserStatus              @default(Active)
@@ -63,6 +64,7 @@ model Event {
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   EventLike    EventLike[]
   EventComment EventComment[]
+  donations    Donation[]
 
   @@map("events")
 }
@@ -243,6 +245,32 @@ model SubmitVote {
 
   @@unique([userId, pollsId])
   @@map("submit_votes")
+}
+
+model Donation {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String        @db.ObjectId
+  eventId         String        @db.ObjectId
+  status          DonatinStatus @default(Pending)
+  stripeSessionId String        @unique
+  amount          Float         @default(0)
+  method          PaymentMethod @default(Card)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  event           Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("donations")
+}
+
+enum PaymentMethod {
+  Card
+  ApplePay
+  GPay
+}
+
+enum DonatinStatus {
+  Pending
+  Completed
 }
 
 enum GroupStatus {

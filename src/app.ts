@@ -7,6 +7,7 @@ import path from "path";
 import prisma from "./shared/prisma";
 import { bullBoardRouter } from "./bullBoard";
 import basicAuth from "express-basic-auth";
+import { stripeWebhookController } from "./app/modules/donation/donation.controller";
 
 const app: Application = express();
 
@@ -22,6 +23,17 @@ const app: Application = express();
 })();
 
 app.use(cors());
+
+app.post(
+  "/api/v1/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res, next) => {
+    console.log("Hit the Credit Purchase webhook");
+    next();
+  },
+  stripeWebhookController
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
