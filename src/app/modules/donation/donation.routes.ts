@@ -10,6 +10,8 @@ router.post(
   auth(),
   donationControllers.createConnectedAccount
 );
+router.get("/stripe/balance", auth(), donationControllers.stripeBalance);
+router.post("/instant/payout", auth(), donationControllers.instantPayout);
 router.get("/", donationControllers.getAllDonations);
 router.get("/:id", donationControllers.getDonationById);
 router.patch("/:id", donationControllers.updateDonation);

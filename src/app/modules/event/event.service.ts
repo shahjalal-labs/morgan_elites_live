@@ -2,12 +2,33 @@ import { Event } from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import { paginationHelper } from "../../../shared/pagination";
 import ApiError from "../../../errors/ApiErrors";
+import { stripe } from "../../../helpers/stripe";
 
 const createEvent = async (data: Event, userId: string) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
   });
   if (!userInfo) throw new ApiError(404, "User not found");
+
+  if (data.eventType === "Funding") {
+    if (!userInfo.stripeAccountId)
+      throw new ApiError(400, "You does not have a connected Stripe account");
+
+    const account = await stripe.accounts.retrieve(
+      // eventInfo.user.stripeAccountId
+      "acct_1RsFIE2XU2PLbtHE"
+    );
+
+    if (
+      account.capabilities?.transfers !== "active" ||
+      account.capabilities?.card_payments !== "active"
+    ) {
+      throw new ApiError(
+        400,
+        "Connected account onboarding incomplete. Need to finish onboarding."
+      );
+    }
+  }
 
   await prisma.event.create({
     data: {

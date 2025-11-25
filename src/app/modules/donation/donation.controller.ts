@@ -29,6 +29,29 @@ const createConnectedAccount = catchAsync(async (req, res) => {
   });
 });
 
+const stripeBalance = catchAsync(async (req, res) => {
+  const data = await donationServices.stripeBalance(req.user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Connected account balance retrived successfully",
+    data,
+  });
+});
+
+const instantPayout = catchAsync(async (req, res) => {
+  const data = await donationServices.instantPayout(
+    req.user.id,
+    req.body.amount
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Connected account intant payout successfully",
+    data,
+  });
+});
+
 export const stripeWebhookController = catchAsync(async (req, res) => {
   const sig = req.headers["stripe-signature"] as string;
   if (!sig) {
@@ -103,6 +126,8 @@ const deleteDonation = catchAsync(async (req, res) => {
 export const donationControllers = {
   createDonation,
   createConnectedAccount,
+  stripeBalance,
+  instantPayout,
   getAllDonations,
   getDonationById,
   updateDonation,

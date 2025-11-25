@@ -144,6 +144,69 @@ const createConnectedAccount = async (userId: string) => {
   return link.url;
 };
 
+const stripeBalance = async (userId: string) => {
+  const userInfo = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const balance = await stripe.balance.retrieve({
+    // stripeAccount: userInfo.stripeAccountId as string,
+    stripeAccount: "acct_1RsFIE2XU2PLbtHE",
+  });
+
+  const totalTransactions = await prisma.donation.count({
+    where: { userId },
+  });
+
+  const completedTransactions = await prisma.donation.findMany({
+    where: { userId, status: "Completed" },
+    select: {
+      id: true,
+      status: true,
+      amount: true,
+      method: true,
+      event: {
+        select: {
+          id: true,
+          title: true,
+          text: true,
+        },
+      },
+    },
+  });
+
+  const pendingTransactions = await prisma.donation.count({
+    where: { userId, status: "Pending" },
+  });
+
+  return {
+    available: (balance.available[0]?.amount ?? 0) / 100,
+    withdrawable: (balance.instant_available?.[0]?.amount ?? 0) / 100,
+    pendingBalance: (balance.pending[0]?.amount ?? 0) / 100,
+    totalTransactions,
+    completedTransactions: completedTransactions.length,
+    pendingTransactions,
+    transactionHistory: completedTransactions,
+  };
+};
+
+const instantPayout = async (userId: string, amount: number) => {
+  const userInfo = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userInfo) throw new ApiError(404, "User not found");
+  const payout = await stripe.payouts.create(
+    {
+      amount: amount * 100,
+      currency: "usd",
+      method: "instant",
+    },
+    {
+      // stripeAccount: userInfo.stripeAccountId as string,
+      stripeAccount: "acct_1RsFIE2XU2PLbtHE",
+    }
+  );
+
+  return payout;
+};
+
 const getAllDonations = async () => {
   const results = await prisma.donation.findMany();
   return results;
@@ -168,6 +231,8 @@ export const donationServices = {
   createDonation,
   createConnectedAccount,
   stripeWebhookController,
+  stripeBalance,
+  instantPayout,
   getAllDonations,
   getDonationById,
   updateDonation,

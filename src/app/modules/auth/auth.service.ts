@@ -252,6 +252,7 @@ const myProfile = async (userId: string) => {
           Event: true,
         },
       },
+      stripeAccountId: true,
     },
   });
   if (!user) {

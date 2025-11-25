@@ -2,6 +2,7 @@ import { LiveStreaming } from "@prisma/client";
 import ApiError from "../../../errors/ApiErrors";
 import { generateZegoToken } from "../../../helpers/zegoToken";
 import prisma from "../../../shared/prisma";
+import { stripe } from "../../../helpers/stripe";
 
 const generateToken = async (userId: string, roomId: string) => {
   console.log(userId);
