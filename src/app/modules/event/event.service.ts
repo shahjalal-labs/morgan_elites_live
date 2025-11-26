@@ -94,14 +94,15 @@ const getScheduleEvents = async (userId: string, query: any) => {
         where: { userId },
         select: { id: true },
       },
-      // stream: {
-      //   select: {
-      //     id: true,
-      //     hostLink: true,
-      //     coHostLink: true,
-      //     audienceLink: true,
-      //   },
-      // },
+      stream: {
+        select: {
+          id: true,
+          isLive: true,
+          hostLink: true,
+          coHostLink: true,
+          audienceLink: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -126,6 +127,7 @@ const getScheduleEvents = async (userId: string, query: any) => {
           isFollow: !!follow,
         },
         isLiked: event.EventLike.length > 0,
+        isOwner: event.userId === userId,
       };
     })
   );
@@ -171,14 +173,15 @@ const getFundingEvents = async (userId: string, query: any) => {
         where: { userId },
         select: { id: true },
       },
-      // stream: {
-      //   select: {
-      //     id: true,
-      //     hostLink: true,
-      //     coHostLink: true,
-      //     audienceLink: true,
-      //   },
-      // },
+      stream: {
+        select: {
+          id: true,
+          isLive: true,
+          hostLink: true,
+          coHostLink: true,
+          audienceLink: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -203,6 +206,7 @@ const getFundingEvents = async (userId: string, query: any) => {
           isFollow: !!follow,
         },
         isLiked: event.EventLike.length > 0,
+        isOwner: event.userId === userId,
       };
     })
   );
@@ -249,14 +253,15 @@ const getMyScheduleEvents = async (userId: string, query: any) => {
         where: { userId },
         select: { id: true },
       },
-      // stream: {
-      //   select: {
-      //     id: true,
-      //     hostLink: true,
-      //     coHostLink: true,
-      //     audienceLink: true,
-      //   },
-      // },
+      stream: {
+        select: {
+          id: true,
+          isLive: true,
+          hostLink: true,
+          coHostLink: true,
+          audienceLink: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -266,6 +271,7 @@ const getMyScheduleEvents = async (userId: string, query: any) => {
   const eventsWithLikeStatus = events.map((event) => ({
     ...event,
     isLiked: event.EventLike.length > 0,
+    isOwner: event.userId === userId,
   }));
 
   const totalCount = events.length;
@@ -310,14 +316,15 @@ const getMyFundingEvents = async (userId: string, query: any) => {
         where: { userId },
         select: { id: true },
       },
-      // stream: {
-      //   select: {
-      //     id: true,
-      //     hostLink: true,
-      //     coHostLink: true,
-      //     audienceLink: true,
-      //   },
-      // },
+      stream: {
+        select: {
+          id: true,
+          isLive: true,
+          hostLink: true,
+          coHostLink: true,
+          audienceLink: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -327,6 +334,7 @@ const getMyFundingEvents = async (userId: string, query: any) => {
   const eventsWithLikeStatus = events.map((event) => ({
     ...event,
     isLiked: event.EventLike.length > 0,
+    isOwner: event.userId === userId,
   }));
 
   const totalCount = events.length;
@@ -375,14 +383,15 @@ const scheduleEventsOfUser = async (
         where: { userId },
         select: { id: true },
       },
-      // stream: {
-      //   select: {
-      //     id: true,
-      //     hostLink: true,
-      //     coHostLink: true,
-      //     audienceLink: true,
-      //   },
-      // },
+      stream: {
+        select: {
+          id: true,
+          isLive: true,
+          hostLink: true,
+          coHostLink: true,
+          audienceLink: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -407,6 +416,7 @@ const scheduleEventsOfUser = async (
           isFollow: !!follow,
         },
         isLiked: event.EventLike.length > 0,
+        isOwner: event.userId === myId,
       };
     })
   );
@@ -457,14 +467,15 @@ const fundingEventsOfUser = async (
         where: { userId },
         select: { id: true },
       },
-      // stream: {
-      //   select: {
-      //     id: true,
-      //     hostLink: true,
-      //     coHostLink: true,
-      //     audienceLink: true,
-      //   },
-      // },
+      stream: {
+        select: {
+          id: true,
+          isLive: true,
+          hostLink: true,
+          coHostLink: true,
+          audienceLink: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -489,6 +500,7 @@ const fundingEventsOfUser = async (
           isFollow: !!follow,
         },
         isLiked: event.EventLike.length > 0,
+        isOwner: event.userId === myId,
       };
     })
   );
