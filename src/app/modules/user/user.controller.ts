@@ -27,7 +27,7 @@ const signupVerification = catchAsync(async (req, res) => {
 
 //get single user
 const getSingleUser = catchAsync(async (req: Request, res: Response) => {
-  const user = await userService.getSingleUser(req.params.id);
+  const user = await userService.getSingleUser(req.params.id, req.user.id);
   sendResponse(res, {
     success: true,
     statusCode: 200,

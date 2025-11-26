@@ -92,7 +92,7 @@ const signupVerification = async (payload: { email: string; otp: string }) => {
   return;
 };
 
-const getSingleUser = async (userId: string) => {
+const getSingleUser = async (userId: string, myId: string) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -118,6 +118,13 @@ const getSingleUser = async (userId: string) => {
     throw new ApiError(404, "user not found!");
   }
 
+  const follow = await prisma.follow.findFirst({
+    where: {
+      user1Id: myId,
+      user2Id: userId,
+    },
+  });
+
   const followingCount = await prisma.follow.count({
     where: {
       user1Id: userId,
@@ -132,6 +139,7 @@ const getSingleUser = async (userId: string) => {
 
   return {
     ...user,
+    isFollow: follow?.user2Id === userId ? true : false,
     followingCount,
     followersCount,
   };
