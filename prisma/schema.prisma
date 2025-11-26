@@ -55,6 +55,7 @@ model PendingUser {
 model Event {
   id           String         @id @default(auto()) @map("_id") @db.ObjectId
   userId       String         @db.ObjectId
+  streamId     String         @db.ObjectId
   eventType    EventType      @default(Schedule)
   title        String
   text         String
@@ -63,6 +64,7 @@ model Event {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stream       LiveStreaming  @relation(fields: [streamId], references: [id], onDelete: Cascade)
   EventLike    EventLike[]
   EventComment EventComment[]
   donations    Donation[]
@@ -142,13 +144,13 @@ model GroupMember {
 
 model GroupPost {
   id               String             @id @default(auto()) @map("_id") @db.ObjectId
-  groupId          String?            @db.ObjectId
-  userId           String?            @db.ObjectId
+  groupId          String             @db.ObjectId
+  userId           String             @db.ObjectId
   content          String
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
-  user             User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  group            Group?             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group            Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
   commentGroupPost CommentGroupPost[]
   likeGroupPost    LikeGroupPost[]
 
@@ -157,13 +159,13 @@ model GroupPost {
 
 model CommentGroupPost {
   id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
-  userId                String?                 @db.ObjectId
-  postId                String?                 @db.ObjectId
+  userId                String                  @db.ObjectId
+  postId                String                  @db.ObjectId
   comment               String
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
-  user                  User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  groupPost             GroupPost?              @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user                  User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupPost             GroupPost               @relation(fields: [postId], references: [id], onDelete: Cascade)
   replyCommentGroupPost ReplyCommentGroupPost[]
 
   @@map("group_post_comments")
@@ -217,6 +219,7 @@ model LiveStreaming {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events       Event[]
 
   @@map("live_streamings")
 }
@@ -261,6 +264,18 @@ model Donation {
   event           Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@map("donations")
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  title     String
+  body      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notifications")
 }
 
 enum PaymentMethod {

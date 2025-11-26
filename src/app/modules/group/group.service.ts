@@ -3,6 +3,7 @@ import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
 import { paginationHelper } from "../../../shared/pagination";
 import { uploadInSpace } from "../../../helpers/uploadInSpace";
+import { sendSingleNotification } from "../notification/notification.services";
 
 const createGroup = async (
   data: any,
@@ -347,13 +348,25 @@ const deletePost = async (postId: string, userId: string) => {
 };
 
 const commentPost = async (postId: string, userId: string, comment: string) => {
+  const userInfo = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const postInfo = await prisma.groupPost.findUnique({ where: { id: postId } });
+  if (!postInfo) throw new ApiError(404, "Group post not found");
+
   await prisma.commentGroupPost.create({
     data: {
-      userId,
-      postId,
+      userId: userInfo.id,
+      postId: postInfo.id,
       comment,
     },
   });
+
+  // await sendSingleNotification(
+  //   postInfo.userId,
+  //   "Group post comment",
+  //   `${userInfo.firstName} is commented your post`
+  // );
   return;
 };
 
@@ -362,6 +375,14 @@ const replyCommentPost = async (
   userId: string,
   replyComment: string
 ) => {
+  const userInfo = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const commentInfo = await prisma.commentGroupPost.findUnique({
+    where: { id: commentId },
+  });
+  if (!commentInfo) throw new ApiError(404, "Comment not found");
+
   await prisma.replyCommentGroupPost.create({
     data: {
       userId,
@@ -369,6 +390,12 @@ const replyCommentPost = async (
       replyComment,
     },
   });
+
+  // await sendSingleNotification(
+  //   commentInfo.userId,
+  //   "Reply your comment",
+  //   `${userInfo.firstName} is reply your comment`
+  // );
   return;
 };
 
@@ -469,6 +496,11 @@ const followUnfollow = async (user1Id: string, user2Id: string) => {
         user2Id,
       },
     });
+    // await sendSingleNotification(
+    //   user2Id,
+    //   `${user2Info.firstName} started following you`,
+    //   `${user2Info.firstName} is now following your profile`
+    // );
     return "Follow successfull";
   }
 };

@@ -36,5 +36,7 @@ router.patch(
   parseBodyData,
   authController.updateProfile
 );
+router.delete("/delete-account", auth(), authController.deleteAccount);
+router.post("/logged-out", auth(), authController.logoutAccount);
 
 export const authRoute = router;

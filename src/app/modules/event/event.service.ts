@@ -3,8 +3,15 @@ import prisma from "../../../shared/prisma";
 import { paginationHelper } from "../../../shared/pagination";
 import ApiError from "../../../errors/ApiErrors";
 import { stripe } from "../../../helpers/stripe";
+import { sendSingleNotification } from "../notification/notification.services";
 
-const createEvent = async (data: Event, userId: string) => {
+const createEvent = async (
+  data: Event,
+  userId: string,
+  hostLink: string,
+  coHostLink: string,
+  audienceLink: string
+) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -30,12 +37,29 @@ const createEvent = async (data: Event, userId: string) => {
     }
   }
 
-  await prisma.event.create({
-    data: {
-      ...data,
-      userId,
-    },
+  await prisma.$transaction(async (tx) => {
+    const streaming = await tx.liveStreaming.create({
+      data: {
+        userId,
+        hostLink: hostLink,
+        coHostLink: coHostLink,
+        audienceLink: audienceLink,
+        isLive: false,
+      },
+    });
+    await tx.event.create({
+      data: {
+        eventType: data.eventType,
+        title: data.title,
+        text: data.text,
+        scheduleDate: data.scheduleDate,
+        payAmount: data.eventType === "Funding" ? data.payAmount : 0,
+        userId,
+        streamId: streaming.id,
+      },
+    });
   });
+
   return;
 };
 
@@ -70,6 +94,14 @@ const getScheduleEvents = async (userId: string, query: any) => {
         where: { userId },
         select: { id: true },
       },
+      // stream: {
+      //   select: {
+      //     id: true,
+      //     hostLink: true,
+      //     coHostLink: true,
+      //     audienceLink: true,
+      //   },
+      // },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -139,6 +171,14 @@ const getFundingEvents = async (userId: string, query: any) => {
         where: { userId },
         select: { id: true },
       },
+      // stream: {
+      //   select: {
+      //     id: true,
+      //     hostLink: true,
+      //     coHostLink: true,
+      //     audienceLink: true,
+      //   },
+      // },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -209,6 +249,14 @@ const getMyScheduleEvents = async (userId: string, query: any) => {
         where: { userId },
         select: { id: true },
       },
+      // stream: {
+      //   select: {
+      //     id: true,
+      //     hostLink: true,
+      //     coHostLink: true,
+      //     audienceLink: true,
+      //   },
+      // },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -262,6 +310,14 @@ const getMyFundingEvents = async (userId: string, query: any) => {
         where: { userId },
         select: { id: true },
       },
+      // stream: {
+      //   select: {
+      //     id: true,
+      //     hostLink: true,
+      //     coHostLink: true,
+      //     audienceLink: true,
+      //   },
+      // },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -280,6 +336,170 @@ const getMyFundingEvents = async (userId: string, query: any) => {
     totalPages,
     currentPage: page,
     events: eventsWithLikeStatus,
+  };
+};
+
+const scheduleEventsOfUser = async (
+  userId: string,
+  query: any,
+  myId: string
+) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const { page, limit, skip } = paginationHelper(query);
+  const events = await prisma.event.findMany({
+    where: {
+      eventType: "Schedule",
+      userId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+      _count: {
+        select: {
+          EventLike: true,
+          EventComment: true,
+        },
+      },
+      EventLike: {
+        where: { userId },
+        select: { id: true },
+      },
+      // stream: {
+      //   select: {
+      //     id: true,
+      //     hostLink: true,
+      //     coHostLink: true,
+      //     audienceLink: true,
+      //   },
+      // },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip,
+  });
+
+  const eventsWithRelations = await Promise.all(
+    events.map(async (event) => {
+      const follow = await prisma.follow.findUnique({
+        where: {
+          user1Id_user2Id: {
+            user1Id: myId,
+            user2Id: userId,
+          },
+        },
+      });
+
+      return {
+        ...event,
+        user: {
+          ...event.user,
+          isFollow: !!follow,
+        },
+        isLiked: event.EventLike.length > 0,
+      };
+    })
+  );
+
+  const totalCount = events.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  return {
+    totalCount,
+    totalPages,
+    currentPage: page,
+    events: eventsWithRelations,
+  };
+};
+
+const fundingEventsOfUser = async (
+  userId: string,
+  query: any,
+  myId: string
+) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const { page, limit, skip } = paginationHelper(query);
+  const events = await prisma.event.findMany({
+    where: {
+      eventType: "Funding",
+      userId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+      _count: {
+        select: {
+          EventLike: true,
+          EventComment: true,
+        },
+      },
+      EventLike: {
+        where: { userId },
+        select: { id: true },
+      },
+      // stream: {
+      //   select: {
+      //     id: true,
+      //     hostLink: true,
+      //     coHostLink: true,
+      //     audienceLink: true,
+      //   },
+      // },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip,
+  });
+
+  const eventsWithRelations = await Promise.all(
+    events.map(async (event) => {
+      const follow = await prisma.follow.findUnique({
+        where: {
+          user1Id_user2Id: {
+            user1Id: myId,
+            user2Id: userId,
+          },
+        },
+      });
+
+      return {
+        ...event,
+        user: {
+          ...event.user,
+          isFollow: !!follow,
+        },
+        isLiked: event.EventLike.length > 0,
+      };
+    })
+  );
+
+  const totalCount = events.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  return {
+    totalCount,
+    totalPages,
+    currentPage: page,
+    events: eventsWithRelations,
   };
 };
 
@@ -351,6 +571,12 @@ const eventComment = async (
       comment,
     },
   });
+
+  // await sendSingleNotification(
+  //   eventInfo.userId,
+  //   "New Event Comment",
+  //   `${userInfo.firstName} left a comment on your event "${eventInfo.title}". Check it out!`
+  // );
   return;
 };
 
@@ -376,6 +602,12 @@ const replyComment = async (
       replyComment,
     },
   });
+
+  // await sendSingleNotification(
+  //   commentInfo.userId,
+  //   "New Reply to Your Comment",
+  //   `${userInfo.firstName} just replied to your comment: "${commentInfo.comment}". Check it out!`
+  // );
   return;
 };
 
@@ -431,6 +663,8 @@ export const eventServices = {
   getFundingEvents,
   getMyScheduleEvents,
   getMyFundingEvents,
+  scheduleEventsOfUser,
+  fundingEventsOfUser,
   getEventById,
   updateEvent,
   deleteEvent,

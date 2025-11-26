@@ -3,7 +3,14 @@ import sendResponse from "../../../shared/sendResponse";
 import catchAsync from "../../../shared/catchAsync";
 
 const createEvent = catchAsync(async (req, res) => {
-  await eventServices.createEvent(req.body, req.user.id);
+  const { hostLink, coHostLink, audienceLink } = req.body;
+  await eventServices.createEvent(
+    req.body,
+    req.user.id,
+    hostLink,
+    coHostLink,
+    audienceLink
+  );
   sendResponse(res, {
     success: true,
     statusCode: 201,
@@ -50,6 +57,34 @@ const getMyFundingEvents = catchAsync(async (req, res) => {
     success: true,
     statusCode: 200,
     message: "My All funding events has been retrived successfully",
+    data: result,
+  });
+});
+
+const scheduleEventsOfUser = catchAsync(async (req, res) => {
+  const result = await eventServices.scheduleEventsOfUser(
+    req.params.id,
+    req.query,
+    req.user.id
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "User's schedule events has been retrived successfully",
+    data: result,
+  });
+});
+
+const fundingEventsOfUser = catchAsync(async (req, res) => {
+  const result = await eventServices.fundingEventsOfUser(
+    req.params.id,
+    req.query,
+    req.user.id
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "User's funding events has been retrived successfully",
     data: result,
   });
 });
@@ -139,6 +174,8 @@ export const eventControllers = {
   getFundingEvents,
   getMyScheduleEvents,
   getMyFundingEvents,
+  scheduleEventsOfUser,
+  fundingEventsOfUser,
   getEventById,
   updateEvent,
   deleteEvent,

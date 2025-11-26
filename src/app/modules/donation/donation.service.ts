@@ -3,6 +3,7 @@ import prisma from "../../../shared/prisma";
 import { stripe } from "../../../helpers/stripe";
 import Stripe from "stripe";
 import ApiError from "../../../errors/ApiErrors";
+import { sendSingleNotification } from "../notification/notification.services";
 
 const createDonation = async (
   data: Donation,
@@ -93,14 +94,27 @@ const stripeWebhookController = async (event: Stripe.Event) => {
       console.log(session);
       // console.log(event.type);
 
-      await prisma.donation.update({
+      const donationInfo = await prisma.donation.update({
         where: {
           stripeSessionId: session.id,
+        },
+        include: {
+          event: {
+            select: {
+              title: true,
+            },
+          },
         },
         data: {
           status: "Completed",
         },
       });
+
+      // await sendSingleNotification(
+      //   donationInfo.userId,
+      //   "Donation Completed",
+      //   `Thank you! Your donation to "${donationInfo.event.title}" has been completed successfully.`
+      // );
 
       break;
     }
@@ -203,6 +217,12 @@ const instantPayout = async (userId: string, amount: number) => {
       stripeAccount: "acct_1RsFIE2XU2PLbtHE",
     }
   );
+
+  // await sendSingleNotification(
+  //   userId,
+  //   "Instant Payout Successful",
+  //   `Your payout of $${amount} has been successfully deposited into your account.`
+  // );
 
   return payout;
 };

@@ -112,6 +112,26 @@ const updateProfile = catchAsync(async (req, res) => {
   });
 });
 
+const deleteAccount = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  await authService.deleteAccount(userId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Account deleted successfully.",
+  });
+});
+
+const logoutAccount = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  await authService.logoutAccount(userId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Account logged out successfully.",
+  });
+});
+
 export const authController = {
   loginUser,
   googleLogin,
@@ -122,4 +142,6 @@ export const authController = {
   verifyForgotPasswordOtpCode,
   resetPassword,
   changePassword,
+  deleteAccount,
+  logoutAccount,
 };

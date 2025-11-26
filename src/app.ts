@@ -27,10 +27,6 @@ app.use(cors());
 app.post(
   "/api/v1/webhook",
   express.raw({ type: "application/json" }),
-  (req, res, next) => {
-    console.log("Hit the Credit Purchase webhook");
-    next();
-  },
   stripeWebhookController
 );
 

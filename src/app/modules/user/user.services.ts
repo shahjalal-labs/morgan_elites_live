@@ -5,6 +5,7 @@ import prisma from "../../../shared/prisma";
 import generateOTP from "../../../helpers/generateOtp";
 import redisClient from "../../../helpers/redis";
 import { emailQueue } from "../../../queues/emailQueue";
+import { sendSingleNotification } from "../notification/notification.services";
 
 //create new user
 const createUser = async (payload: User) => {
@@ -64,7 +65,7 @@ const signupVerification = async (payload: { email: string; otp: string }) => {
   }
   const pendingUser = JSON.parse(pendingUserStr);
 
-  await prisma.$transaction(async (tx) => {
+  const createdUser = await prisma.$transaction(async (tx) => {
     const createdUser = await tx.user.create({
       data: {
         email: pendingUser.email,
@@ -82,18 +83,58 @@ const signupVerification = async (payload: { email: string; otp: string }) => {
     redisClient.del(`pendingUser:${email}`),
   ]);
 
+  // await sendSingleNotification(
+  //   createdUser.id,
+  //   "Account Verified",
+  //   "Welcome! Your account has been successfully verified."
+  // );
+
   return;
 };
 
-//get single user
-const getSingleUser = async (id: string) => {
-  const user = await prisma.user.findUnique({ where: { id } });
+const getSingleUser = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      profileImage: true,
+      email: true,
+      profession: true,
+      address: true,
+      gender: true,
+      dob: true,
+      bio: true,
+      _count: {
+        select: {
+          Event: true,
+        },
+      },
+      stripeAccountId: true,
+    },
+  });
   if (!user) {
     throw new ApiError(404, "user not found!");
   }
 
-  const { password, ...sanitizedUser } = user;
-  return sanitizedUser;
+  const followingCount = await prisma.follow.count({
+    where: {
+      user1Id: userId,
+    },
+  });
+
+  const followersCount = await prisma.follow.count({
+    where: {
+      user2Id: userId,
+    },
+  });
+
+  return {
+    ...user,
+    followingCount,
+    followersCount,
+  };
 };
 
 export const userService = {

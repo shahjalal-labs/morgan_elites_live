@@ -8,6 +8,7 @@ import generateOTP from "../../../helpers/generateOtp";
 import sendEmail from "../../../helpers/sendEmail";
 import redisClient from "../../../helpers/redis";
 import { uploadInSpace } from "../../../helpers/uploadInSpace";
+import { sendSingleNotification } from "../notification/notification.services";
 
 //login user
 const loginUserIntoDB = async (payload: {
@@ -334,6 +335,37 @@ const changePassword = async (
       password: hashedPassword,
     },
   });
+
+  // await sendSingleNotification(
+  //   userId,
+  //   "Password Updated",
+  //   "Your password was changed successfully. If this wasn’t you, please secure your account immediately."
+  // );
+  return;
+};
+
+const deleteAccount = async (userId: string) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found for delete");
+
+  await prisma.user.delete({ where: { id: userId } });
+  return;
+};
+
+const logoutAccount = async (userId: string) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found for log out");
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      fcmToken: null,
+    },
+  });
   return;
 };
 
@@ -347,4 +379,6 @@ export const authService = {
   verifyForgotPasswordOtpCodeDB,
   resetForgotPasswordDB,
   changePassword,
+  deleteAccount,
+  logoutAccount,
 };
