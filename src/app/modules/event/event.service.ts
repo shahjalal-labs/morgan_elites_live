@@ -64,7 +64,7 @@ const getScheduleEvents = async (userId: string, query: any) => {
   });
   if (!userInfo) throw new ApiError(404, "User not found");
 
-  const { page, limit, skip } = paginationHelper(query);
+  const { page, limit = 10, skip } = paginationHelper(query);
   const events = await prisma.event.findMany({
     where: {
       eventType: "Schedule",

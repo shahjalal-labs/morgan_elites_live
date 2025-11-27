@@ -62,6 +62,7 @@ model Event {
   text         String
   scheduleDate DateTime?
   payAmount    Float          @default(0)
+  recordedLink String?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -265,7 +266,6 @@ model Donation {
   updatedAt       DateTime      @updatedAt
   event           Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, eventId])
   @@map("donations")
 }
 
