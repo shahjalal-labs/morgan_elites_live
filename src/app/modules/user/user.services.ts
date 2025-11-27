@@ -83,11 +83,11 @@ const signupVerification = async (payload: { email: string; otp: string }) => {
     redisClient.del(`pendingUser:${email}`),
   ]);
 
-  // await sendSingleNotification(
-  //   createdUser.id,
-  //   "Account Verified",
-  //   "Welcome! Your account has been successfully verified."
-  // );
+  await sendSingleNotification(
+    createdUser.id,
+    "Account Verified",
+    "Welcome! Your account has been successfully verified."
+  );
 
   return;
 };

@@ -362,11 +362,12 @@ const commentPost = async (postId: string, userId: string, comment: string) => {
     },
   });
 
-  // await sendSingleNotification(
-  //   postInfo.userId,
-  //   "Group post comment",
-  //   `${userInfo.firstName} is commented your post`
-  // );
+  await sendSingleNotification(
+    postInfo.userId,
+    "Group post comment",
+    `${userInfo.firstName} is commented your post`,
+    userId
+  );
   return;
 };
 
@@ -391,11 +392,12 @@ const replyCommentPost = async (
     },
   });
 
-  // await sendSingleNotification(
-  //   commentInfo.userId,
-  //   "Reply your comment",
-  //   `${userInfo.firstName} is reply your comment`
-  // );
+  await sendSingleNotification(
+    commentInfo.userId,
+    "Reply your comment",
+    `${userInfo.firstName} is reply your comment`,
+    userId
+  );
   return;
 };
 
@@ -496,11 +498,12 @@ const followUnfollow = async (user1Id: string, user2Id: string) => {
         user2Id,
       },
     });
-    // await sendSingleNotification(
-    //   user2Id,
-    //   `${user2Info.firstName} started following you`,
-    //   `${user2Info.firstName} is now following your profile`
-    // );
+    await sendSingleNotification(
+      user2Id,
+      `${user2Info.firstName} started following you`,
+      `${user2Info.firstName} is now following your profile`,
+      user1Id
+    );
     return "Follow successfull";
   }
 };

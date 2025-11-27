@@ -6,7 +6,8 @@ import prisma from "../../../shared/prisma";
 export const sendSingleNotification = async (
   userId: string,
   title: string,
-  body: string
+  body: string,
+  senderId?: string
 ) => {
   const userInfo = await prisma.user.findUnique({ where: { id: userId } });
   if (!userInfo) return;
@@ -14,6 +15,7 @@ export const sendSingleNotification = async (
     await prisma.notification.create({
       data: {
         userId,
+        senderId,
         title,
         body,
       },
@@ -32,19 +34,34 @@ export const sendSingleNotification = async (
   await prisma.notification.create({
     data: {
       userId,
+      senderId,
       title,
       body,
     },
   });
 
-  const response = await admin.messaging().send(message);
-  return response;
+  try {
+    const response = await admin.messaging().send(message);
+    return response;
+  } catch (error) {
+    console.log(error);
+    return;
+  }
 };
 
 const getNotifications = async (userId: string) => {
   const notifications = await prisma.notification.findMany({
     where: {
       userId,
+    },
+    include: {
+      sender: {
+        select: {
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   });

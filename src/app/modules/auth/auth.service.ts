@@ -230,6 +230,13 @@ const resetForgotPasswordDB = async (newPassword: string, userId: string) => {
       password: hashedPassword,
     },
   });
+
+  await sendSingleNotification(
+    userId,
+    "Password Reset",
+    "Your password was reset successfully. If this wasn’t you, please secure your account immediately."
+  );
+
   return;
 };
 
@@ -336,11 +343,11 @@ const changePassword = async (
     },
   });
 
-  // await sendSingleNotification(
-  //   userId,
-  //   "Password Updated",
-  //   "Your password was changed successfully. If this wasn’t you, please secure your account immediately."
-  // );
+  await sendSingleNotification(
+    userId,
+    "Password Updated",
+    "Your password was changed successfully. If this wasn’t you, please secure your account immediately."
+  );
   return;
 };
 

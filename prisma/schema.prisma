@@ -39,6 +39,7 @@ model User {
   liveStreamings        LiveStreaming[]
   follows               Follow[]
   submitVotes           SubmitVote[]
+  notifications         Notification[]
 
   @@map("users")
 }
@@ -255,6 +256,7 @@ model Donation {
   id              String        @id @default(auto()) @map("_id") @db.ObjectId
   userId          String        @db.ObjectId
   eventId         String        @db.ObjectId
+  paymentFor      PaymentFor    @default(Funding)
   status          DonatinStatus @default(Pending)
   stripeSessionId String        @unique
   amount          Float         @default(0)
@@ -263,19 +265,27 @@ model Donation {
   updatedAt       DateTime      @updatedAt
   event           Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, eventId])
   @@map("donations")
 }
 
 model Notification {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @db.ObjectId
+  senderId  String?  @db.ObjectId
   title     String
   body      String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  sender    User?    @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+enum PaymentFor {
+  Funding
+  Event
 }
 
 enum PaymentMethod {

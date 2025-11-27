@@ -16,25 +16,20 @@ const createEvent = async (
     where: { id: userId },
   });
   if (!userInfo) throw new ApiError(404, "User not found");
-
-  if (data.eventType === "Funding") {
-    if (!userInfo.stripeAccountId)
-      throw new ApiError(400, "You does not have a connected Stripe account");
-
-    const account = await stripe.accounts.retrieve(
-      // eventInfo.user.stripeAccountId
-      "acct_1RsFIE2XU2PLbtHE"
+  if (!userInfo.stripeAccountId)
+    throw new ApiError(400, "You does not have a connected Stripe account");
+  const account = await stripe.accounts.retrieve(
+    // eventInfo.user.stripeAccountId
+    "acct_1RsFIE2XU2PLbtHE"
+  );
+  if (
+    account.capabilities?.transfers !== "active" ||
+    account.capabilities?.card_payments !== "active"
+  ) {
+    throw new ApiError(
+      400,
+      "Connected account onboarding incomplete. Need to finish onboarding."
     );
-
-    if (
-      account.capabilities?.transfers !== "active" ||
-      account.capabilities?.card_payments !== "active"
-    ) {
-      throw new ApiError(
-        400,
-        "Connected account onboarding incomplete. Need to finish onboarding."
-      );
-    }
   }
 
   await prisma.$transaction(async (tx) => {
@@ -53,7 +48,7 @@ const createEvent = async (
         title: data.title,
         text: data.text,
         scheduleDate: data.scheduleDate,
-        payAmount: data.eventType === "Funding" ? data.payAmount : 0,
+        payAmount: data.eventType === "Schedule" ? data.payAmount : 0,
         userId,
         streamId: streaming.id,
       },
@@ -120,6 +115,15 @@ const getScheduleEvents = async (userId: string, query: any) => {
         },
       });
 
+      const paymentInfo = await prisma.donation.findFirst({
+        where: {
+          userId,
+          eventId: event.id,
+          paymentFor: "Event",
+          status: "Completed",
+        },
+      });
+
       return {
         ...event,
         user: {
@@ -128,6 +132,7 @@ const getScheduleEvents = async (userId: string, query: any) => {
         },
         isLiked: event.EventLike.length > 0,
         isOwner: event.userId === userId,
+        isPayment: paymentInfo?.userId === userId ? true : false,
       };
     })
   );
@@ -409,6 +414,15 @@ const scheduleEventsOfUser = async (
         },
       });
 
+      const paymentInfo = await prisma.donation.findFirst({
+        where: {
+          userId: myId,
+          eventId: event.id,
+          paymentFor: "Event",
+          status: "Completed",
+        },
+      });
+
       return {
         ...event,
         user: {
@@ -417,6 +431,7 @@ const scheduleEventsOfUser = async (
         },
         isLiked: event.EventLike.length > 0,
         isOwner: event.userId === myId,
+        isPayment: paymentInfo?.userId === myId ? true : false,
       };
     })
   );
@@ -584,11 +599,12 @@ const eventComment = async (
     },
   });
 
-  // await sendSingleNotification(
-  //   eventInfo.userId,
-  //   "New Event Comment",
-  //   `${userInfo.firstName} left a comment on your event "${eventInfo.title}". Check it out!`
-  // );
+  await sendSingleNotification(
+    eventInfo.userId,
+    "New Event Comment",
+    `${userInfo.firstName} left a comment on your event "${eventInfo.title}". Check it out!`,
+    userId
+  );
   return;
 };
 
@@ -615,11 +631,12 @@ const replyComment = async (
     },
   });
 
-  // await sendSingleNotification(
-  //   commentInfo.userId,
-  //   "New Reply to Your Comment",
-  //   `${userInfo.firstName} just replied to your comment: "${commentInfo.comment}". Check it out!`
-  // );
+  await sendSingleNotification(
+    commentInfo.userId,
+    "New Reply to Your Comment",
+    `${userInfo.firstName} just replied to your comment: "${commentInfo.comment}". Check it out!`,
+    userId
+  );
   return;
 };
 

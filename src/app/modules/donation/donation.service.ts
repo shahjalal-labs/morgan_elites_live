@@ -14,6 +14,7 @@ const createDonation = async (
     where: { id: eventId },
     select: {
       id: true,
+      eventType: true,
       user: {
         select: {
           stripeAccountId: true,
@@ -22,19 +23,16 @@ const createDonation = async (
     },
   });
   if (!eventInfo) throw new ApiError(404, "Event not found");
-
   if (!eventInfo.user.stripeAccountId)
     throw new ApiError(
       400,
       "This user does not have a connected Stripe account"
     );
-
   // Check capabilities
   const account = await stripe.accounts.retrieve(
     // eventInfo.user.stripeAccountId
     "acct_1RsFIE2XU2PLbtHE"
   );
-
   if (
     account.capabilities?.transfers !== "active" ||
     account.capabilities?.card_payments !== "active"
@@ -69,8 +67,9 @@ const createDonation = async (
       },
     },
 
-    success_url: `${process.env.APP_URL}/donation/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.APP_URL}/donation/cancel`,
+    // success_url: `${process.env.APP_URL}/donation/success?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `https://payment.com/donation/success`,
+    cancel_url: `https://payment.com/donation/cancel`,
   });
 
   await prisma.donation.create({
@@ -79,6 +78,7 @@ const createDonation = async (
       userId,
       eventId,
       status: "Pending",
+      paymentFor: eventInfo.eventType === "Funding" ? "Funding" : "Event",
       stripeSessionId: session.id,
     },
   });
@@ -110,11 +110,11 @@ const stripeWebhookController = async (event: Stripe.Event) => {
         },
       });
 
-      // await sendSingleNotification(
-      //   donationInfo.userId,
-      //   "Donation Completed",
-      //   `Thank you! Your donation to "${donationInfo.event.title}" has been completed successfully.`
-      // );
+      await sendSingleNotification(
+        donationInfo.userId,
+        "Donation Completed",
+        `Thank you! Your donation to "${donationInfo.event.title}" has been completed successfully.`
+      );
 
       break;
     }
@@ -185,6 +185,7 @@ const stripeBalance = async (userId: string) => {
           text: true,
         },
       },
+      paymentFor: true,
     },
   });
 
@@ -218,11 +219,11 @@ const instantPayout = async (userId: string, amount: number) => {
     }
   );
 
-  // await sendSingleNotification(
-  //   userId,
-  //   "Instant Payout Successful",
-  //   `Your payout of $${amount} has been successfully deposited into your account.`
-  // );
+  await sendSingleNotification(
+    userId,
+    "Instant Payout Successful",
+    `Your payout of $${amount} has been successfully deposited into your account.`
+  );
 
   return payout;
 };
