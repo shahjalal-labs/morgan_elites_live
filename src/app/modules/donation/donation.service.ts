@@ -110,11 +110,19 @@ const stripeWebhookController = async (event: Stripe.Event) => {
         },
       });
 
-      await sendSingleNotification(
-        donationInfo.userId,
-        "Donation Completed",
-        `Thank you! Your donation to "${donationInfo.event.title}" has been completed successfully.`
-      );
+      if (donationInfo.paymentFor === "Funding") {
+        await sendSingleNotification(
+          donationInfo.userId,
+          "Donation Completed",
+          `Thank you! Your donation to "${donationInfo.event.title}" has been completed successfully.`
+        );
+      } else {
+        await sendSingleNotification(
+          donationInfo.userId,
+          "Join access in event",
+          `Thank you! Your payment to "${donationInfo.event.title}" has been completed successfully.`
+        );
+      }
 
       break;
     }
