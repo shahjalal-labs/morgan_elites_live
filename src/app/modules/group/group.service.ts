@@ -1,4 +1,3 @@
-import { Group } from "@prisma/client";
 import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
 import { paginationHelper } from "../../../shared/pagination";

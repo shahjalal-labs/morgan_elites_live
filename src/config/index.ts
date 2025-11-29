@@ -25,4 +25,8 @@ export default {
     secret_key: process.env.STRIPE_SK,
     webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
   },
+  zego: {
+    app_id: process.env.ZEGO_APP_ID,
+    server_secret: process.env.ZEGO_SERVER_SECRET,
+  },
 };

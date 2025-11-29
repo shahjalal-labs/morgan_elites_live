@@ -110,6 +110,10 @@ const stripeWebhookController = async (event: Stripe.Event) => {
         },
       });
 
+      if (!donationInfo) {
+        throw new ApiError(404, "Donation not found for this session");
+      }
+
       if (donationInfo.paymentFor === "Funding") {
         await sendSingleNotification(
           donationInfo.userId,
