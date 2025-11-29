@@ -8,6 +8,7 @@ export function verifyWebSocketToken(
   // No token provided
   if (!token) {
     sendWsError(ws, "You are not authenticated");
+    ws.close();
     return null;
   }
 
