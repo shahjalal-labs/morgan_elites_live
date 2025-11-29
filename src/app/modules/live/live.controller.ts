@@ -40,7 +40,11 @@ const getStreamInfo = catchAsync(async (req, res) => {
 });
 
 const closeLiveStreaming = catchAsync(async (req, res) => {
-  await liveServices.closeLiveStreaming(req.params.streamId, req.user.id);
+  await liveServices.closeLiveStreaming(
+    req.params.streamId,
+    req.user.id,
+    req.body.isHost
+  );
   sendResponse(res, {
     statusCode: 201,
     success: true,

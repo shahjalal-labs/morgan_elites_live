@@ -44,11 +44,15 @@ const getStreamInfo = async (streamId: string, userId: string) => {
   return streamInfo;
 };
 
-const closeLiveStreaming = async (streamId: string, userId: string) => {
+const closeLiveStreaming = async (
+  streamId: string,
+  userId: string,
+  isHost: boolean
+) => {
   const streamInfo = await prisma.liveStreaming.findUnique({
     where: { id: streamId, userId },
   });
-  if (!streamInfo)
+  if (!streamInfo || isHost === false)
     // throw new ApiError(404, "This streaming closed by only the Host");
     return;
   if (!streamInfo.isLive)
