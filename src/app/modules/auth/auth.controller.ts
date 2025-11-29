@@ -134,7 +134,7 @@ const logoutAccount = catchAsync(async (req, res) => {
 
 const userList = catchAsync(async (req, res) => {
   const userId = req.user.id;
-  const data = await authService.userList(userId);
+  const data = await authService.userList(userId, req.query);
   sendResponse(res, {
     statusCode: 200,
     success: true,

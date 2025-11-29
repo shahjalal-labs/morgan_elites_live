@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import ApiError from "../../../errors/ApiErrors";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import config from "../../../config";
-import { User } from "@prisma/client";
+import { User, Prisma } from "@prisma/client";
 import generateOTP from "../../../helpers/generateOtp";
 import sendEmail from "../../../helpers/sendEmail";
 import redisClient from "../../../helpers/redis";
@@ -376,26 +376,36 @@ const logoutAccount = async (userId: string) => {
   return;
 };
 
-const userList = async (userId: string) => {
+const userList = async (userId: string, query?: { search?: string }) => {
+  const { search } = query || {};
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
   });
   if (!userInfo) throw new ApiError(404, "User not found");
 
   const followingEntries = await prisma.follow.findMany({
-    where: {
-      user1Id: userId,
-    },
-    select: {
-      user2Id: true,
-    },
+    where: { user1Id: userId },
+    select: { user2Id: true },
   });
+  const excludedIds = followingEntries.map((f) => f.user2Id).concat(userId);
+
+  let searchFilter: Prisma.UserWhereInput = {};
+  if (search) {
+    const words = search.split(" ").filter(Boolean); // split by spaces
+    searchFilter = {
+      AND: words.map((word) => ({
+        OR: [
+          { firstName: { contains: word, mode: "insensitive" } },
+          { lastName: { contains: word, mode: "insensitive" } },
+        ],
+      })),
+    };
+  }
 
   const users = await prisma.user.findMany({
     where: {
-      id: {
-        notIn: followingEntries.map((follow) => follow.user2Id),
-      },
+      id: { notIn: excludedIds },
+      ...searchFilter,
     },
     select: {
       id: true,
@@ -406,22 +416,16 @@ const userList = async (userId: string) => {
     },
   });
 
-  const usersRelation = await Promise.all(
+  const usersWithFollowers = await Promise.all(
     users.map(async (user) => {
       const totalFollowers = await prisma.follow.count({
-        where: {
-          user2Id: user.id,
-        },
+        where: { user2Id: user.id },
       });
-
-      return {
-        ...user,
-        totalFollowers,
-      };
+      return { ...user, totalFollowers };
     })
   );
 
-  return usersRelation;
+  return usersWithFollowers;
 };
 
 export const authService = {
