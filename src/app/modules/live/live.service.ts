@@ -47,15 +47,15 @@ const getStreamInfo = async (streamId: string, userId: string) => {
 const closeLiveStreaming = async (
   streamId: string,
   userId: string,
-  isHost: boolean
+  isHost: boolean = false
 ) => {
   const streamInfo = await prisma.liveStreaming.findUnique({
     where: { id: streamId, userId },
   });
-  if (!streamInfo || isHost === false)
+  if (!streamInfo && isHost === false)
     // throw new ApiError(404, "This streaming closed by only the Host");
     return;
-  if (!streamInfo.isLive)
+  if (streamInfo?.isLive === false)
     throw new ApiError(400, "This streaming already ended");
 
   await prisma.liveStreaming.update({
