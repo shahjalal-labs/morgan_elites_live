@@ -38,5 +38,6 @@ router.patch(
 );
 router.delete("/delete-account", auth(), authController.deleteAccount);
 router.post("/logged-out", auth(), authController.logoutAccount);
+router.get("/user-list", auth(), authController.userList);
 
 export const authRoute = router;

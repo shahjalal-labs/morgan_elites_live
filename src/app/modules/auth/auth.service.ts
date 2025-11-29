@@ -376,6 +376,54 @@ const logoutAccount = async (userId: string) => {
   return;
 };
 
+const userList = async (userId: string) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const followingEntries = await prisma.follow.findMany({
+    where: {
+      user1Id: userId,
+    },
+    select: {
+      user2Id: true,
+    },
+  });
+
+  const users = await prisma.user.findMany({
+    where: {
+      id: {
+        notIn: followingEntries.map((follow) => follow.user2Id),
+      },
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      profileImage: true,
+      profession: true,
+    },
+  });
+
+  const usersRelation = await Promise.all(
+    users.map(async (user) => {
+      const totalFollowers = await prisma.follow.count({
+        where: {
+          user2Id: user.id,
+        },
+      });
+
+      return {
+        ...user,
+        totalFollowers,
+      };
+    })
+  );
+
+  return usersRelation;
+};
+
 export const authService = {
   loginUserIntoDB,
   googleLogin,
@@ -388,4 +436,5 @@ export const authService = {
   changePassword,
   deleteAccount,
   logoutAccount,
+  userList,
 };

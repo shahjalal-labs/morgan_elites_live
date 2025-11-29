@@ -132,6 +132,17 @@ const logoutAccount = catchAsync(async (req, res) => {
   });
 });
 
+const userList = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const data = await authService.userList(userId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User list retrived successfully.",
+    data,
+  });
+});
+
 export const authController = {
   loginUser,
   googleLogin,
@@ -144,4 +155,5 @@ export const authController = {
   changePassword,
   deleteAccount,
   logoutAccount,
+  userList,
 };
