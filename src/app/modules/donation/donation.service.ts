@@ -9,6 +9,9 @@ const createDonation = async (
   userId: string,
   eventId: string
 ) => {
+  const senderInfo = await prisma.user.findUnique({ where: { id: userId } });
+  if (!senderInfo) throw new ApiError(404, "User not found");
+
   const eventInfo = await prisma.event.findUnique({
     where: { id: eventId },
     select: {
