@@ -1,4 +1,3 @@
-import { Donation } from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import { stripe } from "../../../helpers/stripe";
 import Stripe from "stripe";
@@ -6,7 +5,7 @@ import ApiError from "../../../errors/ApiErrors";
 import { sendSingleNotification } from "../notification/notification.services";
 
 const createDonation = async (
-  data: Donation,
+  amount: number,
   userId: string,
   eventId: string
 ) => {
@@ -54,11 +53,16 @@ const createDonation = async (
           product_data: {
             name: "Donation",
           },
-          unit_amount: data.amount * 100,
+          unit_amount: amount * 100,
         },
         quantity: 1,
       },
     ],
+    metadata: {
+      userId,
+      eventId,
+      paymentFor: eventInfo.eventType === "Funding" ? "Funding" : "Event",
+    },
 
     payment_intent_data: {
       transfer_data: {
@@ -67,36 +71,33 @@ const createDonation = async (
       },
     },
 
-    // success_url: `${process.env.APP_URL}/donation/success?session_id={CHECKOUT_SESSION_ID}`,
-    success_url: `https://payment.com/donation/success`,
-    cancel_url: `https://payment.com/donation/cancel`,
+    success_url: `https://morgan.smtsigma.com/payment-success`,
+    cancel_url: `https://morgan.smtsigma.com/payment-cancel`,
   });
 
-  await prisma.donation.create({
-    data: {
-      ...data,
-      userId,
-      eventId,
-      status: "Pending",
-      paymentFor: eventInfo.eventType === "Funding" ? "Funding" : "Event",
-      stripeSessionId: session.id,
-    },
-  });
   return {
     checkoutUrl: session.url,
   };
 };
 
-const stripeWebhookController = async (event: Stripe.Event) => {
+const stripeWebhookService = async (event: Stripe.Event) => {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
       console.log(session);
-      // console.log(event.type);
+      const userId = session.metadata?.userId!;
+      const eventId = session.metadata?.eventId!;
+      const amount = session.amount_total! / 100;
+      const paymentFor = session.metadata?.paymentFor!;
 
-      const donationInfo = await prisma.donation.update({
-        where: {
-          stripeSessionId: session.id,
+      const donationInfo = await prisma.donation.create({
+        data: {
+          userId,
+          eventId,
+          amount: amount,
+          status: "Completed",
+          paymentFor: paymentFor === "Funding" ? "Funding" : "Event",
+          method: "Card",
         },
         include: {
           event: {
@@ -105,16 +106,13 @@ const stripeWebhookController = async (event: Stripe.Event) => {
             },
           },
         },
-        data: {
-          status: "Completed",
-        },
       });
 
       if (!donationInfo) {
         throw new ApiError(404, "Donation not found for this session");
       }
 
-      if (donationInfo.paymentFor === "Funding") {
+      if (paymentFor === "Funding") {
         await sendSingleNotification(
           donationInfo.userId,
           "Donation Completed",
@@ -263,7 +261,7 @@ const deleteDonation = async (id: string) => {
 export const donationServices = {
   createDonation,
   createConnectedAccount,
-  stripeWebhookController,
+  stripeWebhookService,
   stripeBalance,
   instantPayout,
   getAllDonations,

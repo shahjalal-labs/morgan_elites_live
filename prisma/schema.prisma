@@ -256,17 +256,16 @@ model SubmitVote {
 }
 
 model Donation {
-  id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  userId          String        @db.ObjectId
-  eventId         String        @db.ObjectId
-  paymentFor      PaymentFor    @default(Funding)
-  status          DonatinStatus @default(Pending)
-  stripeSessionId String        @unique
-  amount          Float         @default(0)
-  method          PaymentMethod @default(Card)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  event           Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String        @db.ObjectId
+  eventId    String        @db.ObjectId
+  paymentFor PaymentFor    @default(Funding)
+  status     DonatinStatus @default(Pending)
+  amount     Float         @default(0)
+  method     PaymentMethod @default(Card)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  event      Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@map("donations")
 }

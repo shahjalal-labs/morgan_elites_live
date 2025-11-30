@@ -7,7 +7,7 @@ import config from "../../../config";
 
 const createDonation = catchAsync(async (req, res) => {
   const data = await donationServices.createDonation(
-    req.body,
+    req.body.amount,
     req.user.id,
     req.params.eventId
   );
@@ -77,7 +77,7 @@ export const stripeWebhookController = catchAsync(async (req, res) => {
     });
     return;
   }
-  await donationServices.stripeWebhookController(event);
+  await donationServices.stripeWebhookService(event);
   sendResponse(res, {
     success: true,
     statusCode: 200,
