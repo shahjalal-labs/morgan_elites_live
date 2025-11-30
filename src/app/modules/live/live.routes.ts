@@ -17,5 +17,6 @@ router.post(
   auth(),
   liveControllers.startRecording
 );
+router.post("/stop/recording/:streamId", auth(), liveControllers.stopRecording);
 
 export const liveRoutes = router;

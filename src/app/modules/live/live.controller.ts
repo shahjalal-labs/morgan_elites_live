@@ -65,10 +65,24 @@ const startRecording = catchAsync(async (req, res) => {
   });
 });
 
+const stopRecording = catchAsync(async (req, res) => {
+  const data = await liveServices.stopRecording(
+    req.params.streamId,
+    req.user.id
+  );
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Live streaming recording stopped successfully",
+    data,
+  });
+});
+
 export const liveControllers = {
   generateToken,
   createLiveStreaming,
   getStreamInfo,
   closeLiveStreaming,
   startRecording,
+  stopRecording,
 };

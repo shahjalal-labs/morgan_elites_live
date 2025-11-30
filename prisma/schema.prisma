@@ -214,6 +214,7 @@ model Follow {
 model LiveStreaming {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   userId        String   @db.ObjectId
+  taskId        String?
   hostLink      String
   coHostLink    String
   audienceLink  String
