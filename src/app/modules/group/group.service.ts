@@ -365,6 +365,8 @@ const commentPost = async (postId: string, userId: string, comment: string) => {
     postInfo.userId,
     "Group post comment",
     `${userInfo.firstName} is commented your post`,
+    "GroupComment",
+    postId,
     userId
   );
   return;
@@ -395,6 +397,8 @@ const replyCommentPost = async (
     commentInfo.userId,
     "Reply your comment",
     `${userInfo.firstName} is reply your comment`,
+    "GroupComment",
+    commentInfo.postId,
     userId
   );
   return;
@@ -501,6 +505,8 @@ const followUnfollow = async (user1Id: string, user2Id: string) => {
       user2Id,
       `${user2Info.firstName} started following you`,
       `${user2Info.firstName} is now following your profile`,
+      "Follow",
+      user2Id,
       user1Id
     );
     return "Follow successfull";

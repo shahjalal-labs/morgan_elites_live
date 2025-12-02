@@ -1,3 +1,4 @@
+import { NotificationType } from "@prisma/client";
 import ApiError from "../../../errors/ApiErrors";
 import admin from "../../../helpers/firebaseAdmin";
 import prisma from "../../../shared/prisma";
@@ -7,6 +8,8 @@ export const sendSingleNotification = async (
   userId: string,
   title: string,
   body: string,
+  type?: NotificationType,
+  handlerId?: string,
   senderId?: string
 ) => {
   const userInfo = await prisma.user.findUnique({ where: { id: userId } });
@@ -15,9 +18,11 @@ export const sendSingleNotification = async (
     await prisma.notification.create({
       data: {
         userId,
-        senderId,
         title,
         body,
+        type: type,
+        handlerId: handlerId,
+        senderId: senderId,
       },
     });
     return;
@@ -34,9 +39,11 @@ export const sendSingleNotification = async (
   await prisma.notification.create({
     data: {
       userId,
-      senderId,
       title,
       body,
+      senderId,
+      type: type,
+      handlerId: handlerId,
     },
   });
 

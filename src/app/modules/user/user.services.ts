@@ -86,7 +86,9 @@ const signupVerification = async (payload: { email: string; otp: string }) => {
   await sendSingleNotification(
     createdUser.id,
     "Account Verified",
-    "Welcome! Your account has been successfully verified."
+    "Welcome! Your account has been successfully verified.",
+    "AccountVerified",
+    createdUser.id
   );
 
   return;

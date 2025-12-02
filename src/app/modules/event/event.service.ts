@@ -603,6 +603,8 @@ const eventComment = async (
     eventInfo.userId,
     "New Event Comment",
     `${userInfo.firstName} left a comment on your event "${eventInfo.title}". Check it out!`,
+    "EventComment",
+    eventId,
     userId
   );
   return;
@@ -635,6 +637,8 @@ const replyComment = async (
     commentInfo.userId,
     "New Reply to Your Comment",
     `${userInfo.firstName} just replied to your comment: "${commentInfo.comment}". Check it out!`,
+    "EventComment",
+    commentInfo.eventId,
     userId
   );
   return;

@@ -119,13 +119,17 @@ const stripeWebhookService = async (event: Stripe.Event) => {
         await sendSingleNotification(
           donationInfo.userId,
           "Donation Completed",
-          `Thank you! Your donation to "${donationInfo.event.title}" has been completed successfully.`
+          `Thank you! Your donation to "${donationInfo.event.title}" has been completed successfully.`,
+          "Donation",
+          eventId
         );
       } else {
         await sendSingleNotification(
           donationInfo.userId,
           "Join access in event",
-          `Thank you! Your payment to "${donationInfo.event.title}" has been completed successfully.`
+          `Thank you! Your payment to "${donationInfo.event.title}" has been completed successfully.`,
+          "JoinAccess",
+          eventId
         );
       }
 
@@ -235,7 +239,9 @@ const instantPayout = async (userId: string, amount: number) => {
   await sendSingleNotification(
     userId,
     "Instant Payout Successful",
-    `Your payout of $${amount} has been successfully deposited into your account.`
+    `Your payout of $${amount} has been successfully deposited into your account.`,
+    "Payout",
+    payout.id
   );
 
   return payout;

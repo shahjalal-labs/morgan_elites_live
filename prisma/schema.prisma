@@ -280,17 +280,33 @@ model Subscription {
 }
 
 model Notification {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  senderId  String?  @db.ObjectId
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String           @db.ObjectId
+  senderId  String?          @db.ObjectId
+  type      NotificationType @default(NA)
+  handlerId String?
   title     String
   body      String
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  sender    User?    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  sender    User?            @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+enum NotificationType {
+  NA
+  AccountVerified
+  EventComment
+  GroupComment
+  Follow
+  Donation
+  JoinAccess
+  LiveStreaming
+  PasswordChange
+  PasswordReset
+  Payout
 }
 
 enum PaymentFor {

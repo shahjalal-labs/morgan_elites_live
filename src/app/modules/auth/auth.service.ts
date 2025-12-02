@@ -234,7 +234,8 @@ const resetForgotPasswordDB = async (newPassword: string, userId: string) => {
   await sendSingleNotification(
     userId,
     "Password Reset",
-    "Your password was reset successfully. If this wasn’t you, please secure your account immediately."
+    "Your password was reset successfully. If this wasn’t you, please secure your account immediately.",
+    "PasswordReset"
   );
 
   return;
@@ -346,7 +347,8 @@ const changePassword = async (
   await sendSingleNotification(
     userId,
     "Password Updated",
-    "Your password was changed successfully. If this wasn’t you, please secure your account immediately."
+    "Your password was changed successfully. If this wasn’t you, please secure your account immediately.",
+    "PasswordChange"
   );
   return;
 };
