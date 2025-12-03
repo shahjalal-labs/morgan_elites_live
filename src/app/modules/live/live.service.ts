@@ -94,7 +94,7 @@ const closeLiveStreaming = async (
 
 const startRecording = async (streamId: string, userId: string) => {
   const streamInfo = await prisma.liveStreaming.findUnique({
-    where: { id: streamId },
+    where: { id: streamId, userId },
   });
   if (!streamInfo)
     throw new ApiError(404, "This streaming recorded by only the Host");
@@ -184,7 +184,7 @@ const startRecording = async (streamId: string, userId: string) => {
 
 const stopRecording = async (streamId: string, userId: string) => {
   const streamInfo = await prisma.liveStreaming.findUnique({
-    where: { id: streamId },
+    where: { id: streamId, userId },
   });
   if (!streamInfo)
     throw new ApiError(404, "This streaming recorded by only the Host");
