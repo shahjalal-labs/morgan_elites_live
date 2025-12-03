@@ -18,5 +18,10 @@ router.post(
   liveControllers.startRecording
 );
 router.post("/stop/recording/:streamId", auth(), liveControllers.stopRecording);
+router.get(
+  "/retrive/recording/:streamId",
+  auth(),
+  liveControllers.recordLinkRetrieve
+);
 
 export const liveRoutes = router;

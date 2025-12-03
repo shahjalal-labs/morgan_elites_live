@@ -106,7 +106,7 @@ const startRecording = async (streamId: string, userId: string) => {
   const body = {
     RoomId: streamInfo.id,
     RecordInputParams: {
-      RecordMode: 2, // or 1 for single stream
+      RecordMode: 1, // or 1 for single stream
       StreamType: 3, // audio + video
       MaxIdleTime: 60,
       MaxRecordTime: 86400, // up to 24h
@@ -181,7 +181,7 @@ const stopRecording = async (streamId: string, userId: string) => {
   };
 
   const body = {
-    TaskId: streamInfo.taskId,
+    TaskId: "aS-qmcdmzGSBLN7N",
   };
 
   try {
@@ -190,9 +190,57 @@ const stopRecording = async (streamId: string, userId: string) => {
       headers: { "Content-Type": "application/json" },
     });
     const data = response.data;
-    if (data.Code !== 0) {
-      throw new ApiError(500, `ZEGOCLOUD stop record failed: ${data.Message}`);
-    }
+    console.log(data.Code);
+
+    return response.data;
+  } catch (err) {
+    console.error("StopRecord error:", err);
+    throw err;
+  }
+};
+
+const recordLinkRetrieve = async (streamId: string) => {
+  const streamInfo = await prisma.liveStreaming.findUnique({
+    where: { id: streamId },
+  });
+  if (!streamInfo)
+    throw new ApiError(404, "This streaming recorded by only the Host");
+
+  const generateSignature = (timestamp: number, nonce: string) => {
+    const s = `${config.zego.app_id}${nonce}${config.zego.server_secret}${timestamp}`;
+    return crypto.createHash("md5").update(s).digest("hex");
+  };
+
+  const buildCommonParams = () => {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const nonce = crypto.randomBytes(8).toString("hex");
+    return {
+      AppId: config.zego.app_id,
+      Timestamp: timestamp,
+      SignatureNonce: nonce,
+      SignatureVersion: "2.0" as const,
+      Signature: generateSignature(timestamp, nonce),
+    };
+  };
+
+  const common = buildCommonParams();
+
+  const params = {
+    ...common,
+    Action: "DescribeRecordStatus",
+  };
+
+  const body = {
+    TaskId: "aS-qmcdmzGSBLN7N",
+  };
+
+  try {
+    const response = await axios.post("https://cloudrecord-api.zego.im", body, {
+      params,
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = response.data;
+    console.log(data);
 
     return response.data;
   } catch (err) {
@@ -208,4 +256,5 @@ export const liveServices = {
   closeLiveStreaming,
   startRecording,
   stopRecording,
+  recordLinkRetrieve,
 };

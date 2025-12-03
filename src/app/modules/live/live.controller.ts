@@ -78,6 +78,16 @@ const stopRecording = catchAsync(async (req, res) => {
   });
 });
 
+const recordLinkRetrieve = catchAsync(async (req, res) => {
+  const data = await liveServices.recordLinkRetrieve(req.params.streamId);
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Live streaming recording link retrieved successfully",
+    data,
+  });
+});
+
 export const liveControllers = {
   generateToken,
   createLiveStreaming,
@@ -85,4 +95,5 @@ export const liveControllers = {
   closeLiveStreaming,
   startRecording,
   stopRecording,
+  recordLinkRetrieve,
 };
