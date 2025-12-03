@@ -308,6 +308,49 @@ const recordLinkRetrieve = async (streamId: string) => {
   }
 };
 
+const watchCountUpdate = async (
+  streamId: string,
+  watchCount: number,
+  userId: string
+) => {
+  const streamInfo = await prisma.liveStreaming.findUnique({
+    where: { id: streamId, userId },
+  });
+  if (!streamInfo) throw new ApiError(404, "Streaming not found");
+
+  await prisma.liveStreaming.update({
+    where: { id: streamId, userId },
+    data: { watchCount: watchCount },
+  });
+  return;
+};
+
+const topInfluencersLive = async () => {
+  const topInfluencers = await prisma.liveStreaming.findMany({
+    where: {
+      isLive: true,
+      // events: {
+      //   some: {
+      //     eventType: "Schedule",
+      //   },
+      // },
+    },
+    orderBy: { watchCount: "desc" },
+    take: 10,
+    select: {
+      watchCount: true,
+      audienceLink: true,
+      events: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+    },
+  });
+  return topInfluencers;
+};
+
 export const liveServices = {
   generateToken,
   createLiveStreaming,
@@ -317,4 +360,6 @@ export const liveServices = {
   startRecording,
   stopRecording,
   recordLinkRetrieve,
+  watchCountUpdate,
+  topInfluencersLive,
 };

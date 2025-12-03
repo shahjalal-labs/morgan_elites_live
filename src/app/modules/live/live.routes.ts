@@ -28,5 +28,11 @@ router.get(
   auth(),
   liveControllers.recordLinkRetrieve
 );
+router.patch(
+  "/watch-count/:streamId",
+  auth(),
+  liveControllers.watchCountUpdate
+);
+router.get("/top-influencers/live", auth(), liveControllers.topInfluencersLive);
 
 export const liveRoutes = router;

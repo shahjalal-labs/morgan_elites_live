@@ -97,6 +97,30 @@ const recordLinkRetrieve = catchAsync(async (req, res) => {
   });
 });
 
+const watchCountUpdate = catchAsync(async (req, res) => {
+  const data = await liveServices.watchCountUpdate(
+    req.params.streamId,
+    req.body.watchCount,
+    req.user.id
+  );
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Live streaming watch count updated successfully",
+    data,
+  });
+});
+
+const topInfluencersLive = catchAsync(async (req, res) => {
+  const data = await liveServices.topInfluencersLive();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Top influencers live streams retrieved successfully",
+    data,
+  });
+});
+
 export const liveControllers = {
   generateToken,
   createLiveStreaming,
@@ -106,4 +130,6 @@ export const liveControllers = {
   startRecording,
   stopRecording,
   recordLinkRetrieve,
+  watchCountUpdate,
+  topInfluencersLive,
 };

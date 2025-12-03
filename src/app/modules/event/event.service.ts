@@ -58,6 +58,200 @@ const createEvent = async (
   return;
 };
 
+const allEvents = async (userId: string, query: any) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const { page, limit = 10, skip } = paginationHelper(query);
+  const { search } = query;
+  const events = await prisma.event.findMany({
+    where: {
+      title: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+      _count: {
+        select: {
+          EventLike: true,
+          EventComment: true,
+        },
+      },
+      EventLike: {
+        where: { userId },
+        select: { id: true },
+      },
+      stream: {
+        select: {
+          id: true,
+          isLive: true,
+          hostLink: true,
+          coHostLink: true,
+          audienceLink: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip,
+  });
+
+  const eventsWithRelations = await Promise.all(
+    events.map(async (event) => {
+      const follow = await prisma.follow.findUnique({
+        where: {
+          user1Id_user2Id: {
+            user1Id: userId,
+            user2Id: event.user.id,
+          },
+        },
+      });
+
+      const paymentInfo = await prisma.donation.findFirst({
+        where: {
+          userId,
+          eventId: event.id,
+          paymentFor: "Event",
+          status: "Completed",
+        },
+      });
+
+      return {
+        ...event,
+        user: {
+          ...event.user,
+          isFollow: !!follow,
+        },
+        isLiked: event.EventLike.length > 0,
+        isOwner: event.userId === userId,
+        isPayment: paymentInfo?.userId === userId ? true : false,
+      };
+    })
+  );
+
+  const totalCount = events.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  return {
+    totalCount,
+    totalPages,
+    currentPage: page,
+    events: eventsWithRelations,
+  };
+};
+
+const liveEvents = async (userId: string, query: any) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+
+  const { page, limit = 1, skip } = paginationHelper(query);
+  const { search } = query;
+  const events = await prisma.event.findMany({
+    where: {
+      stream: {
+        isLive: true,
+      },
+      title: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+      _count: {
+        select: {
+          EventLike: true,
+          EventComment: true,
+        },
+      },
+      EventLike: {
+        where: { userId },
+        select: { id: true },
+      },
+      stream: {
+        select: {
+          id: true,
+          isLive: true,
+          hostLink: true,
+          coHostLink: true,
+          audienceLink: true,
+          watchCount: true,
+        },
+      },
+    },
+    orderBy: {
+      stream: {
+        createdAt: "desc",
+      },
+    },
+    take: limit,
+    skip,
+  });
+
+  const eventsWithRelations = await Promise.all(
+    events.map(async (event) => {
+      const follow = await prisma.follow.findUnique({
+        where: {
+          user1Id_user2Id: {
+            user1Id: userId,
+            user2Id: event.user.id,
+          },
+        },
+      });
+
+      const paymentInfo = await prisma.donation.findFirst({
+        where: {
+          userId,
+          eventId: event.id,
+          paymentFor: "Event",
+          status: "Completed",
+        },
+      });
+
+      return {
+        ...event,
+        user: {
+          ...event.user,
+          isFollow: !!follow,
+        },
+        isLiked: event.EventLike.length > 0,
+        isOwner: event.userId === userId,
+        isPayment: paymentInfo?.userId === userId ? true : false,
+      };
+    })
+  );
+
+  const totalCount = events.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  return {
+    totalCount,
+    totalPages,
+    currentPage: page,
+    events: eventsWithRelations,
+  };
+};
+
 const getScheduleEvents = async (userId: string, query: any) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
@@ -65,9 +259,15 @@ const getScheduleEvents = async (userId: string, query: any) => {
   if (!userInfo) throw new ApiError(404, "User not found");
 
   const { page, limit = 10, skip } = paginationHelper(query);
+  const { search } = query;
+
   const events = await prisma.event.findMany({
     where: {
       eventType: "Schedule",
+      title: {
+        contains: search,
+        mode: "insensitive",
+      },
     },
     include: {
       user: {
@@ -154,9 +354,15 @@ const getFundingEvents = async (userId: string, query: any) => {
   if (!userInfo) throw new ApiError(404, "User not found");
 
   const { page, limit, skip } = paginationHelper(query);
+  const { search } = query;
+
   const events = await prisma.event.findMany({
     where: {
       eventType: "Funding",
+      title: {
+        contains: search,
+        mode: "insensitive",
+      },
     },
     include: {
       user: {
@@ -226,7 +432,7 @@ const getFundingEvents = async (userId: string, query: any) => {
   };
 };
 
-const getMyScheduleEvents = async (userId: string, query: any) => {
+const getMyEvents = async (userId: string, query: any) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -235,7 +441,6 @@ const getMyScheduleEvents = async (userId: string, query: any) => {
   const { page, limit, skip } = paginationHelper(query);
   const events = await prisma.event.findMany({
     where: {
-      eventType: "Schedule",
       userId,
     },
     include: {
@@ -289,7 +494,70 @@ const getMyScheduleEvents = async (userId: string, query: any) => {
   };
 };
 
-const getMyFundingEvents = async (userId: string, query: any) => {
+// const getMyFundingEvents = async (userId: string, query: any) => {
+//   const userInfo = await prisma.user.findUnique({
+//     where: { id: userId },
+//   });
+//   if (!userInfo) throw new ApiError(404, "User not found");
+
+//   const { page, limit, skip } = paginationHelper(query);
+//   const events = await prisma.event.findMany({
+//     where: {
+//       eventType: "Funding",
+//       userId,
+//     },
+//     include: {
+//       user: {
+//         select: {
+//           id: true,
+//           firstName: true,
+//           lastName: true,
+//           profileImage: true,
+//           profession: true,
+//         },
+//       },
+//       _count: {
+//         select: {
+//           EventLike: true,
+//           EventComment: true,
+//         },
+//       },
+//       EventLike: {
+//         where: { userId },
+//         select: { id: true },
+//       },
+//       stream: {
+//         select: {
+//           id: true,
+//           isLive: true,
+//           hostLink: true,
+//           coHostLink: true,
+//           audienceLink: true,
+//         },
+//       },
+//     },
+//     orderBy: { createdAt: "desc" },
+//     take: limit,
+//     skip,
+//   });
+
+//   const eventsWithLikeStatus = events.map((event) => ({
+//     ...event,
+//     isLiked: event.EventLike.length > 0,
+//     isOwner: event.userId === userId,
+//   }));
+
+//   const totalCount = events.length;
+//   const totalPages = Math.ceil(totalCount / limit);
+//   return {
+//     totalCount,
+//     totalPages,
+//     currentPage: page,
+//     events: eventsWithLikeStatus,
+//   };
+// };
+
+const usersEvent = async (userId: string, query: any, myId: string) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -298,74 +566,6 @@ const getMyFundingEvents = async (userId: string, query: any) => {
   const { page, limit, skip } = paginationHelper(query);
   const events = await prisma.event.findMany({
     where: {
-      eventType: "Funding",
-      userId,
-    },
-    include: {
-      user: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          profileImage: true,
-          profession: true,
-        },
-      },
-      _count: {
-        select: {
-          EventLike: true,
-          EventComment: true,
-        },
-      },
-      EventLike: {
-        where: { userId },
-        select: { id: true },
-      },
-      stream: {
-        select: {
-          id: true,
-          isLive: true,
-          hostLink: true,
-          coHostLink: true,
-          audienceLink: true,
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-    take: limit,
-    skip,
-  });
-
-  const eventsWithLikeStatus = events.map((event) => ({
-    ...event,
-    isLiked: event.EventLike.length > 0,
-    isOwner: event.userId === userId,
-  }));
-
-  const totalCount = events.length;
-  const totalPages = Math.ceil(totalCount / limit);
-  return {
-    totalCount,
-    totalPages,
-    currentPage: page,
-    events: eventsWithLikeStatus,
-  };
-};
-
-const scheduleEventsOfUser = async (
-  userId: string,
-  query: any,
-  myId: string
-) => {
-  const userInfo = await prisma.user.findUnique({
-    where: { id: userId },
-  });
-  if (!userInfo) throw new ApiError(404, "User not found");
-
-  const { page, limit, skip } = paginationHelper(query);
-  const events = await prisma.event.findMany({
-    where: {
-      eventType: "Schedule",
       userId,
     },
     include: {
@@ -446,21 +646,142 @@ const scheduleEventsOfUser = async (
   };
 };
 
-const fundingEventsOfUser = async (
-  userId: string,
-  query: any,
-  myId: string
-) => {
+const usersRecording = async (userId: string) => {
+  const recordings = await prisma.liveStreaming.findMany({
+    where: { userId, recordingLink: { not: null } },
+    select: {
+      id: true,
+      recordingLink: true,
+      watchCount: true,
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+  return recordings;
+};
+
+const allRecordings = async () => {
+  const recordings = await prisma.liveStreaming.findMany({
+    where: { recordingLink: { not: null } },
+    select: {
+      id: true,
+      recordingLink: true,
+      watchCount: true,
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+        },
+      },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+  return recordings;
+};
+
+// const fundingEventsOfUser = async (
+//   userId: string,
+//   query: any,
+//   myId: string
+// ) => {
+//   const userInfo = await prisma.user.findUnique({
+//     where: { id: userId },
+//   });
+//   if (!userInfo) throw new ApiError(404, "User not found");
+
+//   const { page, limit, skip } = paginationHelper(query);
+//   const events = await prisma.event.findMany({
+//     where: {
+//       eventType: "Funding",
+//       userId,
+//     },
+//     include: {
+//       user: {
+//         select: {
+//           id: true,
+//           firstName: true,
+//           lastName: true,
+//           profileImage: true,
+//           profession: true,
+//         },
+//       },
+//       _count: {
+//         select: {
+//           EventLike: true,
+//           EventComment: true,
+//         },
+//       },
+//       EventLike: {
+//         where: { userId },
+//         select: { id: true },
+//       },
+//       stream: {
+//         select: {
+//           id: true,
+//           isLive: true,
+//           hostLink: true,
+//           coHostLink: true,
+//           audienceLink: true,
+//         },
+//       },
+//     },
+//     orderBy: { createdAt: "desc" },
+//     take: limit,
+//     skip,
+//   });
+
+//   const eventsWithRelations = await Promise.all(
+//     events.map(async (event) => {
+//       const follow = await prisma.follow.findUnique({
+//         where: {
+//           user1Id_user2Id: {
+//             user1Id: myId,
+//             user2Id: userId,
+//           },
+//         },
+//       });
+
+//       return {
+//         ...event,
+//         user: {
+//           ...event.user,
+//           isFollow: !!follow,
+//         },
+//         isLiked: event.EventLike.length > 0,
+//         isOwner: event.userId === myId,
+//       };
+//     })
+//   );
+
+//   const totalCount = events.length;
+//   const totalPages = Math.ceil(totalCount / limit);
+//   return {
+//     totalCount,
+//     totalPages,
+//     currentPage: page,
+//     events: eventsWithRelations,
+//   };
+// };
+
+const followingEvents = async (userId: string, query: any) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
   });
   if (!userInfo) throw new ApiError(404, "User not found");
 
-  const { page, limit, skip } = paginationHelper(query);
+  const { page, limit = 10, skip } = paginationHelper(query);
+
+  const following = await prisma.follow.findMany({
+    where: { user1Id: userId },
+    select: { user2Id: true },
+  });
+
+  const followingIds = following.map((f) => f.user2Id);
+
   const events = await prisma.event.findMany({
     where: {
-      eventType: "Funding",
-      userId,
+      userId: { in: followingIds },
     },
     include: {
       user: {
@@ -502,9 +823,18 @@ const fundingEventsOfUser = async (
       const follow = await prisma.follow.findUnique({
         where: {
           user1Id_user2Id: {
-            user1Id: myId,
-            user2Id: userId,
+            user1Id: userId,
+            user2Id: event.user.id,
           },
+        },
+      });
+
+      const paymentInfo = await prisma.donation.findFirst({
+        where: {
+          userId,
+          eventId: event.id,
+          paymentFor: "Event",
+          status: "Completed",
         },
       });
 
@@ -515,7 +845,8 @@ const fundingEventsOfUser = async (
           isFollow: !!follow,
         },
         isLiked: event.EventLike.length > 0,
-        isOwner: event.userId === myId,
+        isOwner: event.userId === userId,
+        isPayment: paymentInfo?.userId === userId ? true : false,
       };
     })
   );
@@ -692,12 +1023,17 @@ const getEventComments = async (userId: string, eventId: string) => {
 
 export const eventServices = {
   createEvent,
+  allEvents,
+  liveEvents,
   getScheduleEvents,
   getFundingEvents,
-  getMyScheduleEvents,
-  getMyFundingEvents,
-  scheduleEventsOfUser,
-  fundingEventsOfUser,
+  getMyEvents,
+  // getMyFundingEvents,
+  usersEvent,
+  usersRecording,
+  allRecordings,
+  // fundingEventsOfUser,
+  followingEvents,
   getEventById,
   updateEvent,
   deleteEvent,

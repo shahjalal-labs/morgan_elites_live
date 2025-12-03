@@ -219,6 +219,7 @@ model LiveStreaming {
   coHostLink    String
   audienceLink  String
   recordingLink String?
+  watchCount    Int      @default(0)
   isLive        Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

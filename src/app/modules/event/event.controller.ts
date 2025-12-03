@@ -18,6 +18,26 @@ const createEvent = catchAsync(async (req, res) => {
   });
 });
 
+const allEvents = catchAsync(async (req, res) => {
+  const result = await eventServices.allEvents(req.user.id, req.query);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "All events has been retrived successfully",
+    data: result,
+  });
+});
+
+const liveEvents = catchAsync(async (req, res) => {
+  const result = await eventServices.liveEvents(req.user.id, req.query);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "All live events has been retrived successfully",
+    data: result,
+  });
+});
+
 const getScheduleEvents = catchAsync(async (req, res) => {
   const result = await eventServices.getScheduleEvents(req.user.id, req.query);
   sendResponse(res, {
@@ -38,11 +58,8 @@ const getFundingEvents = catchAsync(async (req, res) => {
   });
 });
 
-const getMyScheduleEvents = catchAsync(async (req, res) => {
-  const result = await eventServices.getMyScheduleEvents(
-    req.user.id,
-    req.query
-  );
+const getMyEvents = catchAsync(async (req, res) => {
+  const result = await eventServices.getMyEvents(req.user.id, req.query);
   sendResponse(res, {
     success: true,
     statusCode: 200,
@@ -51,18 +68,18 @@ const getMyScheduleEvents = catchAsync(async (req, res) => {
   });
 });
 
-const getMyFundingEvents = catchAsync(async (req, res) => {
-  const result = await eventServices.getMyFundingEvents(req.user.id, req.query);
-  sendResponse(res, {
-    success: true,
-    statusCode: 200,
-    message: "My All funding events has been retrived successfully",
-    data: result,
-  });
-});
+// const getMyFundingEvents = catchAsync(async (req, res) => {
+//   const result = await eventServices.getMyFundingEvents(req.user.id, req.query);
+//   sendResponse(res, {
+//     success: true,
+//     statusCode: 200,
+//     message: "My All funding events has been retrived successfully",
+//     data: result,
+//   });
+// });
 
-const scheduleEventsOfUser = catchAsync(async (req, res) => {
-  const result = await eventServices.scheduleEventsOfUser(
+const usersEvent = catchAsync(async (req, res) => {
+  const result = await eventServices.usersEvent(
     req.params.id,
     req.query,
     req.user.id
@@ -75,16 +92,57 @@ const scheduleEventsOfUser = catchAsync(async (req, res) => {
   });
 });
 
-const fundingEventsOfUser = catchAsync(async (req, res) => {
-  const result = await eventServices.fundingEventsOfUser(
-    req.params.id,
-    req.query,
-    req.user.id
-  );
+const usersRecording = catchAsync(async (req, res) => {
+  const result = await eventServices.usersRecording(req.params.userId);
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "User's funding events has been retrived successfully",
+    message: "User's recording events has been retrived successfully",
+    data: result,
+  });
+});
+
+const myRecordings = catchAsync(async (req, res) => {
+  const result = await eventServices.usersRecording(req.user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "My recording events has been retrived successfully",
+    data: result,
+  });
+});
+
+const allRecordings = catchAsync(async (req, res) => {
+  const result = await eventServices.allRecordings();
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "All recording events has been retrived successfully",
+    data: result,
+  });
+});
+
+// const fundingEventsOfUser = catchAsync(async (req, res) => {
+//   const result = await eventServices.fundingEventsOfUser(
+//     req.params.id,
+//     req.query,
+//     req.user.id
+//   );
+//   sendResponse(res, {
+//     success: true,
+//     statusCode: 200,
+//     message: "User's funding events has been retrived successfully",
+//     data: result,
+//   });
+// });
+
+const followingEvents = catchAsync(async (req, res) => {
+  const result = await eventServices.followingEvents(req.user.id, req.query);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message:
+      "All schedule events base on following has been retrived successfully",
     data: result,
   });
 });
@@ -170,12 +228,18 @@ const getEventComments = catchAsync(async (req, res) => {
 
 export const eventControllers = {
   createEvent,
+  allEvents,
+  liveEvents,
   getScheduleEvents,
   getFundingEvents,
-  getMyScheduleEvents,
-  getMyFundingEvents,
-  scheduleEventsOfUser,
-  fundingEventsOfUser,
+  getMyEvents,
+  myRecordings,
+  allRecordings,
+  // getMyFundingEvents,
+  usersEvent,
+  // fundingEventsOfUser,
+  usersRecording,
+  followingEvents,
   getEventById,
   updateEvent,
   deleteEvent,
