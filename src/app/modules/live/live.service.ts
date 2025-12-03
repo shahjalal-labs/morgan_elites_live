@@ -181,7 +181,7 @@ const stopRecording = async (streamId: string, userId: string) => {
   };
 
   const body = {
-    TaskId: "aS-qmcdmzGSBLN7N",
+    TaskId: streamInfo.taskId,
   };
 
   try {
