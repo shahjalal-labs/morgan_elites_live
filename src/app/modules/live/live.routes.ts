@@ -8,6 +8,11 @@ router.post("/generate-token", auth(), liveControllers.generateToken);
 router.post("/create/streaming", auth(), liveControllers.createLiveStreaming);
 router.get("/get/streaming/:streamId", auth(), liveControllers.getStreamInfo);
 router.post(
+  "/start/streaming/:streamId",
+  auth(),
+  liveControllers.startLiveStreaming
+);
+router.post(
   "/close/streaming/:streamId",
   auth(),
   liveControllers.closeLiveStreaming

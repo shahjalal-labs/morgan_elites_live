@@ -45,6 +45,28 @@ const getStreamInfo = async (streamId: string, userId: string) => {
   return streamInfo;
 };
 
+const startLiveStreaming = async (streamId: string, userId: string) => {
+  const streamInfo = await prisma.liveStreaming.findUnique({
+    where: { id: streamId, userId },
+  });
+  if (!streamInfo)
+    throw new ApiError(404, "This streaming started by only the Host");
+
+  if (streamInfo.isLive) return;
+
+  await prisma.liveStreaming.update({
+    where: {
+      id: streamId,
+      userId,
+    },
+    data: {
+      isLive: true,
+    },
+  });
+
+  return;
+};
+
 const closeLiveStreaming = async (
   streamId: string,
   userId: string,
@@ -77,7 +99,7 @@ const startRecording = async (streamId: string, userId: string) => {
   if (!streamInfo)
     throw new ApiError(404, "This streaming recorded by only the Host");
   if (!streamInfo.isLive)
-    throw new ApiError(400, "This streaming already ended");
+    throw new ApiError(400, "This streaming not started yet/already ended");
 
   const generateSignature = (timestamp: number, nonce: string) => {
     const s = `${config.zego.app_id}${nonce}${config.zego.server_secret}${timestamp}`;
@@ -268,6 +290,7 @@ export const liveServices = {
   generateToken,
   createLiveStreaming,
   getStreamInfo,
+  startLiveStreaming,
   closeLiveStreaming,
   startRecording,
   stopRecording,
