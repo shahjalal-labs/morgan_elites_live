@@ -258,6 +258,11 @@ const stopRecording = async (streamId: string, userId: string) => {
   }
 };
 
+const recordingWebhook = async (payload: any) => {
+  console.log("Recording Webhook Payload:", payload);
+  return;
+};
+
 const recordLinkRetrieve = async (streamId: string) => {
   const streamInfo = await prisma.liveStreaming.findUnique({
     where: { id: streamId },
@@ -362,4 +367,5 @@ export const liveServices = {
   recordLinkRetrieve,
   watchCountUpdate,
   topInfluencersLive,
+  recordingWebhook,
 };
