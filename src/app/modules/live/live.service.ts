@@ -246,7 +246,7 @@ const recordLinkRetrieve = async (streamId: string) => {
   };
 
   const body = {
-    TaskId: "aS-qmcdmzGSBLN7N",
+    TaskId: streamInfo.taskId,
   };
 
   try {
