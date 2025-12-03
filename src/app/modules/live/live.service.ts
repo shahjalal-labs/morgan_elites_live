@@ -203,6 +203,10 @@ const stopRecording = async (streamId: string, userId: string) => {
     const data = response.data;
     console.log(data.Code);
 
+    if (data.Code !== 0) {
+      throw new ApiError(500, `ZEGOCLOUD stop record failed: ${data.Message}`);
+    }
+
     return response.data;
   } catch (err) {
     console.error("StopRecord error:", err);
