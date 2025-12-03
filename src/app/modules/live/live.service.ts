@@ -122,6 +122,7 @@ const startRecording = async (streamId: string, userId: string) => {
       AccessKeyId: "Be7vSXLGn1EuMzy55jLO",
       AccessKeySecret: "Gw2pW1gqVAG0GH8SXzrRJXi1036IMv5dBdgcwJme",
       EndPoint: "https://api.zenexcloud.com",
+      ACL: "public-read",
     },
   };
 
