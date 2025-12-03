@@ -245,7 +245,7 @@ const stopRecording = async (streamId: string, userId: string) => {
       }
     );
     const linkData = linkResponse.data;
-    if (linkData.Code === 0) {
+    if (linkData.Code === 0 && linkData.Data.RecordFileList.length > 0) {
       await prisma.liveStreaming.update({
         where: { id: streamId },
         data: { recordingLink: linkData.Data.RecordFileList[0].FileUrl },
