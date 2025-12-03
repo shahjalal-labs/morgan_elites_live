@@ -99,7 +99,9 @@ const startRecording = async (streamId: string, userId: string) => {
   if (!streamInfo)
     throw new ApiError(404, "This streaming recorded by only the Host");
   if (!streamInfo.isLive)
-    throw new ApiError(400, "This streaming not started yet/already ended");
+    throw new ApiError(400, "This streaming not started yet");
+  if (streamInfo.taskId)
+    throw new ApiError(400, "This streaming already recording started");
 
   const generateSignature = (timestamp: number, nonce: string) => {
     const s = `${config.zego.app_id}${nonce}${config.zego.server_secret}${timestamp}`;
