@@ -5,6 +5,7 @@ import prisma from "../../../shared/prisma";
 import axios from "axios";
 import crypto from "crypto";
 import config from "../../../config";
+import { Request, Response } from "express";
 
 const generateToken = async (userId: string, roomId: string) => {
   console.log(userId);
@@ -258,9 +259,9 @@ const stopRecording = async (streamId: string, userId: string) => {
   }
 };
 
-const recordingWebhook = async (payload: any) => {
-  console.log("Recording Webhook Payload:", payload);
-  return;
+const recordingWebhook = async (req: Request, res: Response) => {
+  console.log("Recording Webhook Payload:", req.body);
+  return res.status(200).send("ok");
 };
 
 const recordLinkRetrieve = async (streamId: string) => {

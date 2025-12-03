@@ -122,7 +122,7 @@ const topInfluencersLive = catchAsync(async (req, res) => {
 });
 
 const recordingWebhook = catchAsync(async (req, res) => {
-  const data = await liveServices.recordingWebhook(req.body);
+  const data = await liveServices.recordingWebhook(req, res);
   sendResponse(res, {
     statusCode: 200,
     success: true,
