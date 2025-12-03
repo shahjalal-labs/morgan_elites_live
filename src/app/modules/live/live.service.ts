@@ -208,13 +208,18 @@ const stopRecording = async (streamId: string, userId: string) => {
 
   const common = buildCommonParams();
 
+  const body = {
+    TaskId: streamInfo.taskId,
+  };
+
   const params = {
     ...common,
     Action: "StopRecord",
   };
 
-  const body = {
-    TaskId: streamInfo.taskId,
+  const params2 = {
+    ...common,
+    Action: "DescribeRecordStatus",
   };
 
   try {
@@ -229,6 +234,21 @@ const stopRecording = async (streamId: string, userId: string) => {
       throw new ApiError(500, `ZEGOCLOUD stop record failed: ${data.Message}`);
     }
 
+    const linkResponse = await axios.post(
+      "https://cloudrecord-api.zego.im",
+      body,
+      {
+        params: params2,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    const linkData = linkResponse.data;
+    if (linkData.Code === 0) {
+      await prisma.liveStreaming.update({
+        where: { id: streamId },
+        data: { recordingLink: linkData.Data.RecordFileList[0].FileUrl },
+      });
+    }
     return response.data;
   } catch (err) {
     console.error("StopRecord error:", err);
