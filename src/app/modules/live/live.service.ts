@@ -136,6 +136,19 @@ const startRecording = async (streamId: string, userId: string) => {
       MaxIdleTime: 60,
       MixConfig: {
         MixMode: 1,
+        MixInputList: [
+          {
+            StreamId: "string",
+            ViewType: 1,
+            Top: 0,
+            Left: 0,
+            Bottom: 0,
+            Right: 0,
+            Layer: 0,
+            FillMode: 1,
+            BackgroundImage: "string",
+          },
+        ],
         MixOutputStreamId: "mix",
         MixOutputVideoConfig: {
           Width: 1920,
