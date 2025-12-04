@@ -135,7 +135,7 @@ const startRecording = async (streamId: string, userId: string) => {
       StreamType: 3, // audio + video
       MaxIdleTime: 60,
       MixConfig: {
-        MixMode: 2,
+        MixMode: 1,
         MixOutputStreamId: "mix",
         MixOutputVideoConfig: {
           Width: 1920,
