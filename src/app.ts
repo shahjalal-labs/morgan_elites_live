@@ -8,7 +8,6 @@ import prisma from "./shared/prisma";
 import { bullBoardRouter } from "./bullBoard";
 import basicAuth from "express-basic-auth";
 import { stripeWebhookController } from "./app/modules/donation/donation.controller";
-import { recordingWebhook } from "./app/modules/live/live.service";
 import { recordingWebhookController } from "./app/modules/live/live.controller";
 
 const app: Application = express();
