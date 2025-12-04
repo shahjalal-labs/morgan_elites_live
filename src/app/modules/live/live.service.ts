@@ -134,6 +134,16 @@ const startRecording = async (streamId: string, userId: string) => {
       RecordMode: 1, // or 1 for single stream
       StreamType: 3, // audio + video
       MaxIdleTime: 60,
+      // MixConfig: {
+      //   MixMode: 2,
+      //   MixOutputStreamId: "mix",
+      //   MixOutputVideoConfig: {
+      //     Width: 2560,
+      //     Height: 1080,
+      //     Fps: 15,
+      //     Bitrate: 2000,
+      //   },
+      // },
     },
     RecordOutputParams: {
       OutputFileFormat: "mp4",
