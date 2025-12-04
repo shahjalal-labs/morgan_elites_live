@@ -134,7 +134,6 @@ const startRecording = async (streamId: string, userId: string) => {
       RecordMode: 1, // or 1 for single stream
       StreamType: 3, // audio + video
       MaxIdleTime: 60,
-      MaxRecordTime: 86400, // up to 24h
       // MixConfig: {
       //   MixMode: 2,
       //   MixOutputStreamId: "mix",
@@ -149,6 +148,8 @@ const startRecording = async (streamId: string, userId: string) => {
     RecordOutputParams: {
       OutputFileFormat: "mp4",
       OutputFolder: "record/",
+      CallbackUrl:
+        "https://api.morganeliteslive.com/api/v1/live/webhook/recording",
     },
     StorageParams: {
       Vendor: 10,
@@ -160,6 +161,37 @@ const startRecording = async (streamId: string, userId: string) => {
       ACL: "public-read",
     },
   };
+
+  // const body = {
+  //   RoomId: streamInfo.id,
+  //   RecordInputParams: {
+  //     RecordMode: 1, // or 1 for single stream
+  //     StreamType: 3, // audio + video
+  //     MaxIdleTime: 60,
+  //     // MixConfig: {
+  //     //   MixMode: 2,
+  //     //   MixOutputStreamId: "mix",
+  //     //   MixOutputVideoConfig: {
+  //     //     Width: 1280,
+  //     //     Height: 720,
+  //     //     Fps: 15,
+  //     //     Bitrate: 1130000,
+  //     //   },
+  //     // },
+  //   },
+  //   RecordOutputParams: {
+  //     OutputFileFormat: "mp4",
+  //     OutputFolder: "record/",
+  //   },
+  //   StorageParams: {
+  //     Vendor: 1,
+  //     Region: "us-east-2",
+  //     Bucket: "fixzone-app-storage",
+  //     AccessKeyId: "AKIA_DUMMY_KEY_PLACEHOLDER",
+  //     AccessKeySecret: "AWS_DUMMY_SECRET_PLACEHOLDER",
+  //     EndPoint: "https://fixzone-app-storage.s3.us-east-2.amazonaws.com",
+  //   },
+  // };
 
   try {
     const response = await axios.post("https://cloudrecord-api.zego.im", body, {
