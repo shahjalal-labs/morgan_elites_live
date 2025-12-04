@@ -137,12 +137,12 @@ const startRecording = async (streamId: string, userId: string) => {
       MixConfig: {
         MixMode: 2,
         MixOutputStreamId: "mix",
-        // MixOutputVideoConfig: {
-        //   Width: 0,
-        //   Height: 0,
-        //   Fps: 15,
-        //   Bitrate: 0,
-        // },
+        MixOutputVideoConfig: {
+          Width: 1920,
+          Height: 1080,
+          Fps: 15,
+          Bitrate: 2000,
+        },
       },
     },
     RecordOutputParams: {
