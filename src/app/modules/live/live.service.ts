@@ -308,6 +308,8 @@ const recordingWebhook = async (req: Request, res: Response) => {
     });
     return;
   } else if (req.body.event_type === 1) {
+    const fileInfo = req.body.detail.file_info;
+    console.log("fileinfo", fileInfo);
     await prisma.liveStreaming.update({
       where: {
         id: roomId,
