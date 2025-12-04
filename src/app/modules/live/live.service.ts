@@ -182,6 +182,7 @@ const startRecording = async (streamId: string, userId: string) => {
       AccessKeyId: "AKIA_DUMMY_KEY_PLACEHOLDER",
       AccessKeySecret: "AWS_DUMMY_SECRET_PLACEHOLDER",
       EndPoint: "https://fixzone-app-storage.s3.us-east-2.amazonaws.com",
+      ACL: "public-read",
     },
   };
 
