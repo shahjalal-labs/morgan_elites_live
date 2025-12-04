@@ -34,6 +34,6 @@ router.patch(
   liveControllers.watchCountUpdate
 );
 router.get("/top-influencers/live", auth(), liveControllers.topInfluencersLive);
-router.post("/webhook/recording", liveControllers.recordingWebhook);
+// router.post("/webhook/recording", liveControllers.recordingWebhook);
 
 export const liveRoutes = router;
