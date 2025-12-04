@@ -128,46 +128,22 @@ const startRecording = async (streamId: string, userId: string) => {
     Action: "StartRecord",
   };
 
-  // const body = {
-  //   RoomId: streamInfo.id,
-  //   RecordInputParams: {
-  //     RecordMode: 1, // or 1 for single stream
-  //     StreamType: 3, // audio + video
-  //     MaxIdleTime: 60,
-  //     // MixConfig: {
-  //     //   MixMode: 2,
-  //     //   MixOutputStreamId: "mix",
-  //     //   MixOutputVideoConfig: {
-  //     //     Width: 1280,
-  //     //     Height: 720,
-  //     //     Fps: 15,
-  //     //     Bitrate: 1130000,
-  //     //   },
-  //     // },
-  //   },
-  //   RecordOutputParams: {
-  //     OutputFileFormat: "mp4",
-  //     OutputFolder: "record/",
-  //     CallbackUrl:
-  //       "https://api.morgan.smtsigma.com/api/v1/live/webhook/recording",
-  //   },
-  //   StorageParams: {
-  //     Vendor: 10,
-  //     Region: "s3v4",
-  //     Bucket: "emdadullah",
-  //     AccessKeyId: "Be7vSXLGn1EuMzy55jLO",
-  //     AccessKeySecret: "Gw2pW1gqVAG0GH8SXzrRJXi1036IMv5dBdgcwJme",
-  //     EndPoint: "https://api.zenexcloud.com",
-  //     ACL: "public-read",
-  //   },
-  // };
-
   const body = {
     RoomId: streamInfo.id,
     RecordInputParams: {
       RecordMode: 1, // or 1 for single stream
       StreamType: 3, // audio + video
       MaxIdleTime: 60,
+      // MixConfig: {
+      //   MixMode: 2,
+      //   MixOutputStreamId: "mix",
+      //   MixOutputVideoConfig: {
+      //     Width: 1280,
+      //     Height: 720,
+      //     Fps: 15,
+      //     Bitrate: 1130000,
+      //   },
+      // },
     },
     RecordOutputParams: {
       OutputFileFormat: "mp4",
@@ -177,14 +153,38 @@ const startRecording = async (streamId: string, userId: string) => {
     },
     StorageParams: {
       Vendor: 1,
-      Region: "us-east-2",
-      Bucket: "fixzone-app-storage",
-      AccessKeyId: "AKIA_DUMMY_KEY_PLACEHOLDER",
-      AccessKeySecret: "AWS_DUMMY_SECRET_PLACEHOLDER",
-      EndPoint: "https://fixzone-app-storage.s3.us-east-2.amazonaws.com",
+      Region: "s3v4",
+      Bucket: "emdadullah",
+      AccessKeyId: "Be7vSXLGn1EuMzy55jLO",
+      AccessKeySecret: "Gw2pW1gqVAG0GH8SXzrRJXi1036IMv5dBdgcwJme",
+      EndPoint: "https://api.zenexcloud.com",
       ACL: "public-read",
     },
   };
+
+  // const body = {
+  //   RoomId: streamInfo.id,
+  //   RecordInputParams: {
+  //     RecordMode: 1, // or 1 for single stream
+  //     StreamType: 3, // audio + video
+  //     MaxIdleTime: 60,
+  //   },
+  //   RecordOutputParams: {
+  //     OutputFileFormat: "mp4",
+  //     OutputFolder: "record/",
+  //     CallbackUrl:
+  //       "https://api.morgan.smtsigma.com/api/v1/live/webhook/recording",
+  //   },
+  //   StorageParams: {
+  //     Vendor: 1,
+  //     Region: "us-east-2",
+  //     Bucket: "fixzone-app-storage",
+  //     AccessKeyId: "AKIA_DUMMY_KEY_PLACEHOLDER",
+  //     AccessKeySecret: "AWS_DUMMY_SECRET_PLACEHOLDER",
+  //     EndPoint: "https://fixzone-app-storage.s3.us-east-2.amazonaws.com",
+  //     ACL: "public-read",
+  //   },
+  // };
 
   try {
     const response = await axios.post("https://cloudrecord-api.zego.im", body, {
