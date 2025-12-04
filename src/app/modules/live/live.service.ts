@@ -261,6 +261,28 @@ const stopRecording = async (streamId: string, userId: string) => {
 
 const recordingWebhook = async (req: Request, res: Response) => {
   console.log("Recording Webhook Payload:", req.body);
+  const roomId = req.body.room_id;
+  if (req.body.event === "stream_create") {
+    await prisma.liveStreaming.update({
+      where: {
+        id: roomId,
+      },
+      data: {
+        isLive: true,
+      },
+    });
+    return;
+  } else if (req.body.event === "stream_close") {
+    await prisma.liveStreaming.update({
+      where: {
+        id: roomId,
+      },
+      data: {
+        isLive: false,
+      },
+    });
+    return;
+  }
   return;
 };
 
