@@ -33,7 +33,7 @@ app.post(
 
 app.post(
   "/api/v1/live/webhook/recording",
-  express.raw({ type: "application/json" }),
+  express.json(),
   recordingWebhookController
 );
 
