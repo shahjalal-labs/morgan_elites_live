@@ -314,6 +314,15 @@ const recordingWebhook = async (req: Request, res: Response) => {
       },
     });
     return;
+  } else if (req.body.event_type === 1) {
+    await prisma.liveStreaming.update({
+      where: {
+        id: roomId,
+      },
+      data: {
+        recordingLink: req.body.detail.file_info[0].file_url,
+      },
+    });
   }
   return;
 };
