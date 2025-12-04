@@ -153,11 +153,11 @@ const startRecording = async (streamId: string, userId: string) => {
     },
     StorageParams: {
       Vendor: 1,
-      Region: "s3v4",
-      Bucket: "emdadullah",
-      AccessKeyId: "Be7vSXLGn1EuMzy55jLO",
-      AccessKeySecret: "Gw2pW1gqVAG0GH8SXzrRJXi1036IMv5dBdgcwJme",
-      EndPoint: "https://api.zenexcloud.com",
+      Region: "nyc3",
+      Bucket: "smtech-space",
+      AccessKeyId: "DO002RGDJ947DJHJ9WDT",
+      AccessKeySecret: "e5+/pko6Ojar51Hb8ojUKfq2HtXy+tnGKOfs3rIcEfo",
+      EndPoint: "https://nyc3.digitaloceanspaces.com",
       ACL: "public-read",
     },
   };
