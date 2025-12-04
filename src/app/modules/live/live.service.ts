@@ -259,9 +259,9 @@ const stopRecording = async (streamId: string, userId: string) => {
   }
 };
 
-export const recordingWebhook = async (req: Request, res: Response) => {
+const recordingWebhook = async (req: Request, res: Response) => {
   console.log("Recording Webhook Payload:", req.body);
-  return res.status(200).send("ok");
+  return;
 };
 
 const recordLinkRetrieve = async (streamId: string) => {
@@ -368,4 +368,5 @@ export const liveServices = {
   recordLinkRetrieve,
   watchCountUpdate,
   topInfluencersLive,
+  recordingWebhook,
 };

@@ -121,6 +121,16 @@ const topInfluencersLive = catchAsync(async (req, res) => {
   });
 });
 
+export const recordingWebhookController = catchAsync(async (req, res) => {
+  const data = await liveServices.recordingWebhook(req, res);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Recording webhook received successfully",
+    data,
+  });
+});
+
 export const liveControllers = {
   generateToken,
   createLiveStreaming,

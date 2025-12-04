@@ -9,6 +9,7 @@ import { bullBoardRouter } from "./bullBoard";
 import basicAuth from "express-basic-auth";
 import { stripeWebhookController } from "./app/modules/donation/donation.controller";
 import { recordingWebhook } from "./app/modules/live/live.service";
+import { recordingWebhookController } from "./app/modules/live/live.controller";
 
 const app: Application = express();
 
@@ -33,11 +34,8 @@ app.post(
 
 app.post(
   "/api/v1/live/webhook/recording",
-  async (req: Request, res: Response) => {
-    const result = await recordingWebhook(req, res);
-    console.log(result, "resultlsjldfkdslf");
-    res.send({ Message: "Recording webhook received successfully" });
-  }
+  express.raw({ type: "application/json" }),
+  recordingWebhookController
 );
 
 app.use(express.json());
