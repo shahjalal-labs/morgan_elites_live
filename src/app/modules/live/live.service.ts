@@ -131,19 +131,19 @@ const startRecording = async (streamId: string, userId: string) => {
   const body = {
     RoomId: streamInfo.id,
     RecordInputParams: {
-      RecordMode: 1, // or 1 for single stream
+      RecordMode: 2, // or 1 for single stream
       StreamType: 3, // audio + video
       MaxIdleTime: 60,
-      // MixConfig: {
-      //   MixMode: 2,
-      //   MixOutputStreamId: "mix",
-      //   MixOutputVideoConfig: {
-      //     Width: 1280,
-      //     Height: 720,
-      //     Fps: 15,
-      //     Bitrate: 1130000,
-      //   },
-      // },
+      MixConfig: {
+        MixMode: 2,
+        MixOutputStreamId: "mix",
+        MixOutputVideoConfig: {
+          Width: 1280,
+          Height: 720,
+          Fps: 15,
+          Bitrate: 1130000,
+        },
+      },
     },
     RecordOutputParams: {
       OutputFileFormat: "mp4",
@@ -152,12 +152,12 @@ const startRecording = async (streamId: string, userId: string) => {
         "https://api.morgan.smtsigma.com/api/v1/live/webhook/recording",
     },
     StorageParams: {
-      Vendor: 1,
-      Region: "nyc3",
-      Bucket: "smtech-space",
-      AccessKeyId: "DO002RGDJ947DJHJ9WDT",
-      AccessKeySecret: "e5+/pko6Ojar51Hb8ojUKfq2HtXy+tnGKOfs3rIcEfo",
-      EndPoint: "https://nyc3.digitaloceanspaces.com",
+      Vendor: 2,
+      Region: "s3v4",
+      Bucket: "emdadullah",
+      AccessKeyId: "Be7vSXLGn1EuMzy55jLO",
+      AccessKeySecret: "Gw2pW1gqVAG0GH8SXzrRJXi1036IMv5dBdgcwJme",
+      EndPoint: "https://api.zenexcloud.com",
       ACL: "public-read",
     },
   };
