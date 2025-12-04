@@ -132,7 +132,7 @@ const startRecording = async (streamId: string, userId: string) => {
     RoomId: streamInfo.id,
     RecordInputParams: {
       RecordMode: 1, // or 1 for single stream
-      StreamType: 0, // audio + video
+      StreamType: 3, // audio + video
       MaxIdleTime: 60,
       // MixConfig: {
       //   MixMode: 2,
