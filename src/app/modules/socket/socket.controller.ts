@@ -44,54 +44,6 @@ export function setupWebSocketServer(server: any) {
         const { type, receiverId, coHostLink, streamId, eventId, comment } =
           JSON.parse(message.toString());
 
-        const words = badWords;
-        for (const word of words) {
-          const pattern = new RegExp(`\\b${word}\\b`, "i");
-
-          if (pattern.test(comment)) {
-            let status = userStatus.get(userId) || {
-              warning: 0,
-              banned: false,
-            };
-
-            // Already banned
-            if (status.banned) {
-              return ws.send(
-                JSON.stringify({
-                  type: "banned",
-                  message: "You are banned from sending messages.",
-                })
-              );
-            }
-
-            const maxWarnings = 3;
-
-            if (status.warning >= maxWarnings) {
-              status.banned = true;
-              userStatus.set(userId, status);
-
-              return ws.send(
-                JSON.stringify({
-                  type: "banned",
-                  message: "You have been banned due to repeated violations.",
-                })
-              );
-            }
-
-            status.warning += 1;
-
-            userStatus.set(userId, status);
-
-            return ws.send(
-              JSON.stringify({
-                type: "bad-word-warning",
-                message: "Inappropriate language is not allowed",
-                warningCount: status.warning,
-              })
-            );
-          }
-        }
-
         switch (type) {
           case "add-contributor": {
             if (!receiverId) {
@@ -195,6 +147,50 @@ export function setupWebSocketServer(server: any) {
                   message: "Event ID is required",
                 })
               );
+            }
+
+            const words = badWords;
+            for (const word of words) {
+              const pattern = new RegExp(`\\b${word}\\b`, "i");
+
+              if (pattern.test(comment)) {
+                let status = userStatus.get(userId) || {
+                  warning: 0,
+                  banned: false,
+                };
+
+                const maxWarnings = 3;
+
+                if (status.warning >= maxWarnings) {
+                  status.banned = true;
+                  userStatus.set(userId, status);
+
+                  await prisma.user.update({
+                    where: { id: userId },
+                    data: { status: "Banned" },
+                  });
+
+                  return ws.send(
+                    JSON.stringify({
+                      type: "banned",
+                      message:
+                        "You have been banned due to repeated violations.",
+                    })
+                  );
+                }
+
+                status.warning += 1;
+
+                userStatus.set(userId, status);
+
+                return ws.send(
+                  JSON.stringify({
+                    type: "bad-word-warning",
+                    message: "Inappropriate language is not allowed",
+                    warningCount: status.warning,
+                  })
+                );
+              }
             }
 
             const eventInfo = await prisma.event.findUnique({
@@ -323,6 +319,50 @@ export function setupWebSocketServer(server: any) {
               );
             }
 
+            const words = badWords;
+            for (const word of words) {
+              const pattern = new RegExp(`\\b${word}\\b`, "i");
+
+              if (pattern.test(comment)) {
+                let status = userStatus.get(userId) || {
+                  warning: 0,
+                  banned: false,
+                };
+
+                const maxWarnings = 3;
+
+                if (status.warning >= maxWarnings) {
+                  status.banned = true;
+                  userStatus.set(userId, status);
+
+                  await prisma.user.update({
+                    where: { id: userId },
+                    data: { status: "Banned" },
+                  });
+
+                  return ws.send(
+                    JSON.stringify({
+                      type: "banned",
+                      message:
+                        "You have been banned due to repeated violations.",
+                    })
+                  );
+                }
+
+                status.warning += 1;
+
+                userStatus.set(userId, status);
+
+                return ws.send(
+                  JSON.stringify({
+                    type: "bad-word-warning",
+                    message: "Inappropriate language is not allowed",
+                    warningCount: status.warning,
+                  })
+                );
+              }
+            }
+
             const streamInfo = await prisma.liveStreaming.findUnique({
               where: { id: streamId },
               select: { id: true },
@@ -337,7 +377,7 @@ export function setupWebSocketServer(server: any) {
             }
 
             const userInfo = await prisma.user.findUnique({
-              where: { id: userId },
+              where: { id: userId, status: "Active" },
               select: {
                 id: true,
                 firstName: true,

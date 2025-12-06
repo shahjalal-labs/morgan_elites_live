@@ -340,6 +340,7 @@ enum UserStatus {
   Active
   Blocked
   Deleted
+  Banned
 }
 
 enum UserRole {
