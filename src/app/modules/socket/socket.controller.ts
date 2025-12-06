@@ -10,6 +10,7 @@ interface CustomWebSocket extends WebSocket {
 
 const connectedUsers = new Map<string, CustomWebSocket>();
 const connectedEvents = new Map<string, Set<string>>();
+const connectedStreams = new Map<string, Set<string>>();
 let wss;
 
 export function setupWebSocketServer(server: any) {
@@ -98,12 +99,25 @@ export function setupWebSocketServer(server: any) {
             break;
           }
 
-          case "join-event": {
+          case "join-streaming": {
             if (!eventId) {
               return ws.send(
                 JSON.stringify({
                   type: "error",
                   message: "Event ID is required",
+                })
+              );
+            }
+
+            const eventInfo = await prisma.event.findUnique({
+              where: { id: eventId },
+              select: { id: true },
+            });
+            if (!eventInfo) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Event not found",
                 })
               );
             }
@@ -115,7 +129,7 @@ export function setupWebSocketServer(server: any) {
 
             ws.send(
               JSON.stringify({
-                type: "joined-event",
+                type: "joined-streaming",
                 eventId,
               })
             );
@@ -123,12 +137,25 @@ export function setupWebSocketServer(server: any) {
             break;
           }
 
-          case "add-comment": {
+          case "chat-streaming": {
             if (!eventId) {
               return ws.send(
                 JSON.stringify({
                   type: "error",
                   message: "Event ID is required",
+                })
+              );
+            }
+
+            const eventInfo = await prisma.event.findUnique({
+              where: { id: eventId },
+              select: { id: true },
+            });
+            if (!eventInfo) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Event not found",
                 })
               );
             }
@@ -189,8 +216,112 @@ export function setupWebSocketServer(server: any) {
               if (clientSocket && clientSocket.readyState === WebSocket.OPEN) {
                 clientSocket.send(
                   JSON.stringify({
-                    type: "event-comment",
+                    type: "chat-streaming-comment",
                     message: comments,
+                  })
+                );
+              }
+            });
+            break;
+          }
+
+          case "join-streaming-free": {
+            if (!streamId) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Stream ID is required",
+                })
+              );
+            }
+
+            const streamInfo = await prisma.liveStreaming.findUnique({
+              where: { id: streamId },
+              select: { id: true },
+            });
+            if (!streamInfo) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Stream not found",
+                })
+              );
+            }
+
+            if (!connectedStreams.has(streamId)) {
+              connectedStreams.set(streamId, new Set<string>());
+            }
+            connectedStreams.get(streamId)!.add(userId);
+
+            ws.send(
+              JSON.stringify({
+                type: "joined-streaming-free",
+                streamId,
+              })
+            );
+
+            break;
+          }
+
+          case "chat-streaming-free": {
+            if (!streamId) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Stream ID is required",
+                })
+              );
+            }
+
+            const streamInfo = await prisma.liveStreaming.findUnique({
+              where: { id: streamId },
+              select: { id: true },
+            });
+            if (!streamInfo) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Stream not found",
+                })
+              );
+            }
+
+            const userInfo = await prisma.user.findUnique({
+              where: { id: userId },
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                profileImage: true,
+              },
+            });
+            if (!userInfo) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "User not found",
+                })
+              );
+            }
+
+            const commentInfo = {
+              userId,
+              firstName: userInfo.firstName,
+              lastName: userInfo.lastName,
+              profileImage: userInfo.profileImage,
+              comment,
+              createdAt: new Date(),
+            };
+
+            // Broadcast comment only to users connected to the event
+            connectedStreams.get(streamId)!.forEach((clientWs) => {
+              const clientSocket = connectedUsers.get(clientWs);
+
+              if (clientSocket && clientSocket.readyState === WebSocket.OPEN) {
+                clientSocket.send(
+                  JSON.stringify({
+                    type: "chat-streaming-free-comment",
+                    message: commentInfo,
                   })
                 );
               }
