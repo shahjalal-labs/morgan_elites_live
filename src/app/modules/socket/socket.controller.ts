@@ -3,6 +3,7 @@ import { Request } from "express";
 import { verifyWebSocketToken } from "./socket.service";
 import { parse } from "url";
 import prisma from "../../../shared/prisma";
+import { badWords } from "./language";
 
 interface CustomWebSocket extends WebSocket {
   userId?: string;
@@ -11,6 +12,7 @@ interface CustomWebSocket extends WebSocket {
 const connectedUsers = new Map<string, CustomWebSocket>();
 const connectedEvents = new Map<string, Set<string>>();
 const connectedStreams = new Map<string, Set<string>>();
+const userStatus = new Map<number, { warning: number; banned: boolean }>();
 let wss;
 
 export function setupWebSocketServer(server: any) {
@@ -41,6 +43,54 @@ export function setupWebSocketServer(server: any) {
       try {
         const { type, receiverId, coHostLink, streamId, eventId, comment } =
           JSON.parse(message.toString());
+
+        const words = badWords;
+        for (const word of words) {
+          const pattern = new RegExp(`\\b${word}\\b`, "i");
+
+          if (pattern.test(comment)) {
+            let status = userStatus.get(userId) || {
+              warning: 0,
+              banned: false,
+            };
+
+            // Already banned
+            if (status.banned) {
+              return ws.send(
+                JSON.stringify({
+                  type: "banned",
+                  message: "You are banned from sending messages.",
+                })
+              );
+            }
+
+            const maxWarnings = 3;
+
+            if (status.warning >= maxWarnings) {
+              status.banned = true;
+              userStatus.set(userId, status);
+
+              return ws.send(
+                JSON.stringify({
+                  type: "banned",
+                  message: "You have been banned due to repeated violations.",
+                })
+              );
+            }
+
+            status.warning += 1;
+
+            userStatus.set(userId, status);
+
+            return ws.send(
+              JSON.stringify({
+                type: "bad-word-warning",
+                message: "Inappropriate language is not allowed",
+                warningCount: status.warning,
+              })
+            );
+          }
+        }
 
         switch (type) {
           case "add-contributor": {
