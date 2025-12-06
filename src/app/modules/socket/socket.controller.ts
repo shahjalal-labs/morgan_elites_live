@@ -9,6 +9,7 @@ interface CustomWebSocket extends WebSocket {
 }
 
 const connectedUsers = new Map<string, CustomWebSocket>();
+const connectedEvents = new Map<string, Set<string>>();
 let wss;
 
 export function setupWebSocketServer(server: any) {
@@ -37,9 +38,8 @@ export function setupWebSocketServer(server: any) {
 
     ws.on("message", async (message: any) => {
       try {
-        const { type, receiverId, coHostLink, streamId } = JSON.parse(
-          message.toString()
-        );
+        const { type, receiverId, coHostLink, streamId, eventId, comment } =
+          JSON.parse(message.toString());
 
         switch (type) {
           case "add-contributor": {
@@ -95,6 +95,106 @@ export function setupWebSocketServer(server: any) {
               })
             );
 
+            break;
+          }
+
+          case "join-event": {
+            if (!eventId) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Event ID is required",
+                })
+              );
+            }
+
+            if (!connectedEvents.has(eventId)) {
+              connectedEvents.set(eventId, new Set<string>());
+            }
+            connectedEvents.get(eventId)!.add(userId);
+
+            ws.send(
+              JSON.stringify({
+                type: "joined-event",
+                eventId,
+              })
+            );
+
+            break;
+          }
+
+          case "add-comment": {
+            if (!eventId) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Event ID is required",
+                })
+              );
+            }
+
+            await prisma.eventComment.create({
+              data: {
+                eventId,
+                comment,
+                userId,
+              },
+            });
+
+            const comments = await prisma.event.findUnique({
+              where: { id: eventId },
+              select: {
+                id: true,
+                EventComment: {
+                  orderBy: { createdAt: "desc" },
+                  take: 20,
+                  select: {
+                    id: true,
+                    comment: true,
+                    createdAt: true,
+                    user: {
+                      select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                      },
+                    },
+                    ReplyComment: {
+                      orderBy: { createdAt: "desc" },
+                      take: 20,
+                      select: {
+                        id: true,
+                        replyComment: true,
+                        createdAt: true,
+                        user: {
+                          select: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                            profileImage: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            });
+
+            // Broadcast comment only to users connected to the event
+            connectedEvents.get(eventId)!.forEach((clientWs) => {
+              const clientSocket = connectedUsers.get(clientWs);
+
+              if (clientSocket && clientSocket.readyState === WebSocket.OPEN) {
+                clientSocket.send(
+                  JSON.stringify({
+                    type: "event-comment",
+                    message: comments,
+                  })
+                );
+              }
+            });
             break;
           }
 
