@@ -415,6 +415,32 @@ const topInfluencersLive = async () => {
   return topInfluencers;
 };
 
+const banUser = async (
+  streamId: string,
+  userId: string,
+  bannedUserId: string
+) => {
+  const streamInfo = await prisma.liveStreaming.findUnique({
+    where: { id: streamId },
+  });
+  if (!streamInfo) throw new ApiError(404, "Streaming not found");
+
+  const moderatorInfo = await prisma.moderator.findUnique({
+    where: {
+      userId_moderatorId: { userId: streamInfo.userId, moderatorId: userId },
+    },
+  });
+
+  if (!moderatorInfo)
+    throw new ApiError(403, "You are not authorized to ban users");
+
+  await prisma.liveStreaming.update({
+    where: { id: streamId },
+    data: { bannedUsers: { push: bannedUserId } },
+  });
+  return;
+};
+
 export const liveServices = {
   generateToken,
   createLiveStreaming,
@@ -427,4 +453,5 @@ export const liveServices = {
   watchCountUpdate,
   topInfluencersLive,
   recordingWebhook,
+  banUser,
 };

@@ -430,6 +430,37 @@ const userList = async (userId: string, query?: { search?: string }) => {
   return usersWithFollowers;
 };
 
+const addModerator = async (
+  userId: string,
+  moderatorId: string,
+  payload: {
+    isBanned: boolean;
+    isSubOnly: boolean;
+    slowMode: number;
+  }
+) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!userInfo) throw new ApiError(404, "User not found");
+  const moderatorInfo = await prisma.user.findUnique({
+    where: { id: moderatorId },
+  });
+  if (!moderatorInfo) throw new ApiError(404, "Moderator user not found");
+
+  await prisma.moderator.create({
+    data: {
+      userId: userId,
+      moderatorId: moderatorId,
+      isBanned: payload.isBanned,
+      isSubOnly: payload.isSubOnly,
+      slowMode: payload.slowMode,
+    },
+  });
+
+  return;
+};
+
 export const authService = {
   loginUserIntoDB,
   googleLogin,
@@ -443,4 +474,5 @@ export const authService = {
   deleteAccount,
   logoutAccount,
   userList,
+  addModerator,
 };

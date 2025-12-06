@@ -195,13 +195,29 @@ export function setupWebSocketServer(server: any) {
 
             const eventInfo = await prisma.event.findUnique({
               where: { id: eventId },
-              select: { id: true },
+              select: {
+                id: true,
+                stream: {
+                  select: {
+                    bannedUsers: true,
+                  },
+                },
+              },
             });
             if (!eventInfo) {
               return ws.send(
                 JSON.stringify({
                   type: "error",
                   message: "Event not found",
+                })
+              );
+            }
+
+            if (eventInfo.stream.bannedUsers.includes(userId)) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "You are banned from this stream",
                 })
               );
             }
@@ -365,13 +381,22 @@ export function setupWebSocketServer(server: any) {
 
             const streamInfo = await prisma.liveStreaming.findUnique({
               where: { id: streamId },
-              select: { id: true },
+              select: { id: true, bannedUsers: true },
             });
             if (!streamInfo) {
               return ws.send(
                 JSON.stringify({
                   type: "error",
                   message: "Stream not found",
+                })
+              );
+            }
+
+            if (streamInfo.bannedUsers.includes(userId)) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "You are banned from this stream",
                 })
               );
             }

@@ -34,6 +34,7 @@ router.patch(
   liveControllers.watchCountUpdate
 );
 router.get("/top-influencers/live", auth(), liveControllers.topInfluencersLive);
+router.post("/ban/user/live/:streamId", auth(), liveControllers.banUser);
 // router.post("/webhook/recording", liveControllers.recordingWebhook);
 
 export const liveRoutes = router;

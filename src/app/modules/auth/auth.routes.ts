@@ -39,5 +39,6 @@ router.patch(
 router.delete("/delete-account", auth(), authController.deleteAccount);
 router.post("/logged-out", auth(), authController.logoutAccount);
 router.get("/user-list", auth(), authController.userList);
+router.post("/add-moderator/:userId", auth(), authController.addModerator);
 
 export const authRoute = router;

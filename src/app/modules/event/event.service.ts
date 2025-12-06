@@ -128,6 +128,12 @@ const allEvents = async (userId: string, query: any) => {
         },
       });
 
+      const isModerator = await prisma.moderator.findUnique({
+        where: {
+          userId_moderatorId: { userId: event.userId, moderatorId: userId },
+        },
+      });
+
       return {
         ...event,
         user: {
@@ -137,6 +143,7 @@ const allEvents = async (userId: string, query: any) => {
         isLiked: event.EventLike.length > 0,
         isOwner: event.userId === userId,
         isPayment: paymentInfo?.userId === userId ? true : false,
+        isModerator: !!isModerator,
       };
     })
   );
@@ -229,6 +236,12 @@ const liveEvents = async (userId: string, query: any) => {
         },
       });
 
+      const isModerator = await prisma.moderator.findUnique({
+        where: {
+          userId_moderatorId: { userId: event.userId, moderatorId: userId },
+        },
+      });
+
       return {
         ...event,
         user: {
@@ -238,6 +251,7 @@ const liveEvents = async (userId: string, query: any) => {
         isLiked: event.EventLike.length > 0,
         isOwner: event.userId === userId,
         isPayment: paymentInfo?.userId === userId ? true : false,
+        isModerator: !!isModerator,
       };
     })
   );
@@ -324,6 +338,12 @@ const getScheduleEvents = async (userId: string, query: any) => {
         },
       });
 
+      const isModerator = await prisma.moderator.findUnique({
+        where: {
+          userId_moderatorId: { userId: event.userId, moderatorId: userId },
+        },
+      });
+
       return {
         ...event,
         user: {
@@ -333,6 +353,7 @@ const getScheduleEvents = async (userId: string, query: any) => {
         isLiked: event.EventLike.length > 0,
         isOwner: event.userId === userId,
         isPayment: paymentInfo?.userId === userId ? true : false,
+        isModerator: !!isModerator,
       };
     })
   );
@@ -410,6 +431,12 @@ const getFundingEvents = async (userId: string, query: any) => {
         },
       });
 
+      const isModerator = await prisma.moderator.findUnique({
+        where: {
+          userId_moderatorId: { userId: event.userId, moderatorId: userId },
+        },
+      });
+
       return {
         ...event,
         user: {
@@ -418,6 +445,7 @@ const getFundingEvents = async (userId: string, query: any) => {
         },
         isLiked: event.EventLike.length > 0,
         isOwner: event.userId === userId,
+        isModerator: !!isModerator,
       };
     })
   );
@@ -623,6 +651,12 @@ const usersEvent = async (userId: string, query: any, myId: string) => {
         },
       });
 
+      const isModerator = await prisma.moderator.findUnique({
+        where: {
+          userId_moderatorId: { userId: event.userId, moderatorId: userId },
+        },
+      });
+
       return {
         ...event,
         user: {
@@ -632,6 +666,7 @@ const usersEvent = async (userId: string, query: any, myId: string) => {
         isLiked: event.EventLike.length > 0,
         isOwner: event.userId === myId,
         isPayment: paymentInfo?.userId === myId ? true : false,
+        isModerator: !!isModerator,
       };
     })
   );
@@ -838,6 +873,12 @@ const followingEvents = async (userId: string, query: any) => {
         },
       });
 
+      const isModerator = await prisma.moderator.findUnique({
+        where: {
+          userId_moderatorId: { userId: event.userId, moderatorId: userId },
+        },
+      });
+
       return {
         ...event,
         user: {
@@ -847,6 +888,7 @@ const followingEvents = async (userId: string, query: any) => {
         isLiked: event.EventLike.length > 0,
         isOwner: event.userId === userId,
         isPayment: paymentInfo?.userId === userId ? true : false,
+        isModerator: !!isModerator,
       };
     })
   );

@@ -131,6 +131,19 @@ export const recordingWebhookController = catchAsync(async (req, res) => {
   });
 });
 
+const banUser = catchAsync(async (req, res) => {
+  await liveServices.banUser(
+    req.params.streamId,
+    req.user.id,
+    req.body.banUserId
+  );
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "User banned successfully",
+  });
+});
+
 export const liveControllers = {
   generateToken,
   createLiveStreaming,
@@ -142,4 +155,5 @@ export const liveControllers = {
   recordLinkRetrieve,
   watchCountUpdate,
   topInfluencersLive,
+  banUser,
 };

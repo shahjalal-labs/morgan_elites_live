@@ -221,6 +221,7 @@ model LiveStreaming {
   recordingLink String?
   watchCount    Int      @default(0)
   isLive        Boolean  @default(true)
+  bannedUsers   String[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -294,6 +295,20 @@ model Notification {
   sender    User?            @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+model Moderator {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  moderatorId String   @db.ObjectId
+  slowMode    Int      @default(0) //in seconds
+  isBanned    Boolean  @default(false)
+  isSubOnly   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, moderatorId])
+  @@map("moderators")
 }
 
 enum NotificationType {

@@ -143,6 +143,16 @@ const userList = catchAsync(async (req, res) => {
   });
 });
 
+const addModerator = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  await authService.addModerator(userId, req.params.userId, req.body);
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Moderator added successfully.",
+  });
+});
+
 export const authController = {
   loginUser,
   googleLogin,
@@ -156,4 +166,5 @@ export const authController = {
   deleteAccount,
   logoutAccount,
   userList,
+  addModerator,
 };
