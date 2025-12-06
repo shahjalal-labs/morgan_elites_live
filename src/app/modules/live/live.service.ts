@@ -434,9 +434,38 @@ const banUser = async (
   if (!moderatorInfo)
     throw new ApiError(403, "You are not authorized to ban users");
 
-  await prisma.liveStreaming.update({
-    where: { id: streamId },
-    data: { bannedUsers: { push: bannedUserId } },
+  if (!moderatorInfo.isBanned) {
+    throw new ApiError(403, "You are not allowed to ban users");
+  }
+
+  const now = Date.now();
+  const lastUpdated = moderatorInfo.updatedAt.getTime();
+  const slowModeMs = moderatorInfo.slowMode * 1000;
+
+  if (now < lastUpdated + slowModeMs) {
+    throw new ApiError(
+      429,
+      "You are in slow mode. Please wait before banning another user."
+    );
+  }
+
+  if (streamInfo.bannedUsers.includes(bannedUserId))
+    throw new ApiError(400, "User already banned");
+
+  await prisma.$transaction(async (tx) => {
+    await tx.liveStreaming.update({
+      where: { id: streamId },
+      data: { bannedUsers: { push: bannedUserId } },
+    });
+
+    await tx.moderator.update({
+      where: {
+        userId_moderatorId: { userId: streamInfo.userId, moderatorId: userId },
+      },
+      data: {
+        updatedAt: new Date(),
+      },
+    });
   });
   return;
 };
