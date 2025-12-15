@@ -68,6 +68,7 @@ export const stripeWebhookController = catchAsync(async (req, res) => {
       req.body,
       sig,
       config.stripe.webhook_secret as string
+      // "whsec_PWiYiv8emG1JjKfxOzaco5iG5Pp8E31D"
     );
   } catch (err: any) {
     sendResponse(res, {

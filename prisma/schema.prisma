@@ -21,6 +21,7 @@ model User {
   phoneNumber           String?
   address               String?
   stripeAccountId       String?
+  customerId            String?
   gender                Gender                  @default(Other)
   role                  UserRole                @default(User)
   status                UserStatus              @default(Active)
@@ -274,7 +275,11 @@ model Donation {
 
 model Subscription {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
+  userId    String   @unique @db.ObjectId
+  priceId   String
+  plan      String
+  isActive  Boolean  @default(false)
+  expiryAt  DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -318,6 +323,7 @@ enum NotificationType {
   GroupComment
   Follow
   Donation
+  Subscription
   JoinAccess
   LiveStreaming
   PasswordChange

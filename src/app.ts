@@ -9,6 +9,7 @@ import { bullBoardRouter } from "./bullBoard";
 import basicAuth from "express-basic-auth";
 import { stripeWebhookController } from "./app/modules/donation/donation.controller";
 import { recordingWebhookController } from "./app/modules/live/live.controller";
+// import { subscriptionWebhookHandler } from "./app/modules/subscription/subscription.controller";
 
 const app: Application = express();
 
@@ -30,6 +31,12 @@ app.post(
   express.raw({ type: "application/json" }),
   stripeWebhookController
 );
+
+// app.post(
+//   "/subscription/webhook",
+//   express.raw({ type: "application/json" }),
+//   subscriptionWebhookHandler
+// );
 
 app.post(
   "/api/v1/live/webhook/recording",

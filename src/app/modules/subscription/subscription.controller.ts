@@ -1,16 +1,58 @@
 import { subscriptionServices } from "./subscription.service";
 import sendResponse from "../../../shared/sendResponse";
 import catchAsync from "../../../shared/catchAsync";
+import Stripe from "stripe";
+import { stripe } from "../../../helpers/stripe";
+import { donationServices } from "../donation/donation.service";
 
 const createSubscription = catchAsync(async (req, res) => {
-  const data = await subscriptionServices.createSubscription(req.body);
+  const data = await subscriptionServices.createSubscription(
+    req.body.plan,
+    req.body.priceId,
+    req.user.id
+  );
   sendResponse(res, {
     success: true,
     statusCode: 201,
-    message: "The subscription has been created successfully",
+    message: "The subscription session link has been retrieved successfully",
     data,
   });
 });
+
+// export const subscriptionWebhookHandler = catchAsync(async (req, res) => {
+//   const sig = req.headers["stripe-signature"] as string;
+//   if (!sig) {
+//     sendResponse(res, {
+//       success: false,
+//       statusCode: 400,
+//       message: "Missing stripe signature",
+//     });
+//     return;
+//   }
+//   let event: Stripe.Event;
+//   try {
+//     event = stripe.webhooks.constructEvent(
+//       req.body,
+//       sig,
+//       "whsec_PWiYiv8emG1JjKfxOzaco5iG5Pp8E31D"
+//     );
+//   } catch (err: any) {
+//     sendResponse(res, {
+//       success: false,
+//       statusCode: 400,
+//       message: `Webhook error: ${err.message}`,
+//     });
+//     return;
+//   }
+
+//   await subscriptionServices.subscriptionWebhookHandler(event);
+
+//   sendResponse(res, {
+//     success: true,
+//     statusCode: 200,
+//     message: "Webhook processed",
+//   });
+// });
 
 const getAllSubscriptions = catchAsync(async (req, res) => {
   const result = await subscriptionServices.getAllSubscriptions();

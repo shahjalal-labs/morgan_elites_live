@@ -87,15 +87,47 @@ const stripeWebhookService = async (event: Stripe.Event) => {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-      console.log(session);
-      const userId = session.metadata?.userId!;
+      const userId = session.metadata?.userId;
+
+      if (session.subscription) {
+        const priceId = session.metadata?.priceId;
+        const plan = session.metadata?.plan;
+        const expiryAt = session.metadata?.expiryAt;
+
+        await prisma.subscription.upsert({
+          where: { userId },
+          update: {
+            priceId,
+            plan,
+            isActive: true,
+            expiryAt: new Date(expiryAt!),
+          },
+          create: {
+            userId: userId!,
+            priceId: priceId!,
+            plan: plan!,
+            isActive: true,
+            expiryAt: new Date(expiryAt!),
+          },
+        });
+
+        await sendSingleNotification(
+          userId!,
+          "Subscription Activated",
+          `Thank you! Your subscription has been activated successfully.`,
+          "Subscription"
+        );
+        console.log("✅ Subscription active until:", expiryAt);
+        break;
+      }
+
       const eventId = session.metadata?.eventId!;
       const amount = session.amount_total! / 100;
       const paymentFor = session.metadata?.paymentFor!;
 
       const donationInfo = await prisma.donation.create({
         data: {
-          userId,
+          userId: userId!,
           eventId,
           amount: amount,
           status: "Completed",
