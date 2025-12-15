@@ -280,10 +280,16 @@ const myProfile = async (userId: string) => {
     },
   });
 
+  const isSubscribed = await prisma.subscription.findUnique({
+    where: { userId },
+  });
+
   return {
     ...user,
     followingCount,
     followersCount,
+    isSubscribed: !!isSubscribed,
+    subscribeType: isSubscribed ? isSubscribed.plan : null,
   };
 };
 
