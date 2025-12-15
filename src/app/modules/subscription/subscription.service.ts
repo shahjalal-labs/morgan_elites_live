@@ -1,6 +1,6 @@
-import Stripe from "stripe";
 import { stripe } from "../../../helpers/stripe";
 import prisma from "../../../shared/prisma";
+import ApiError from "../../../errors/ApiErrors";
 
 const createSubscription = async (
   plan: string,
@@ -49,52 +49,6 @@ const createSubscription = async (
   return session.url;
 };
 
-// const subscriptionWebhookHandler = async (event: Stripe.Event) => {
-//   switch (event.type) {
-//     case "checkout.session.completed": {
-//       const session = event.data.object as Stripe.Checkout.Session;
-//       if (!session.subscription || !session.metadata) return;
-
-//       const userId = session.metadata.userId;
-//       const priceId = session.metadata.priceId;
-//       const plan = session.metadata.plan;
-//       const expiryAt = session.metadata.expiryAt;
-
-//       await prisma.subscription.upsert({
-//         where: { userId },
-//         update: {
-//           priceId,
-//           plan,
-//           isActive: true,
-//           expiryAt: new Date(expiryAt),
-//         },
-//         create: {
-//           userId,
-//           priceId,
-//           plan,
-//           isActive: true,
-//           expiryAt: new Date(expiryAt),
-//         },
-//       });
-
-//       console.log("✅ Subscription active until:", expiryAt);
-//       break;
-//     }
-//     case "customer.subscription.updated": {
-//       const subscription = event.data.object as Stripe.Subscription;
-//       console.log("Subscription updated:", subscription.id);
-//       break;
-//     }
-//     case "customer.subscription.deleted": {
-//       const subscription = event.data.object as Stripe.Subscription;
-//       console.log("Subscription deleted:", subscription.id);
-//       break;
-//     }
-//     default:
-//       break;
-//   }
-// };
-
 const getAllSubscriptions = async () => {
   const results = await prisma.subscription.findMany();
   return results;
@@ -110,8 +64,13 @@ const updateSubscription = async (id: string, data: any) => {
   return;
 };
 
-const deleteSubscription = async (id: string) => {
-  await prisma.subscription.delete({ where: { id } });
+const deleteSubscription = async (subscriptionId: string, userId: string) => {
+  const response = await stripe.subscriptions.cancel(subscriptionId);
+  if (response.status !== "canceled") {
+    throw new ApiError(400, "Failed to cancel subscription in Stripe");
+  }
+
+  await prisma.subscription.delete({ where: { userId, subscriptionId } });
   return;
 };
 

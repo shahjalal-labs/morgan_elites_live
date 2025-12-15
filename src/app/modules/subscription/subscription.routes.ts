@@ -8,6 +8,10 @@ router.post("/", auth(), subscriptionControllers.createSubscription);
 router.get("/", subscriptionControllers.getAllSubscriptions);
 router.get("/:id", subscriptionControllers.getSubscriptionById);
 router.patch("/:id", subscriptionControllers.updateSubscription);
-router.delete("/:id", subscriptionControllers.deleteSubscription);
+router.post(
+  "/cancel/:subscriptionId",
+  auth(),
+  subscriptionControllers.deleteSubscription
+);
 
 export const subscriptionRoutes = router;

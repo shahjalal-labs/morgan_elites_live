@@ -274,14 +274,15 @@ model Donation {
 }
 
 model Subscription {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @unique @db.ObjectId
-  priceId   String
-  plan      String
-  isActive  Boolean  @default(false)
-  expiryAt  DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  subscriptionId String   @unique
+  userId         String   @unique @db.ObjectId
+  priceId        String
+  plan           String
+  isActive       Boolean  @default(false)
+  expiryAt       DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@map("subscriptions")
 }

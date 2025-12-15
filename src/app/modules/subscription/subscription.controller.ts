@@ -1,9 +1,6 @@
 import { subscriptionServices } from "./subscription.service";
 import sendResponse from "../../../shared/sendResponse";
 import catchAsync from "../../../shared/catchAsync";
-import Stripe from "stripe";
-import { stripe } from "../../../helpers/stripe";
-import { donationServices } from "../donation/donation.service";
 
 const createSubscription = catchAsync(async (req, res) => {
   const data = await subscriptionServices.createSubscription(
@@ -84,11 +81,14 @@ const updateSubscription = catchAsync(async (req, res) => {
 });
 
 const deleteSubscription = catchAsync(async (req, res) => {
-  await subscriptionServices.deleteSubscription(req.params.id);
+  await subscriptionServices.deleteSubscription(
+    req.params.subscriptionId,
+    req.user.id
+  );
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "subscription has been deleted successfully",
+    message: "subscription has been canceled successfully",
   });
 });
 

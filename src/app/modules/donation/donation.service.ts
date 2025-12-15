@@ -93,16 +93,29 @@ const stripeWebhookService = async (event: Stripe.Event) => {
         const priceId = session.metadata?.priceId;
         const plan = session.metadata?.plan;
         const expiryAt = session.metadata?.expiryAt;
+        const subscriptionId = session.subscription as string;
+
+        const existingSubscription = await prisma.subscription.findUnique({
+          where: { userId },
+        });
+
+        if (existingSubscription) {
+          await stripe.subscriptions.cancel(
+            existingSubscription.subscriptionId
+          );
+        }
 
         await prisma.subscription.upsert({
           where: { userId },
           update: {
+            subscriptionId: subscriptionId,
             priceId,
             plan,
             isActive: true,
             expiryAt: new Date(expiryAt!),
           },
           create: {
+            subscriptionId: subscriptionId,
             userId: userId!,
             priceId: priceId!,
             plan: plan!,
