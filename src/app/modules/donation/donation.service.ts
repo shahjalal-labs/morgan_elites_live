@@ -74,8 +74,8 @@ const createDonation = async (
       },
     },
 
-    success_url: `https://morgan.smtsigma.com/payment-success`,
-    cancel_url: `https://morgan.smtsigma.com/payment-cancel`,
+    success_url: `https://elites-livestream.com/payment-success`,
+    cancel_url: `https://elites-livestream.com/payment-cancel`,
   });
 
   return {

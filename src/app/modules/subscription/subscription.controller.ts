@@ -1,15 +1,16 @@
-import {subscriptionServices} from './subscription.service';
-import sendResponse from '../../../shared/sendResponse';
+import { subscriptionServices } from "./subscription.service";
+import sendResponse from "../../../shared/sendResponse";
 import catchAsync from "../../../shared/catchAsync";
 
-const createSubscription = catchAsync (async (req, res) => {
-  await subscriptionServices.createSubscription(req.body);
+const createSubscription = catchAsync(async (req, res) => {
+  const data = await subscriptionServices.createSubscription(req.body);
   sendResponse(res, {
     success: true,
     statusCode: 201,
-    message: "The subscription has been created successfully"
+    message: "The subscription has been created successfully",
+    data,
   });
-})
+});
 
 const getAllSubscriptions = catchAsync(async (req, res) => {
   const result = await subscriptionServices.getAllSubscriptions();
@@ -19,7 +20,7 @@ const getAllSubscriptions = catchAsync(async (req, res) => {
     message: "All subscriptions has been retrived successfully",
     data: result,
   });
-})
+});
 
 const getSubscriptionById = catchAsync(async (req, res) => {
   const result = await subscriptionServices.getSubscriptionById(req.params.id);
@@ -29,16 +30,16 @@ const getSubscriptionById = catchAsync(async (req, res) => {
     message: "subscription has been retrived successfully",
     data: result,
   });
-})
+});
 
 const updateSubscription = catchAsync(async (req, res) => {
   await subscriptionServices.updateSubscription(req.params.id, req.body);
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "subscription has been updated successfully"
+    message: "subscription has been updated successfully",
   });
-})
+});
 
 const deleteSubscription = catchAsync(async (req, res) => {
   await subscriptionServices.deleteSubscription(req.params.id);
@@ -47,7 +48,7 @@ const deleteSubscription = catchAsync(async (req, res) => {
     statusCode: 200,
     message: "subscription has been deleted successfully",
   });
-})
+});
 
 export const subscriptionControllers = {
   createSubscription,
@@ -55,5 +56,4 @@ export const subscriptionControllers = {
   getSubscriptionById,
   updateSubscription,
   deleteSubscription,
-}
-  
+};
