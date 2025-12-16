@@ -109,6 +109,7 @@ const stripeWebhookService = async (event: Stripe.Event) => {
           update: {
             subscriptionId: subscriptionId,
             plan,
+            platform: "Web",
             isActive: true,
             expiryAt: new Date(expiryAt!),
           },
@@ -116,6 +117,7 @@ const stripeWebhookService = async (event: Stripe.Event) => {
             subscriptionId: subscriptionId,
             userId: userId!,
             plan: plan!,
+            platform: "Web",
             isActive: true,
             expiryAt: new Date(expiryAt!),
           },

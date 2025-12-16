@@ -278,6 +278,7 @@ model Subscription {
   subscriptionId String   @unique
   userId         String   @unique @db.ObjectId
   plan           String
+  platform       Platform
   isActive       Boolean  @default(false)
   expiryAt       DateTime
   createdAt      DateTime @default(now())
@@ -314,6 +315,12 @@ model Moderator {
 
   @@unique([userId, moderatorId])
   @@map("moderators")
+}
+
+enum Platform {
+  IOS
+  Android
+  Web
 }
 
 enum NotificationType {
