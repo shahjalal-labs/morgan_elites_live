@@ -20,7 +20,7 @@ const createEvent = async (
     throw new ApiError(400, "You does not have a connected Stripe account");
   const account = await stripe.accounts.retrieve(
     // eventInfo.user.stripeAccountId
-    "acct_1RsFIE2XU2PLbtHE"
+    "acct_1Sep3UBPugK1aiPR"
   );
   if (
     account.capabilities?.transfers !== "active" ||
