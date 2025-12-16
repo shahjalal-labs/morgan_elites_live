@@ -38,7 +38,6 @@ const createSubscription = async (
     ],
     metadata: {
       userId,
-      priceId,
       plan,
       expiryAt: expiryAt.toISOString(),
     },

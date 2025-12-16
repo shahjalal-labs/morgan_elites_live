@@ -90,7 +90,6 @@ const stripeWebhookService = async (event: Stripe.Event) => {
       const userId = session.metadata?.userId;
 
       if (session.subscription) {
-        const priceId = session.metadata?.priceId;
         const plan = session.metadata?.plan;
         const expiryAt = session.metadata?.expiryAt;
         const subscriptionId = session.subscription as string;
@@ -109,7 +108,6 @@ const stripeWebhookService = async (event: Stripe.Event) => {
           where: { userId },
           update: {
             subscriptionId: subscriptionId,
-            priceId,
             plan,
             isActive: true,
             expiryAt: new Date(expiryAt!),
@@ -117,7 +115,6 @@ const stripeWebhookService = async (event: Stripe.Event) => {
           create: {
             subscriptionId: subscriptionId,
             userId: userId!,
-            priceId: priceId!,
             plan: plan!,
             isActive: true,
             expiryAt: new Date(expiryAt!),
