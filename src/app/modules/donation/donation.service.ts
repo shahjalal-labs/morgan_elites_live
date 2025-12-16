@@ -211,8 +211,8 @@ const createConnectedAccount = async (userId: string) => {
 
   const link = await stripe.accountLinks.create({
     account: stripeAccountId,
-    refresh_url: `https://test.com/onboarding/refresh`,
-    return_url: `https://test.com/onboarding/complete`,
+    refresh_url: `https://elites-livestream.com/onboarding/refresh`,
+    return_url: `https://elites-livestream.com/onboarding/complete`,
     type: "account_onboarding",
   });
 
