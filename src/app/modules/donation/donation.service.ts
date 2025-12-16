@@ -33,7 +33,7 @@ const createDonation = async (
   // Check capabilities
   const account = await stripe.accounts.retrieve(
     // eventInfo.user.stripeAccountId
-    "acct_1RsFIE2XU2PLbtHE"
+    "acct_1Sep3UBPugK1aiPR"
   );
   if (
     account.capabilities?.transfers !== "active" ||
@@ -69,7 +69,7 @@ const createDonation = async (
 
     payment_intent_data: {
       transfer_data: {
-        destination: "acct_1RsFIE2XU2PLbtHE", // <-- connected account
+        destination: "acct_1Sep3UBPugK1aiPR", // <-- connected account
         // destination: eventInfo.user.stripeAccountId as string, // <-- connected account
       },
     },
@@ -225,7 +225,7 @@ const stripeBalance = async (userId: string) => {
 
   const balance = await stripe.balance.retrieve({
     // stripeAccount: userInfo.stripeAccountId as string,
-    stripeAccount: "acct_1RsFIE2XU2PLbtHE",
+    stripeAccount: "acct_1Sep3UBPugK1aiPR",
   });
 
   const totalTransactions = await prisma.donation.count({
@@ -276,7 +276,7 @@ const instantPayout = async (userId: string, amount: number) => {
     },
     {
       // stripeAccount: userInfo.stripeAccountId as string,
-      stripeAccount: "acct_1RsFIE2XU2PLbtHE",
+      stripeAccount: "acct_1Sep3UBPugK1aiPR",
     }
   );
 
