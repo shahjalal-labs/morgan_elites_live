@@ -69,6 +69,7 @@ const createDonation = async (
 
     payment_intent_data: {
       transfer_data: {
+        amount: Math.round(amount * 100 * 0.9), // platform takes 10% fee
         destination: "acct_1Sep3UBPugK1aiPR", // <-- connected account
         // destination: eventInfo.user.stripeAccountId as string, // <-- connected account
       },
