@@ -3,6 +3,7 @@ import { stripe } from "../../../helpers/stripe";
 import Stripe from "stripe";
 import ApiError from "../../../errors/ApiErrors";
 import { sendSingleNotification } from "../notification/notification.services";
+import { Platform } from "@prisma/client";
 
 const createDonation = async (
   amount: number,
@@ -184,6 +185,40 @@ const stripeWebhookService = async (event: Stripe.Event) => {
     default:
       break;
   }
+};
+
+const inAppPurchaseWebhook = async (data: any) => {
+  const userId = data.userId;
+  const subscriptionId = data.subscriptionId;
+  const plan = data.plan;
+  const expiryAt = data.expiryAt;
+
+  await prisma.subscription.upsert({
+    where: { userId },
+    update: {
+      subscriptionId: subscriptionId,
+      plan,
+      platform: data.platform as Platform,
+      isActive: true,
+      expiryAt: new Date(expiryAt!),
+    },
+    create: {
+      subscriptionId: subscriptionId,
+      userId: userId!,
+      plan: plan!,
+      platform: data.platform as Platform,
+      isActive: true,
+      expiryAt: new Date(expiryAt!),
+    },
+  });
+
+  await sendSingleNotification(
+    userId!,
+    "Subscription Activated",
+    `Thank you! Your subscription has been activated successfully.`,
+    "Subscription"
+  );
+  return;
 };
 
 const createConnectedAccount = async (userId: string) => {
