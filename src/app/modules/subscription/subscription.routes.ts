@@ -13,5 +13,10 @@ router.post(
   auth(),
   subscriptionControllers.deleteSubscription
 );
+router.post(
+  "/in-app-purchase",
+  auth(),
+  subscriptionControllers.inAppSubscription
+);
 
 export const subscriptionRoutes = router;

@@ -92,10 +92,19 @@ const deleteSubscription = catchAsync(async (req, res) => {
   });
 });
 
+const inAppSubscription = catchAsync(async (req, res) => {
+  await subscriptionServices.inAppSubscription(req.body, req.user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "In-app purchase subscription created successfully",
+  });
+});
 export const subscriptionControllers = {
   createSubscription,
   getAllSubscriptions,
   getSubscriptionById,
   updateSubscription,
   deleteSubscription,
+  inAppSubscription,
 };

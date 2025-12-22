@@ -1,6 +1,7 @@
 import { stripe } from "../../../helpers/stripe";
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
+import { Platform } from "@prisma/client";
 
 const createSubscription = async (
   plan: string,
@@ -48,6 +49,42 @@ const createSubscription = async (
   return session.url;
 };
 
+const inAppSubscription = async (
+  payload: {
+    plan: string;
+    subscriptionId: string;
+    platform: Platform;
+  },
+  userId: string
+) => {
+  const userInfo = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userInfo) throw new Error("User not found");
+
+  const expiryAt = new Date();
+  expiryAt.setMonth(expiryAt.getMonth() + 1);
+
+  await prisma.subscription.upsert({
+    where: { userId },
+    update: {
+      subscriptionId: payload.subscriptionId,
+      plan: payload.plan,
+      platform: payload.platform,
+      isActive: true,
+      expiryAt: expiryAt,
+    },
+    create: {
+      userId,
+      subscriptionId: payload.subscriptionId,
+      plan: payload.plan,
+      platform: payload.platform,
+      isActive: true,
+      expiryAt: expiryAt,
+    },
+  });
+
+  return;
+};
+
 const getAllSubscriptions = async () => {
   const results = await prisma.subscription.findMany();
   return results;
@@ -80,4 +117,5 @@ export const subscriptionServices = {
   getSubscriptionById,
   updateSubscription,
   deleteSubscription,
+  inAppSubscription,
 };
