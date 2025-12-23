@@ -3,7 +3,7 @@ import { Request } from "express";
 import { verifyWebSocketToken } from "./socket.service";
 import { parse } from "url";
 import prisma from "../../../shared/prisma";
-import { badWords } from "./language";
+import { badWordRegex } from "./language";
 
 interface CustomWebSocket extends WebSocket {
   userId?: string;
@@ -149,48 +149,85 @@ export function setupWebSocketServer(server: any) {
               );
             }
 
-            const words = badWords;
-            for (const word of words) {
-              const pattern = new RegExp(`\\b${word}\\b`, "i");
+            // const words = badWords;
+            // for (const word of words) {
+            //   const pattern = new RegExp(`\\b${word}\\b`, "i");
 
-              if (pattern.test(comment)) {
-                let status = userStatus.get(userId) || {
-                  warning: 0,
-                  banned: false,
-                };
+            //   if (pattern.test(comment)) {
+            //     let status = userStatus.get(userId) || {
+            //       warning: 0,
+            //       banned: false,
+            //     };
 
-                const maxWarnings = 3;
+            //     const maxWarnings = 3;
 
-                if (status.warning >= maxWarnings) {
-                  status.banned = true;
-                  userStatus.set(userId, status);
+            //     if (status.warning >= maxWarnings) {
+            //       status.banned = true;
+            //       userStatus.set(userId, status);
 
-                  await prisma.user.update({
-                    where: { id: userId },
-                    data: { status: "Banned" },
-                  });
+            //       await prisma.user.update({
+            //         where: { id: userId },
+            //         data: { status: "Banned" },
+            //       });
 
-                  return ws.send(
-                    JSON.stringify({
-                      type: "banned",
-                      message:
-                        "You have been banned due to repeated violations.",
-                    })
-                  );
-                }
+            //       return ws.send(
+            //         JSON.stringify({
+            //           type: "banned",
+            //           message:
+            //             "You have been banned due to repeated violations.",
+            //         })
+            //       );
+            //     }
 
-                status.warning += 1;
+            //     status.warning += 1;
 
+            //     userStatus.set(userId, status);
+
+            //     return ws.send(
+            //       JSON.stringify({
+            //         type: "bad-word-warning",
+            //         message: "Inappropriate language is not allowed",
+            //         warningCount: status.warning,
+            //       })
+            //     );
+            //   }
+            // }
+
+            if (badWordRegex.test(comment)) {
+              let status = userStatus.get(userId) || {
+                warning: 0,
+                banned: false,
+              };
+
+              const maxWarnings = 3;
+
+              if (status.warning >= maxWarnings) {
+                status.banned = true;
                 userStatus.set(userId, status);
+
+                await prisma.user.update({
+                  where: { id: userId },
+                  data: { status: "Banned" },
+                });
 
                 return ws.send(
                   JSON.stringify({
-                    type: "bad-word-warning",
-                    message: "Inappropriate language is not allowed",
-                    warningCount: status.warning,
+                    type: "banned",
+                    message: "You have been banned due to repeated violations.",
                   })
                 );
               }
+
+              status.warning += 1;
+              userStatus.set(userId, status);
+
+              return ws.send(
+                JSON.stringify({
+                  type: "bad-word-warning",
+                  message: "Inappropriate language is not allowed",
+                  warningCount: status.warning,
+                })
+              );
             }
 
             const eventInfo = await prisma.event.findUnique({
@@ -335,48 +372,85 @@ export function setupWebSocketServer(server: any) {
               );
             }
 
-            const words = badWords;
-            for (const word of words) {
-              const pattern = new RegExp(`\\b${word}\\b`, "i");
+            // const words = badWords;
+            // for (const word of words) {
+            //   const pattern = new RegExp(`\\b${word}\\b`, "i");
 
-              if (pattern.test(comment)) {
-                let status = userStatus.get(userId) || {
-                  warning: 0,
-                  banned: false,
-                };
+            //   if (pattern.test(comment)) {
+            //     let status = userStatus.get(userId) || {
+            //       warning: 0,
+            //       banned: false,
+            //     };
 
-                const maxWarnings = 3;
+            //     const maxWarnings = 3;
 
-                if (status.warning >= maxWarnings) {
-                  status.banned = true;
-                  userStatus.set(userId, status);
+            //     if (status.warning >= maxWarnings) {
+            //       status.banned = true;
+            //       userStatus.set(userId, status);
 
-                  await prisma.user.update({
-                    where: { id: userId },
-                    data: { status: "Banned" },
-                  });
+            //       await prisma.user.update({
+            //         where: { id: userId },
+            //         data: { status: "Banned" },
+            //       });
 
-                  return ws.send(
-                    JSON.stringify({
-                      type: "banned",
-                      message:
-                        "You have been banned due to repeated violations.",
-                    })
-                  );
-                }
+            //       return ws.send(
+            //         JSON.stringify({
+            //           type: "banned",
+            //           message:
+            //             "You have been banned due to repeated violations.",
+            //         })
+            //       );
+            //     }
 
-                status.warning += 1;
+            //     status.warning += 1;
 
+            //     userStatus.set(userId, status);
+
+            //     return ws.send(
+            //       JSON.stringify({
+            //         type: "bad-word-warning",
+            //         message: "Inappropriate language is not allowed",
+            //         warningCount: status.warning,
+            //       })
+            //     );
+            //   }
+            // }
+
+            if (badWordRegex.test(comment)) {
+              let status = userStatus.get(userId) || {
+                warning: 0,
+                banned: false,
+              };
+
+              const maxWarnings = 3;
+
+              if (status.warning >= maxWarnings) {
+                status.banned = true;
                 userStatus.set(userId, status);
+
+                await prisma.user.update({
+                  where: { id: userId },
+                  data: { status: "Banned" },
+                });
 
                 return ws.send(
                   JSON.stringify({
-                    type: "bad-word-warning",
-                    message: "Inappropriate language is not allowed",
-                    warningCount: status.warning,
+                    type: "banned",
+                    message: "You have been banned due to repeated violations.",
                   })
                 );
               }
+
+              status.warning += 1;
+              userStatus.set(userId, status);
+
+              return ws.send(
+                JSON.stringify({
+                  type: "bad-word-warning",
+                  message: "Inappropriate language is not allowed",
+                  warningCount: status.warning,
+                })
+              );
             }
 
             const streamInfo = await prisma.liveStreaming.findUnique({
