@@ -58,6 +58,58 @@ const createEvent = async (
   return;
 };
 
+const allEventsNonUser = async (query: any) => {
+  const { page, limit = 10, skip } = paginationHelper(query);
+  const { search } = query;
+  const events = await prisma.event.findMany({
+    where: {
+      title: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+      _count: {
+        select: {
+          EventLike: true,
+          EventComment: true,
+        },
+      },
+
+      stream: {
+        select: {
+          id: true,
+          isLive: true,
+          hostLink: true,
+          coHostLink: true,
+          audienceLink: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip,
+  });
+
+  const totalCount = events.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  return {
+    totalCount,
+    totalPages,
+    currentPage: page,
+    events,
+  };
+};
+
 const allEvents = async (userId: string, query: any) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
@@ -546,69 +598,6 @@ const getMyEvents = async (userId: string, query: any) => {
   };
 };
 
-// const getMyFundingEvents = async (userId: string, query: any) => {
-//   const userInfo = await prisma.user.findUnique({
-//     where: { id: userId },
-//   });
-//   if (!userInfo) throw new ApiError(404, "User not found");
-
-//   const { page, limit, skip } = paginationHelper(query);
-//   const events = await prisma.event.findMany({
-//     where: {
-//       eventType: "Funding",
-//       userId,
-//     },
-//     include: {
-//       user: {
-//         select: {
-//           id: true,
-//           firstName: true,
-//           lastName: true,
-//           profileImage: true,
-//           profession: true,
-//         },
-//       },
-//       _count: {
-//         select: {
-//           EventLike: true,
-//           EventComment: true,
-//         },
-//       },
-//       EventLike: {
-//         where: { userId },
-//         select: { id: true },
-//       },
-//       stream: {
-//         select: {
-//           id: true,
-//           isLive: true,
-//           hostLink: true,
-//           coHostLink: true,
-//           audienceLink: true,
-//         },
-//       },
-//     },
-//     orderBy: { createdAt: "desc" },
-//     take: limit,
-//     skip,
-//   });
-
-//   const eventsWithLikeStatus = events.map((event) => ({
-//     ...event,
-//     isLiked: event.EventLike.length > 0,
-//     isOwner: event.userId === userId,
-//   }));
-
-//   const totalCount = events.length;
-//   const totalPages = Math.ceil(totalCount / limit);
-//   return {
-//     totalCount,
-//     totalPages,
-//     currentPage: page,
-//     events: eventsWithLikeStatus,
-//   };
-// };
-
 const usersEvent = async (userId: string, query: any, myId: string) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
@@ -744,90 +733,6 @@ const allRecordings = async () => {
   });
   return recordings;
 };
-
-// const fundingEventsOfUser = async (
-//   userId: string,
-//   query: any,
-//   myId: string
-// ) => {
-//   const userInfo = await prisma.user.findUnique({
-//     where: { id: userId },
-//   });
-//   if (!userInfo) throw new ApiError(404, "User not found");
-
-//   const { page, limit, skip } = paginationHelper(query);
-//   const events = await prisma.event.findMany({
-//     where: {
-//       eventType: "Funding",
-//       userId,
-//     },
-//     include: {
-//       user: {
-//         select: {
-//           id: true,
-//           firstName: true,
-//           lastName: true,
-//           profileImage: true,
-//           profession: true,
-//         },
-//       },
-//       _count: {
-//         select: {
-//           EventLike: true,
-//           EventComment: true,
-//         },
-//       },
-//       EventLike: {
-//         where: { userId },
-//         select: { id: true },
-//       },
-//       stream: {
-//         select: {
-//           id: true,
-//           isLive: true,
-//           hostLink: true,
-//           coHostLink: true,
-//           audienceLink: true,
-//         },
-//       },
-//     },
-//     orderBy: { createdAt: "desc" },
-//     take: limit,
-//     skip,
-//   });
-
-//   const eventsWithRelations = await Promise.all(
-//     events.map(async (event) => {
-//       const follow = await prisma.follow.findUnique({
-//         where: {
-//           user1Id_user2Id: {
-//             user1Id: myId,
-//             user2Id: userId,
-//           },
-//         },
-//       });
-
-//       return {
-//         ...event,
-//         user: {
-//           ...event.user,
-//           isFollow: !!follow,
-//         },
-//         isLiked: event.EventLike.length > 0,
-//         isOwner: event.userId === myId,
-//       };
-//     })
-//   );
-
-//   const totalCount = events.length;
-//   const totalPages = Math.ceil(totalCount / limit);
-//   return {
-//     totalCount,
-//     totalPages,
-//     currentPage: page,
-//     events: eventsWithRelations,
-//   };
-// };
 
 const followingEvents = async (userId: string, query: any) => {
   const userInfo = await prisma.user.findUnique({
@@ -1106,11 +1011,9 @@ export const eventServices = {
   getScheduleEvents,
   getFundingEvents,
   getMyEvents,
-  // getMyFundingEvents,
   usersEvent,
   usersRecording,
   allRecordings,
-  // fundingEventsOfUser,
   followingEvents,
   getEventById,
   updateEvent,
@@ -1119,4 +1022,5 @@ export const eventServices = {
   eventComment,
   replyComment,
   getEventComments,
+  allEventsNonUser,
 };

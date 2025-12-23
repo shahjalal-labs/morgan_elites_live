@@ -7,19 +7,14 @@ const router = express.Router();
 router.post("/", auth(), eventControllers.createEvent);
 router.get("/schedule/event", auth(), eventControllers.getScheduleEvents);
 router.get("/all/event", auth(), eventControllers.allEvents);
+router.get("/all/event/non-user", eventControllers.allEventsNonUser);
 router.get("/all/recording", auth(), eventControllers.allRecordings);
 router.get("/live/event", auth(), eventControllers.liveEvents);
 router.get("/funding/event", auth(), eventControllers.getFundingEvents);
 router.get("/my/event", auth(), eventControllers.getMyEvents);
 router.get("/my/recording", auth(), eventControllers.myRecordings);
-// router.get("/my-funding/event", auth(), eventControllers.getMyFundingEvents);
 router.get("/user/event/:id", auth(), eventControllers.usersEvent);
 router.get("/user/recording/:userId", auth(), eventControllers.usersRecording);
-// router.get(
-//   "/user-funding/event/:id",
-//   auth(),
-//   eventControllers.fundingEventsOfUser
-// );
 router.get("/schedule/event", auth(), eventControllers.getScheduleEvents);
 router.get("/following/event", auth(), eventControllers.followingEvents);
 router.get("/:id", eventControllers.getEventById);

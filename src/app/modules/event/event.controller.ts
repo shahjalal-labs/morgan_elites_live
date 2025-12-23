@@ -28,6 +28,16 @@ const allEvents = catchAsync(async (req, res) => {
   });
 });
 
+const allEventsNonUser = catchAsync(async (req, res) => {
+  const result = await eventServices.allEventsNonUser(req.query);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "All events has been retrived successfully",
+    data: result,
+  });
+});
+
 const liveEvents = catchAsync(async (req, res) => {
   const result = await eventServices.liveEvents(req.user.id, req.query);
   sendResponse(res, {
@@ -247,4 +257,5 @@ export const eventControllers = {
   eventComment,
   replyComment,
   getEventComments,
+  allEventsNonUser,
 };
