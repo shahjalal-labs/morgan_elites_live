@@ -13,7 +13,7 @@ new Worker(
     let html = "";
 
     if (job.name === "sendOtp") {
-      subject = "Account verification";
+      subject = "Account verification OTP";
       html = verificationHtml(firstName, otp);
     } else if (job.name === "forgotPasswordOtp") {
       subject = "Your Password Reset OTP";

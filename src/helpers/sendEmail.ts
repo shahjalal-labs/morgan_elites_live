@@ -19,7 +19,7 @@ const sendEmail = async (
 
   // Email options
   const mailOptions = {
-    from: config.emailSender.email,
+    from: `Elites Live Stream <${config.emailSender.email}>`,
     to,
     subject,
     html,
