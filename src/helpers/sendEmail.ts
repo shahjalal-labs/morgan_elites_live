@@ -8,7 +8,7 @@ const sendEmail = async (
 ) => {
   // Create a transporter
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtpout.secureserver.net",
     port: 587,
     secure: false,
     auth: {
