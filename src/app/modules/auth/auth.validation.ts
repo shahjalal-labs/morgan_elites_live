@@ -23,18 +23,20 @@ const locationUpdateSchema = z.object({
 });
 
 const updateProfileSchema = z.object({
-  firstName: z
-    .string()
-    .min(2, "First name must be at least 2 characters long")
-    .optional(),
-  lastName: z
-    .string()
-    .min(2, "Last name must be at least 2 characters long")
-    .optional(),
-  mobile: z
-    .string()
-    .min(10, "Mobile must be at least 10 characters long")
-    .optional(),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  profession: z.string().optional().nullable(),
+  bio: z.string().max(1000, "Bio too long").optional().nullable(),
+  dob: z
+    .preprocess(
+      (v) => (typeof v === "string" || v instanceof Date ? new Date(v) : v),
+      z.date()
+    )
+    .optional()
+    .nullable(),
+  phoneNumber: z.string().optional().nullable(),
+  address: z.string().optional().nullable(),
+  gender: z.enum(["Male", "Female", "Other"]).optional().nullable(),
 });
 
 export const authValidation = {

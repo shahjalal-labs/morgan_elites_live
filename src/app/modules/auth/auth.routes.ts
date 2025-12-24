@@ -34,6 +34,7 @@ router.patch(
   auth(),
   fileUploader.profileImage,
   parseBodyData,
+  validateRequest(authValidation.updateProfileSchema),
   authController.updateProfile
 );
 router.delete("/delete-account", auth(), authController.deleteAccount);
