@@ -22,22 +22,21 @@ const locationUpdateSchema = z.object({
     .max(180, "Longitude must be less than or equal to 180"),
 });
 
-const updateProfileSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  profession: z.string().optional().nullable(),
-  bio: z.string().max(1000, "Bio too long").optional().nullable(),
-  dob: z
-    .preprocess(
+const updateProfileSchema = z
+  .object({
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    profession: z.string(),
+    bio: z.string().max(1000, "Bio too long"),
+    dob: z.preprocess(
       (v) => (typeof v === "string" || v instanceof Date ? new Date(v) : v),
       z.date()
-    )
-    .optional()
-    .nullable(),
-  phoneNumber: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  gender: z.enum(["Male", "Female", "Other"]).optional().nullable(),
-});
+    ),
+    phoneNumber: z.string(),
+    address: z.string(),
+    gender: z.enum(["Male", "Female", "Other"]),
+  })
+  .partial();
 
 export const authValidation = {
   updateProfileSchema,
