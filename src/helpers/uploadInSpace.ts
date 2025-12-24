@@ -4,13 +4,14 @@ import path from "path";
 import ApiError from "../errors/ApiErrors";
 
 const DO_CONFIG = {
-  endpoint: "https://nyc3.digitaloceanspaces.com",
-  region: "nyc3",
+  endpoint: "https://api.zenexcloud.com",
+  region: "s3v4",
+  useSSL: false,
   credentials: {
-    accessKeyId: "DO002RGDJ947DJHJ9WDT",
-    secretAccessKey: "e5+/pko6Ojar51Hb8ojUKfq2HtXy+tnGKOfs3rIcEfo",
+    accessKeyId: "Be7vSXLGn1EuMzy55jLO",
+    secretAccessKey: "Gw2pW1gqVAG0GH8SXzrRJXi1036IMv5dBdgcwJme",
   },
-  spaceName: "smtech-space",
+  spaceName: "emdadullah",
 };
 
 const s3Config: S3ClientConfig = {
