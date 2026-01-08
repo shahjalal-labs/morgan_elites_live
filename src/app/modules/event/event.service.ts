@@ -849,13 +849,23 @@ const getEventById = async (id: string) => {
   return result;
 };
 
-const updateEvent = async (id: string, data: any) => {
-  await prisma.event.update({ where: { id }, data });
+const updateEvent = async (eventId: string, data: Partial<Event>) => {
+  const eventInfo = await prisma.event.findUnique({
+    where: { id: eventId },
+  });
+  if (!eventInfo) throw new ApiError(404, "Event not found");
+
+  await prisma.event.update({ where: { id: eventId }, data });
   return;
 };
 
-const deleteEvent = async (id: string) => {
-  await prisma.event.delete({ where: { id } });
+const deleteEvent = async (eventId: string) => {
+  const eventInfo = await prisma.event.findUnique({
+    where: { id: eventId },
+  });
+  if (!eventInfo) throw new ApiError(404, "Event not found");
+
+  await prisma.event.delete({ where: { id: eventId } });
   return;
 };
 

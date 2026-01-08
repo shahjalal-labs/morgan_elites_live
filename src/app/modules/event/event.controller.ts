@@ -168,7 +168,7 @@ const getEventById = catchAsync(async (req, res) => {
 });
 
 const updateEvent = catchAsync(async (req, res) => {
-  await eventServices.updateEvent(req.params.id, req.body);
+  await eventServices.updateEvent(req.params.eventId, req.body);
   sendResponse(res, {
     success: true,
     statusCode: 200,
@@ -177,7 +177,7 @@ const updateEvent = catchAsync(async (req, res) => {
 });
 
 const deleteEvent = catchAsync(async (req, res) => {
-  await eventServices.deleteEvent(req.params.id);
+  await eventServices.deleteEvent(req.params.eventId);
   sendResponse(res, {
     success: true,
     statusCode: 200,
