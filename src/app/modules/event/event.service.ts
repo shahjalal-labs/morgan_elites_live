@@ -10,7 +10,7 @@ const createEvent = async (
   userId: string,
   hostLink: string,
   coHostLink: string,
-  audienceLink: string
+  audienceLink: string,
 ) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
@@ -20,7 +20,7 @@ const createEvent = async (
     throw new ApiError(400, "You does not have a connected Stripe account");
   const account = await stripe.accounts.retrieve(
     // eventInfo.user.stripeAccountId
-    "acct_1Sep3UBPugK1aiPR"
+    "acct_1Sep3UBPugK1aiPR",
   );
   if (
     account.capabilities?.transfers !== "active" ||
@@ -28,7 +28,7 @@ const createEvent = async (
   ) {
     throw new ApiError(
       400,
-      "Connected account onboarding incomplete. Need to finish onboarding."
+      "Connected account onboarding incomplete. Need to finish onboarding.",
     );
   }
 
@@ -92,6 +92,7 @@ const allEventsNonUser = async (query: any) => {
           hostLink: true,
           coHostLink: true,
           audienceLink: true,
+          recordingLink: true,
         },
       },
     },
@@ -152,6 +153,7 @@ const allEvents = async (userId: string, query: any) => {
           hostLink: true,
           coHostLink: true,
           audienceLink: true,
+          recordingLink: true,
         },
       },
     },
@@ -203,7 +205,7 @@ const allEvents = async (userId: string, query: any) => {
         isSubscribed: !!isSubscribed,
         subscribeType: isSubscribed ? isSubscribed.plan : null,
       };
-    })
+    }),
   );
 
   const totalCount = events.length;
@@ -317,7 +319,7 @@ const liveEvents = async (userId: string, query: any) => {
         isSubscribed: !!isSubscribed,
         subscribeType: isSubscribed ? isSubscribed.plan : null,
       };
-    })
+    }),
   );
 
   const totalCount = events.length;
@@ -374,6 +376,7 @@ const getScheduleEvents = async (userId: string, query: any) => {
           hostLink: true,
           coHostLink: true,
           audienceLink: true,
+          recordingLink: true,
         },
       },
     },
@@ -425,7 +428,7 @@ const getScheduleEvents = async (userId: string, query: any) => {
         isSubscribed: !!isSubscribed,
         subscribeType: isSubscribed ? isSubscribed.plan : null,
       };
-    })
+    }),
   );
 
   const totalCount = events.length;
@@ -482,6 +485,7 @@ const getFundingEvents = async (userId: string, query: any) => {
           hostLink: true,
           coHostLink: true,
           audienceLink: true,
+          recordingLink: true,
         },
       },
     },
@@ -523,7 +527,7 @@ const getFundingEvents = async (userId: string, query: any) => {
         isSubscribed: !!isSubscribed,
         subscribeType: isSubscribed ? isSubscribed.plan : null,
       };
-    })
+    }),
   );
 
   const totalCount = events.length;
@@ -574,6 +578,7 @@ const getMyEvents = async (userId: string, query: any) => {
           hostLink: true,
           coHostLink: true,
           audienceLink: true,
+          recordingLink: true,
         },
       },
     },
@@ -636,6 +641,7 @@ const usersEvent = async (userId: string, query: any, myId: string) => {
           hostLink: true,
           coHostLink: true,
           audienceLink: true,
+          recordingLink: true,
         },
       },
     },
@@ -687,7 +693,7 @@ const usersEvent = async (userId: string, query: any, myId: string) => {
         isSubscribed: !!isSubscribed,
         subscribeType: isSubscribed ? isSubscribed.plan : null,
       };
-    })
+    }),
   );
 
   const totalCount = events.length;
@@ -780,6 +786,7 @@ const followingEvents = async (userId: string, query: any) => {
           hostLink: true,
           coHostLink: true,
           audienceLink: true,
+          recordingLink: true,
         },
       },
     },
@@ -831,7 +838,7 @@ const followingEvents = async (userId: string, query: any) => {
         isSubscribed: !!isSubscribed,
         subscribeType: isSubscribed ? isSubscribed.plan : null,
       };
-    })
+    }),
   );
 
   const totalCount = events.length;
@@ -903,7 +910,7 @@ const eventLikeUnlike = async (userId: string, eventId: string) => {
 const eventComment = async (
   userId: string,
   eventId: string,
-  comment: string
+  comment: string,
 ) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
@@ -929,7 +936,7 @@ const eventComment = async (
     `${userInfo.firstName} left a comment on your event "${eventInfo.title}". Check it out!`,
     "EventComment",
     eventId,
-    userId
+    userId,
   );
   return;
 };
@@ -937,7 +944,7 @@ const eventComment = async (
 const replyComment = async (
   userId: string,
   commentId: string,
-  replyComment: string
+  replyComment: string,
 ) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
@@ -963,7 +970,7 @@ const replyComment = async (
     `${userInfo.firstName} just replied to your comment: "${commentInfo.comment}". Check it out!`,
     "EventComment",
     commentInfo.eventId,
-    userId
+    userId,
   );
   return;
 };
