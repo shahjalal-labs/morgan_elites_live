@@ -38,7 +38,8 @@ model User {
   ReplyCommentGroupPost ReplyCommentGroupPost[]
   LikeGroupPost         LikeGroupPost[]
   liveStreamings        LiveStreaming[]
-  follows               Follow[]
+  followersAsUser1      Follow[]                @relation("User1Follows")
+  followersAsUser2      Follow[]                @relation("User2Follows")
   submitVotes           SubmitVote[]
   notifications         Notification[]
 
@@ -206,7 +207,8 @@ model Follow {
   user2Id   String   @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [user2Id], references: [id], onDelete: Cascade)
+  user1     User     @relation("User1Follows", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2     User     @relation("User2Follows", fields: [user2Id], references: [id], onDelete: Cascade)
 
   @@unique([user1Id, user2Id])
   @@map("follows")

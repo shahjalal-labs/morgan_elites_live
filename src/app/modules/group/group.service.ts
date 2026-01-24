@@ -7,7 +7,7 @@ import { sendSingleNotification } from "../notification/notification.services";
 const createGroup = async (
   data: any,
   creatorId: string,
-  file: Express.Multer.File
+  file: Express.Multer.File,
 ) => {
   if (!file) throw new ApiError(400, "Please upload a group photo");
 
@@ -137,7 +137,7 @@ const updateGroup = async (
   groupId: string,
   userId: string,
   data: any,
-  file: Express.Multer.File
+  file: Express.Multer.File,
 ) => {
   const groupInfo = await prisma.group.findUnique({ where: { id: groupId } });
   if (!groupInfo) throw new ApiError(404, "Group not found");
@@ -240,8 +240,8 @@ const groupInfo = async (groupId: string, userId: string) => {
           isLike: likeGroupPost.length > 0,
           isOwner: postOwnerId === userId,
         };
-      }
-    )
+      },
+    ),
   );
 
   return {
@@ -324,7 +324,7 @@ const postInfo = async (postId: string, userId: string) => {
 const createGroupPost = async (
   userId: string,
   groupId: string,
-  content: string
+  content: string,
 ) => {
   await prisma.groupPost.create({
     data: {
@@ -367,7 +367,7 @@ const commentPost = async (postId: string, userId: string, comment: string) => {
     `${userInfo.firstName} is commented your post`,
     "GroupComment",
     postId,
-    userId
+    userId,
   );
   return;
 };
@@ -375,7 +375,7 @@ const commentPost = async (postId: string, userId: string, comment: string) => {
 const replyCommentPost = async (
   commentId: string,
   userId: string,
-  replyComment: string
+  replyComment: string,
 ) => {
   const userInfo = await prisma.user.findUnique({ where: { id: userId } });
   if (!userInfo) throw new ApiError(404, "User not found");
@@ -399,7 +399,7 @@ const replyCommentPost = async (
     `${userInfo.firstName} is reply your comment`,
     "GroupComment",
     commentInfo.postId,
-    userId
+    userId,
   );
   return;
 };
@@ -507,7 +507,7 @@ const followUnfollow = async (user1Id: string, user2Id: string) => {
       `${user2Info.firstName} is now following your profile`,
       "Follow",
       user2Id,
-      user1Id
+      user1Id,
     );
     return "Follow successfull";
   }
@@ -542,7 +542,7 @@ const myFollowing = async (userId: string, query: any) => {
     },
     select: {
       user1Id: true,
-      user: {
+      user2: {
         select: {
           id: true,
           firstName: true,
@@ -585,7 +585,7 @@ const myFollowers = async (userId: string, query: any) => {
     },
     select: {
       user1Id: true,
-      user: {
+      user1: {
         select: {
           id: true,
           firstName: true,

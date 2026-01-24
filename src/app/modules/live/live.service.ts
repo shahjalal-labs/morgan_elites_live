@@ -14,7 +14,7 @@ const generateToken = async (userId: string, roomId: string) => {
     userId,
     process.env.ZEGO_SERVER_SECRET!,
     3600, // 1 hour validity
-    { room_id: roomId }
+    { room_id: roomId },
   );
 
   return {
@@ -71,7 +71,7 @@ const startLiveStreaming = async (streamId: string, userId: string) => {
 const closeLiveStreaming = async (
   streamId: string,
   userId: string,
-  isHost: boolean = false
+  isHost: boolean = false,
 ) => {
   const streamInfo = await prisma.liveStreaming.findUnique({
     where: { id: streamId, userId },
@@ -245,11 +245,6 @@ const stopRecording = async (streamId: string, userId: string) => {
     Action: "StopRecord",
   };
 
-  const params2 = {
-    ...common,
-    Action: "DescribeRecordStatus",
-  };
-
   try {
     const response = await axios.post("https://cloudrecord-api.zego.im", body, {
       params,
@@ -375,7 +370,7 @@ const recordLinkRetrieve = async (streamId: string) => {
 const watchCountUpdate = async (
   streamId: string,
   watchCount: number,
-  userId: string
+  userId: string,
 ) => {
   const streamInfo = await prisma.liveStreaming.findUnique({
     where: { id: streamId, userId },
@@ -418,7 +413,7 @@ const topInfluencersLive = async () => {
 const banUser = async (
   streamId: string,
   userId: string,
-  bannedUserId: string
+  bannedUserId: string,
 ) => {
   const streamInfo = await prisma.liveStreaming.findUnique({
     where: { id: streamId },
@@ -445,7 +440,7 @@ const banUser = async (
   if (now < lastUpdated + slowModeMs) {
     throw new ApiError(
       429,
-      "You are in slow mode. Please wait before banning another user."
+      "You are in slow mode. Please wait before banning another user.",
     );
   }
 
