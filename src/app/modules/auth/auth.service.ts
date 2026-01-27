@@ -9,6 +9,7 @@ import sendEmail from "../../../helpers/sendEmail";
 import redisClient from "../../../helpers/redis";
 import { uploadInSpace } from "../../../helpers/uploadInSpace";
 import { sendSingleNotification } from "../notification/notification.services";
+import { emailQueue } from "../../../queues/emailQueue";
 
 //login user
 const loginUserIntoDB = async (payload: {
@@ -26,7 +27,7 @@ const loginUserIntoDB = async (payload: {
 
   const isPasswordValid = await bcrypt.compare(
     payload.password,
-    user?.password
+    user?.password,
   );
 
   if (!isPasswordValid) {
@@ -55,7 +56,7 @@ const loginUserIntoDB = async (payload: {
   const accessToken = jwtHelpers.generateToken(
     { id: user.id, email: user.email, role: user.role },
     config.jwt.jwt_secret as string,
-    config.jwt.expires_in as string
+    config.jwt.expires_in as string,
   );
 
   return {
@@ -83,7 +84,7 @@ const googleLogin = async (payload: {
     const accessToken = jwtHelpers.generateToken(
       { id: user.id, email: user.email, role: user.role },
       config.jwt.jwt_secret as string,
-      config.jwt.expires_in as string
+      config.jwt.expires_in as string,
     );
 
     const isSetup =
@@ -117,7 +118,7 @@ const googleLogin = async (payload: {
   const accessToken = jwtHelpers.generateToken(
     { id: newUser.id, email: newUser.email, role: newUser.role },
     config.jwt.jwt_secret as string,
-    config.jwt.expires_in as string
+    config.jwt.expires_in as string,
   );
 
   return {
@@ -131,7 +132,7 @@ const googleLogin = async (payload: {
 // update or add user location in Redis using GEO
 const userLocationUpdateInRedis = async (
   userId: string,
-  userLocation: { longitude: number; latitude: number }
+  userLocation: { longitude: number; latitude: number },
 ) => {
   const redisGeoKey = "userLocations"; // you can keep all users under one key
 
@@ -140,7 +141,7 @@ const userLocationUpdateInRedis = async (
     redisGeoKey,
     userLocation.longitude,
     userLocation.latitude,
-    userId
+    userId,
   );
 
   return;
@@ -158,18 +159,13 @@ const sendForgotPasswordOtpDB = async (email: string) => {
   }
   // Generate OTP and expiry time
   const otp = generateOTP(); // 4-digit OTP
-  const subject = "Your Password Reset OTP";
-  const html = `
-     <div style="font-family: Arial, sans-serif; color: #333;">
-       <h2>Password Reset Request</h2>
-       <p>Hi <b>${existringUser.firstName}</b>,</p>
-       <p>Your OTP for password reset is:</p>
-       <h1 style="color: #007BFF;">${otp}</h1>
-       <p>This OTP is valid for <b>5 minutes</b>. If you did not request this, please ignore this email.</p>
-       <p>Thanks, <br>The Support Team</p>
-     </div>
-   `;
-  await sendEmail(email, subject, html);
+
+  await emailQueue.add("forgotPasswordOtp", {
+    email: email,
+    firstName: existringUser.firstName,
+    otp,
+  });
+
   await redisClient.set(`otp:${email}`, otp, "EX", 300);
 
   return otp;
@@ -204,7 +200,7 @@ const verifyForgotPasswordOtpCodeDB = async (payload: {
   const forgetToken = jwtHelpers.generateToken(
     { id: userId, email },
     config.jwt.jwt_secret as string,
-    config.jwt.expires_in as string
+    config.jwt.expires_in as string,
   );
 
   return { forgetToken };
@@ -219,7 +215,7 @@ const resetForgotPasswordDB = async (newPassword: string, userId: string) => {
   const email = existingUser.email as string;
   const hashedPassword = await bcrypt.hash(
     newPassword,
-    Number(config.jwt.gen_salt)
+    Number(config.jwt.gen_salt),
   );
 
   await prisma.user.update({
@@ -235,7 +231,7 @@ const resetForgotPasswordDB = async (newPassword: string, userId: string) => {
     userId,
     "Password Reset",
     "Your password was reset successfully. If this wasn’t you, please secure your account immediately.",
-    "PasswordReset"
+    "PasswordReset",
   );
 
   return;
@@ -297,7 +293,7 @@ const myProfile = async (userId: string) => {
 const updateProfileIntoDB = async (
   userId: string,
   userData: User,
-  file: Express.Multer.File
+  file: Express.Multer.File,
 ) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new ApiError(404, "user not found for edit user");
@@ -320,7 +316,7 @@ const updateProfileIntoDB = async (
 const changePassword = async (
   oldPassword: string,
   newPassword: string,
-  userId: string
+  userId: string,
 ) => {
   const existingUser = await prisma.user.findUnique({ where: { id: userId } });
   if (!existingUser) {
@@ -329,7 +325,7 @@ const changePassword = async (
 
   const isPasswordValid = await bcrypt.compare(
     oldPassword,
-    existingUser?.password
+    existingUser?.password,
   );
 
   if (!isPasswordValid) {
@@ -338,7 +334,7 @@ const changePassword = async (
 
   const hashedPassword = await bcrypt.hash(
     newPassword,
-    Number(config.jwt.gen_salt)
+    Number(config.jwt.gen_salt),
   );
 
   await prisma.user.update({
@@ -354,7 +350,7 @@ const changePassword = async (
     userId,
     "Password Updated",
     "Your password was changed successfully. If this wasn’t you, please secure your account immediately.",
-    "PasswordChange"
+    "PasswordChange",
   );
   return;
 };
@@ -430,7 +426,7 @@ const userList = async (userId: string, query?: { search?: string }) => {
         where: { user2Id: user.id },
       });
       return { ...user, totalFollowers };
-    })
+    }),
   );
 
   return usersWithFollowers;
@@ -443,7 +439,7 @@ const addModerator = async (
     isBanned: boolean;
     isSubOnly: boolean;
     slowMode: number;
-  }
+  },
 ) => {
   const userInfo = await prisma.user.findUnique({
     where: { id: userId },
