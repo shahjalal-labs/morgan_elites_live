@@ -25,16 +25,12 @@ export const forgotPasswordHtml = (firstName: string, otp: string) => `
                 </div>
 
                 <p style="font-size:13px;color:#55607a;margin-bottom:18px;">If you didn't request a password reset, ignore this email or secure your account.</p>
-
-                <div style="text-align:center;">
-                  <a href="#" style="padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;background:linear-gradient(90deg,#7c3aed,#06b6d4);color:#fff;">Reset Password</a>
-                </div>
               </td>
             </tr>
 
             <tr>
               <td style="background:#f8fafc;padding:14px 18px;text-align:center;color:#9aa4b2;font-size:12px;">
-                © ${new Date().getFullYear()} Your Company — Need help? Reply this email.
+                © ${new Date().getFullYear()} Elites-Live Stream — Need help? Reply this email.
               </td>
             </tr>
           </table>
