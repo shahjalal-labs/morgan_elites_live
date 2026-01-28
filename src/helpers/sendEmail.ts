@@ -8,12 +8,12 @@ const sendEmail = async (
 ) => {
   // Create a transporter
   const transporter = nodemailer.createTransport({
-    host: "smtpout.secureserver.net",
+    host: "smtp.office365.com",
     port: 587,
-    secure: false,
+    secure: false, // TLS
     auth: {
       user: config.emailSender.email,
-      pass: config.emailSender.app_pass,
+      pass: config.emailSender.app_pass, // Use App Password here
     },
   });
 
