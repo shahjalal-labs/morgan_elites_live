@@ -8,6 +8,7 @@ import { pollsRoutes } from "../modules/polls/polls.routes";
 import { donationRoutes } from "../modules/donation/donation.routes";
 import { notificationsRoute } from "../modules/notification/notification.route";
 import { subscriptionRoutes } from "../modules/subscription/subscription.routes";
+import { postRoute } from "../modules/post/post.route";
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ const moduleRoutes = [
   { path: "/donation", route: donationRoutes },
   { path: "/notification", route: notificationsRoute },
   { path: "/subscription", route: subscriptionRoutes },
+  { path: "/post", route: postRoute },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
