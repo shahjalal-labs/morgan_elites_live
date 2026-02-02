@@ -152,7 +152,7 @@ const startRecording = async (streamId: string, userId: string) => {
         "https://api.elites-livestream.com/api/v1/live/webhook/recording",
     },
     StorageParams: {
-      Vendor: 2,
+      Vendor: 10,
       Region: "lon1",
       Bucket: "emdadullah",
       AccessKeyId: "DO009B6N2L467B34EW9P",
