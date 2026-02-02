@@ -169,6 +169,7 @@ const postInfo = async (postId: string, userId: string) => {
           firstName: true,
           lastName: true,
           profileImage: true,
+          profession: true,
         },
       },
       PostComment: {
