@@ -149,7 +149,7 @@ const startRecording = async (streamId: string, userId: string) => {
       OutputFileFormat: "mp4",
       OutputFolder: "record/",
       CallbackUrl:
-        "https://api.morgan.smtsigma.com/api/v1/live/webhook/recording",
+        "https://api.elites-livestream.com/api/v1/live/webhook/recording",
     },
     StorageParams: {
       Vendor: 2,
