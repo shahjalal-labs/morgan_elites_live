@@ -712,7 +712,6 @@ const usersRecording = async (userId: string) => {
       userId,
       recordingLink: { not: null },
       isLive: false,
-      isSharedPost: false,
     },
     orderBy: { id: "desc" },
   });
