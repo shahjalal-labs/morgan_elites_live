@@ -158,7 +158,6 @@ const startRecording = async (streamId: string, userId: string) => {
       AccessKeyId: "DO009B6N2L467B34EW9P",
       AccessKeySecret: "CggKFTKgG77hCIkwjJ0zdmHjE1Y1Dr5bC33WpnbTyxY",
       EndPoint: "https://lon1.digitaloceanspaces.com",
-      ACL: "public-read",
     },
   };
 
