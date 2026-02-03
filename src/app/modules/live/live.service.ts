@@ -147,26 +147,17 @@ const startRecording = async (streamId: string, userId: string) => {
     },
     RecordOutputParams: {
       OutputFileFormat: "mp4",
-      OutputFolder: "/",
+      OutputFolder: "record/",
       CallbackUrl:
         "https://api.elites-livestream.com/api/v1/live/webhook/recording",
     },
-    // StorageParams: {
-    //   Vendor: 10,
-    //   Region: "lon1",
-    //   Bucket: "sickleshieldstorage",
-    //   AccessKeyId: "DO009B6N2L467B34EW9P",
-    //   AccessKeySecret: "CggKFTKgG77hCIkwjJ0zdmHjE1Y1Dr5bC33WpnbTyxY",
-    //   EndPoint: "https://lon1.digitaloceanspaces.com",
-    // },
     StorageParams: {
       Vendor: 10,
       Region: "lon1",
-      Bucket: "sefr",
-      AccessKeyId: "DO00UNHU7XXEV6XCFQNZ",
-      AccessKeySecret: "+n0RwVumsO8IKSeO4Uc2HSUr+Bi9i60cgi9x0P3veis",
+      Bucket: "sickleshieldstorage",
+      AccessKeyId: "DO009B6N2L467B34EW9P",
+      AccessKeySecret: "CggKFTKgG77hCIkwjJ0zdmHjE1Y1Dr5bC33WpnbTyxY",
       EndPoint: "https://lon1.digitaloceanspaces.com",
-      BucketAcl: "public-read",
     },
   };
 
