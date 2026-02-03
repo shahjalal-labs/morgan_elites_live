@@ -714,11 +714,6 @@ const usersRecording = async (userId: string) => {
       isLive: false,
       isSharedPost: false,
     },
-    select: {
-      id: true,
-      recordingLink: true,
-      watchCount: true,
-    },
     orderBy: { id: "desc" },
   });
   return recordings;
