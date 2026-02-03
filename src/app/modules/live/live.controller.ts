@@ -16,7 +16,7 @@ const generateToken = catchAsync(async (req, res) => {
 const createLiveStreaming = catchAsync(async (req, res) => {
   const streamInfo = await liveServices.createLiveStreaming(
     req.user.id,
-    req.body
+    req.body,
   );
   sendResponse(res, {
     statusCode: 201,
@@ -29,7 +29,7 @@ const createLiveStreaming = catchAsync(async (req, res) => {
 const getStreamInfo = catchAsync(async (req, res) => {
   const data = await liveServices.getStreamInfo(
     req.params.streamId,
-    req.user.id
+    req.user.id,
   );
   sendResponse(res, {
     statusCode: 201,
@@ -43,7 +43,7 @@ const closeLiveStreaming = catchAsync(async (req, res) => {
   await liveServices.closeLiveStreaming(
     req.params.streamId,
     req.user.id,
-    req.body.isHost
+    req.body.isHost,
   );
   sendResponse(res, {
     statusCode: 201,
@@ -64,7 +64,7 @@ const startLiveStreaming = catchAsync(async (req, res) => {
 const startRecording = catchAsync(async (req, res) => {
   const data = await liveServices.startRecording(
     req.params.streamId,
-    req.user.id
+    req.user.id,
   );
   sendResponse(res, {
     statusCode: 201,
@@ -77,7 +77,7 @@ const startRecording = catchAsync(async (req, res) => {
 const stopRecording = catchAsync(async (req, res) => {
   const data = await liveServices.stopRecording(
     req.params.streamId,
-    req.user.id
+    req.user.id,
   );
   sendResponse(res, {
     statusCode: 201,
@@ -101,7 +101,7 @@ const watchCountUpdate = catchAsync(async (req, res) => {
   const data = await liveServices.watchCountUpdate(
     req.params.streamId,
     req.body.watchCount,
-    req.user.id
+    req.user.id,
   );
   sendResponse(res, {
     statusCode: 201,
@@ -135,7 +135,7 @@ const banUser = catchAsync(async (req, res) => {
   await liveServices.banUser(
     req.params.streamId,
     req.user.id,
-    req.body.banUserId
+    req.body.banUserId,
   );
   sendResponse(res, {
     statusCode: 201,

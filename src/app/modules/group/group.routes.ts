@@ -11,7 +11,7 @@ router.post(
   auth(),
   fileUploader.groupPhoto,
   parseBodyData,
-  groupControllers.createGroup
+  groupControllers.createGroup,
 );
 router.get("/discover-groups", auth(), groupControllers.discoverGroups);
 router.get("/joined-groups", auth(), groupControllers.joinedGroups);
@@ -19,7 +19,7 @@ router.post("/join-group/:groupId", auth(), groupControllers.joinGroup);
 router.post(
   "/invite-group/:groupId/:userId",
   auth(),
-  groupControllers.inviteGroup
+  groupControllers.inviteGroup,
 );
 router.delete("/leave-group/:groupId", auth(), groupControllers.leaveGroup);
 router.get("/:groupId", auth(), groupControllers.groupInfo);
@@ -29,7 +29,7 @@ router.patch(
   auth(),
   fileUploader.groupPhoto,
   parseBodyData,
-  groupControllers.updateGroup
+  groupControllers.updateGroup,
 );
 router.delete("/:groupId", auth(), groupControllers.deleteGroup);
 router.post("/create/post/:groupId", auth(), groupControllers.createGroupPost);
@@ -39,13 +39,13 @@ router.post("/like/post/:postId", auth(), groupControllers.likePost);
 router.post(
   "/reply-comment/post/:commentId",
   auth(),
-  groupControllers.replyCommentPost
+  groupControllers.replyCommentPost,
 );
 router.get("/all-users/invite/:groupId", auth(), groupControllers.allUsers);
 router.post(
   "/follow-unfollow/:userId",
   auth(),
-  groupControllers.followUnfollow
+  groupControllers.followUnfollow,
 );
 router.get("/my/following", auth(), groupControllers.myFollowing);
 router.get("/my/followers", auth(), groupControllers.myFollowers);

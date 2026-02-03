@@ -4,7 +4,7 @@ import { notificationServices } from "./notification.services";
 
 const getNotifications = catchAsync(async (req, res) => {
   const notifications = await notificationServices.getNotifications(
-    req.user.id
+    req.user.id,
   );
   sendResponse(res, {
     statusCode: 200,
@@ -18,7 +18,7 @@ const getSingleNotification = catchAsync(async (req, res) => {
   const notificationId = req.params.notificationId;
   const notification = await notificationServices.getSingleNotification(
     req.user.id,
-    notificationId
+    notificationId,
   );
   sendResponse(res, {
     success: true,

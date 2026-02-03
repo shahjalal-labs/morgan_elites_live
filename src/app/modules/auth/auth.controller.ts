@@ -47,7 +47,7 @@ const sendForgotPasswordOtp = catchAsync(
       message: "OTP send successfully",
       data: response,
     });
-  }
+  },
 );
 
 // verify forgot password otp code
@@ -61,7 +61,7 @@ const verifyForgotPasswordOtpCode = catchAsync(
       message: "OTP verified successfully.",
       data: response,
     });
-  }
+  },
 );
 
 // update forgot password

@@ -13,7 +13,7 @@ function makeRandomIv(): Buffer {
   const chars = "0123456789abcdefghijklmnopqrstuvwxyz";
   const ivStr = Array.from(
     { length: 16 },
-    () => chars[Math.floor(Math.random() * chars.length)]
+    () => chars[Math.floor(Math.random() * chars.length)],
   ).join("");
   return Buffer.from(ivStr, "utf8");
 }
@@ -34,7 +34,7 @@ function aesEncrypt(plainText: string, key: Buffer, iv: Buffer): Buffer {
   const cipher: any = createCipheriv(
     getAlgorithm(key) as any,
     key as any,
-    iv as any
+    iv as any,
   );
   cipher.setAutoPadding(true);
   return Buffer.concat([cipher.update(plainText, "utf8"), cipher.final()]);
@@ -45,7 +45,7 @@ export function generateZegoToken(
   userId: string,
   secret: string,
   effectiveTimeInSeconds: number,
-  payload?: Record<string, any>
+  payload?: Record<string, any>,
 ): string {
   if (!secret) throw new Error("ZEGOCLOUD Server Secret missing");
 
@@ -59,7 +59,7 @@ export function generateZegoToken(
 
   if (key.length !== 32) {
     throw new Error(
-      `ZEGOCLOUD Server Secret must be 32 bytes (got ${key.length})`
+      `ZEGOCLOUD Server Secret must be 32 bytes (got ${key.length})`,
     );
   }
 

@@ -6,7 +6,7 @@ import { Platform } from "@prisma/client";
 const createSubscription = async (
   plan: string,
   priceId: string,
-  userId: string
+  userId: string,
 ) => {
   const userInfo = await prisma.user.findUnique({ where: { id: userId } });
   if (!userInfo) throw new Error("User not found");
@@ -24,7 +24,7 @@ const createSubscription = async (
 
     userInfo.customerId = customer.id;
   }
-  const customerId = userInfo.customerId!;
+  const customerId = userInfo.customerId;
   const expiryAt = new Date();
   expiryAt.setMonth(expiryAt.getMonth() + 1);
 
@@ -55,7 +55,7 @@ const inAppSubscription = async (
     subscriptionId: string;
     platform: Platform;
   },
-  userId: string
+  userId: string,
 ) => {
   const userInfo = await prisma.user.findUnique({ where: { id: userId } });
   if (!userInfo) throw new Error("User not found");

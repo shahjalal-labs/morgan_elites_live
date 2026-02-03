@@ -10,7 +10,7 @@ export const sendSingleNotification = async (
   body: string,
   type?: NotificationType,
   handlerId?: string,
-  senderId?: string
+  senderId?: string,
 ) => {
   const userInfo = await prisma.user.findUnique({ where: { id: userId } });
   if (!userInfo) return;
@@ -78,7 +78,7 @@ const getNotifications = async (userId: string) => {
 
 const getSingleNotification = async (
   userId: string,
-  notificationId: string
+  notificationId: string,
 ) => {
   const notification = await prisma.notification.findUnique({
     where: {

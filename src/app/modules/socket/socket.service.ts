@@ -3,7 +3,7 @@ import { jwtHelpers } from "../../../helpers/jwtHelpers";
 
 export function verifyWebSocketToken(
   ws: any,
-  token: string | undefined | null
+  token: string | undefined | null,
 ) {
   // No token provided
   if (!token) {
@@ -15,7 +15,7 @@ export function verifyWebSocketToken(
   try {
     const decoded = jwtHelpers.verifyToken(
       token,
-      config.jwt.jwt_secret as string
+      config.jwt.jwt_secret as string,
     );
     return decoded;
   } catch (error: any) {

@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 export const createGroupSchema = z.object({
   // Define fields
@@ -6,6 +6,5 @@ export const createGroupSchema = z.object({
 });
 
 export const GroupSchemaValidation = {
-createGroupSchema
+  createGroupSchema,
 };
-  

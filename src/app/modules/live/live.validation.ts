@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from "zod";
 
 export const createLiveSchema = z.object({
   // Define fields
@@ -6,6 +6,5 @@ export const createLiveSchema = z.object({
 });
 
 export const LiveSchemaValidation = {
-createLiveSchema
+  createLiveSchema,
 };
-  

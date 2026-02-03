@@ -3,12 +3,11 @@ import { stripe } from "../../../helpers/stripe";
 import Stripe from "stripe";
 import ApiError from "../../../errors/ApiErrors";
 import { sendSingleNotification } from "../notification/notification.services";
-import { Platform } from "@prisma/client";
 
 const createDonation = async (
   amount: number,
   userId: string,
-  eventId: string
+  eventId: string,
 ) => {
   const senderInfo = await prisma.user.findUnique({ where: { id: userId } });
   if (!senderInfo) throw new ApiError(404, "User not found");
@@ -29,12 +28,12 @@ const createDonation = async (
   if (!eventInfo.user.stripeAccountId)
     throw new ApiError(
       400,
-      "This user does not have a connected Stripe account"
+      "This user does not have a connected Stripe account",
     );
   // Check capabilities
   const account = await stripe.accounts.retrieve(
     // eventInfo.user.stripeAccountId
-    "acct_1Sep3UBPugK1aiPR"
+    "acct_1Sep3UBPugK1aiPR",
   );
   if (
     account.capabilities?.transfers !== "active" ||
@@ -42,7 +41,7 @@ const createDonation = async (
   ) {
     throw new ApiError(
       400,
-      "Connected account onboarding incomplete. Need to finish onboarding."
+      "Connected account onboarding incomplete. Need to finish onboarding.",
     );
   }
 
@@ -88,7 +87,7 @@ const createDonation = async (
 const stripeWebhookService = async (event: Stripe.Event) => {
   switch (event.type) {
     case "checkout.session.completed": {
-      const session = event.data.object as Stripe.Checkout.Session;
+      const session = event.data.object;
       const userId = session.metadata?.userId;
 
       if (session.subscription) {
@@ -102,7 +101,7 @@ const stripeWebhookService = async (event: Stripe.Event) => {
 
         if (existingSubscription) {
           await stripe.subscriptions.cancel(
-            existingSubscription.subscriptionId
+            existingSubscription.subscriptionId,
           );
         }
 
@@ -129,7 +128,7 @@ const stripeWebhookService = async (event: Stripe.Event) => {
           userId!,
           "Subscription Activated",
           `Thank you! Your subscription has been activated successfully.`,
-          "Subscription"
+          "Subscription",
         );
         console.log("✅ Subscription active until:", expiryAt);
         break;
@@ -167,7 +166,7 @@ const stripeWebhookService = async (event: Stripe.Event) => {
           "Donation Completed",
           `Thank you! Your donation to "${donationInfo.event.title}" has been completed successfully.`,
           "Donation",
-          eventId
+          eventId,
         );
       } else {
         await sendSingleNotification(
@@ -175,7 +174,7 @@ const stripeWebhookService = async (event: Stripe.Event) => {
           "Join access in event",
           `Thank you! Your payment to "${donationInfo.event.title}" has been completed successfully.`,
           "JoinAccess",
-          eventId
+          eventId,
         );
       }
 
@@ -185,40 +184,6 @@ const stripeWebhookService = async (event: Stripe.Event) => {
     default:
       break;
   }
-};
-
-const inAppPurchaseWebhook = async (data: any) => {
-  const userId = data.userId;
-  const subscriptionId = data.subscriptionId;
-  const plan = data.plan;
-  const expiryAt = data.expiryAt;
-
-  await prisma.subscription.upsert({
-    where: { userId },
-    update: {
-      subscriptionId: subscriptionId,
-      plan,
-      platform: data.platform as Platform,
-      isActive: true,
-      expiryAt: new Date(expiryAt!),
-    },
-    create: {
-      subscriptionId: subscriptionId,
-      userId: userId!,
-      plan: plan!,
-      platform: data.platform as Platform,
-      isActive: true,
-      expiryAt: new Date(expiryAt!),
-    },
-  });
-
-  await sendSingleNotification(
-    userId!,
-    "Subscription Activated",
-    `Thank you! Your subscription has been activated successfully.`,
-    "Subscription"
-  );
-  return;
 };
 
 const createConnectedAccount = async (userId: string) => {
@@ -313,7 +278,7 @@ const instantPayout = async (userId: string, amount: number) => {
     {
       // stripeAccount: userInfo.stripeAccountId as string,
       stripeAccount: "acct_1Sep3UBPugK1aiPR",
-    }
+    },
   );
 
   await sendSingleNotification(
@@ -321,7 +286,7 @@ const instantPayout = async (userId: string, amount: number) => {
     "Instant Payout Successful",
     `Your payout of $${amount} has been successfully deposited into your account.`,
     "Payout",
-    payout.id
+    payout.id,
   );
 
   return payout;

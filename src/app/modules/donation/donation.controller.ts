@@ -9,7 +9,7 @@ const createDonation = catchAsync(async (req, res) => {
   const data = await donationServices.createDonation(
     req.body.amount,
     req.user.id,
-    req.params.eventId
+    req.params.eventId,
   );
   sendResponse(res, {
     success: true,
@@ -42,7 +42,7 @@ const stripeBalance = catchAsync(async (req, res) => {
 const instantPayout = catchAsync(async (req, res) => {
   const data = await donationServices.instantPayout(
     req.user.id,
-    req.body.amount
+    req.body.amount,
   );
   sendResponse(res, {
     success: true,
@@ -67,7 +67,7 @@ export const stripeWebhookController = catchAsync(async (req, res) => {
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
-      config.stripe.webhook_secret as string
+      config.stripe.webhook_secret as string,
       // "whsec_PWiYiv8emG1JjKfxOzaco5iG5Pp8E31D"
     );
   } catch (err: any) {

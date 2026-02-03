@@ -141,8 +141,8 @@ export const badWordRegex = new RegExp(
       word
         .replace(/[.*+?^${}()|[\]\\]/g, "\\$&") // escape regex chars
         .split("")
-        .join("[\\-*#_]?")
+        .join("[\\-*#_]?"),
     )
     .join("|"),
-  "i"
+  "i",
 );

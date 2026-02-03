@@ -30,7 +30,7 @@ const updateProfileSchema = z
     bio: z.string().max(1000, "Bio too long"),
     dob: z.preprocess(
       (v) => (typeof v === "string" || v instanceof Date ? new Date(v) : v),
-      z.date()
+      z.date(),
     ),
     phoneNumber: z.string(),
     address: z.string(),

@@ -10,28 +10,28 @@ router.get("/get/streaming/:streamId", auth(), liveControllers.getStreamInfo);
 router.post(
   "/start/streaming/:streamId",
   auth(),
-  liveControllers.startLiveStreaming
+  liveControllers.startLiveStreaming,
 );
 router.post(
   "/close/streaming/:streamId",
   auth(),
-  liveControllers.closeLiveStreaming
+  liveControllers.closeLiveStreaming,
 );
 router.post(
   "/start/recording/:streamId",
   auth(),
-  liveControllers.startRecording
+  liveControllers.startRecording,
 );
 router.post("/stop/recording/:streamId", auth(), liveControllers.stopRecording);
 router.get(
   "/retrive/recording/:streamId",
   auth(),
-  liveControllers.recordLinkRetrieve
+  liveControllers.recordLinkRetrieve,
 );
 router.patch(
   "/watch-count/:streamId",
   auth(),
-  liveControllers.watchCountUpdate
+  liveControllers.watchCountUpdate,
 );
 router.get("/top-influencers/live", auth(), liveControllers.topInfluencersLive);
 router.post("/ban/user/live/:streamId", auth(), liveControllers.banUser);

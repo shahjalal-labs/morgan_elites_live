@@ -8,7 +8,7 @@ export const searchFilter = (search: string | null) => {
     searchConditions.push(
       { firstName: { contains: search, mode: "insensitive" } },
       { lastName: { contains: search, mode: "insensitive" } },
-      { email: { contains: search, mode: "insensitive" } }
+      { email: { contains: search, mode: "insensitive" } },
     );
   }
 

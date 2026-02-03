@@ -52,7 +52,7 @@ const ALLOWED_MIME_TYPES = [
  */
 export const uploadInSpace = async (
   file: Express.Multer.File,
-  folder: string
+  folder: string,
 ): Promise<string> => {
   try {
     if (!file) {
@@ -63,7 +63,7 @@ export const uploadInSpace = async (
     if (file.size > MAX_FILE_SIZE) {
       throw new ApiError(
         400,
-        `File size exceeds maximum limit of ${MAX_FILE_SIZE / 1024 / 1024}MB`
+        `File size exceeds maximum limit of ${MAX_FILE_SIZE / 1024 / 1024}MB`,
       );
     }
 
@@ -104,7 +104,7 @@ export const uploadInSpace = async (
       400,
       error instanceof Error
         ? `Failed to upload file: ${error.message}`
-        : "Failed to upload file to DigitalOcean Spaces"
+        : "Failed to upload file to DigitalOcean Spaces",
     );
   }
 };

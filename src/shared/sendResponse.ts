@@ -12,7 +12,7 @@ const sendResponse = <T>(
       total: number;
     };
     data?: T | null | undefined;
-  }
+  },
 ) => {
   res.status(jsonData.statusCode).json({
     success: jsonData.success,

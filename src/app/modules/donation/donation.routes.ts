@@ -8,7 +8,7 @@ router.post("/:eventId", auth(), donationControllers.createDonation);
 router.post(
   "/connected/account",
   auth(),
-  donationControllers.createConnectedAccount
+  donationControllers.createConnectedAccount,
 );
 router.get("/stripe/balance", auth(), donationControllers.stripeBalance);
 router.post("/instant/payout", auth(), donationControllers.instantPayout);

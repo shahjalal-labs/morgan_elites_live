@@ -11,12 +11,12 @@ router.patch("/:id", subscriptionControllers.updateSubscription);
 router.post(
   "/cancel/:subscriptionId",
   auth(),
-  subscriptionControllers.deleteSubscription
+  subscriptionControllers.deleteSubscription,
 );
 router.post(
   "/in-app-purchase",
   auth(),
-  subscriptionControllers.inAppSubscription
+  subscriptionControllers.inAppSubscription,
 );
 
 export const subscriptionRoutes = router;

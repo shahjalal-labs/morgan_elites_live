@@ -11,7 +11,7 @@ const auth = (...roles: string[]) => {
   return async (
     req: Request & { user?: any },
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       const token = req.headers.authorization;
@@ -22,7 +22,7 @@ const auth = (...roles: string[]) => {
 
       const verifiedUser = jwtHelpers.verifyToken(
         token,
-        config.jwt.jwt_secret as Secret
+        config.jwt.jwt_secret as Secret,
       );
 
       req.user = verifiedUser;
@@ -30,7 +30,7 @@ const auth = (...roles: string[]) => {
       if (roles.length && !roles.includes(verifiedUser.role)) {
         throw new ApiError(
           httpStatus.FORBIDDEN,
-          "Forbidden! You are not authorized"
+          "Forbidden! You are not authorized",
         );
       }
       next();

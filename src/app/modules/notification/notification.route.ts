@@ -8,7 +8,7 @@ router.get("/", auth(), notificationController.getNotifications);
 router.patch(
   "/:notificationId",
   auth(),
-  notificationController.getSingleNotification
+  notificationController.getSingleNotification,
 );
 
 export const notificationsRoute = router;

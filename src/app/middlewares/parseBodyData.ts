@@ -3,10 +3,9 @@ import { NextFunction, Request, Response } from "express";
 export const parseBodyData = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   if (req.body.bodyData) {
-    // console.log(req.body.bodyData);
     try {
       req.body = JSON.parse(req.body.bodyData);
     } catch (error) {

@@ -24,7 +24,7 @@ const getAllPollss = catchAsync(async (req, res) => {
 const getPollsById = catchAsync(async (req, res) => {
   const result = await pollsServices.getPollsById(
     req.params.streamId,
-    req.user.id
+    req.user.id,
   );
   sendResponse(res, {
     success: true,
@@ -47,7 +47,7 @@ const submitVote = catchAsync(async (req, res) => {
   await pollsServices.submitVote(
     req.params.pollsId,
     req.user.id,
-    req.body.option
+    req.body.option,
   );
   sendResponse(res, {
     success: true,
@@ -59,7 +59,7 @@ const submitVote = catchAsync(async (req, res) => {
 const pollsResult = catchAsync(async (req, res) => {
   const result = await pollsServices.pollsResult(
     req.params.streamId,
-    req.user.id
+    req.user.id,
   );
   sendResponse(res, {
     success: true,

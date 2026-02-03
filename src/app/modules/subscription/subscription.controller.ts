@@ -6,7 +6,7 @@ const createSubscription = catchAsync(async (req, res) => {
   const data = await subscriptionServices.createSubscription(
     req.body.plan,
     req.body.priceId,
-    req.user.id
+    req.user.id,
   );
   sendResponse(res, {
     success: true,
@@ -83,7 +83,7 @@ const updateSubscription = catchAsync(async (req, res) => {
 const deleteSubscription = catchAsync(async (req, res) => {
   await subscriptionServices.deleteSubscription(
     req.params.subscriptionId,
-    req.user.id
+    req.user.id,
   );
   sendResponse(res, {
     success: true,

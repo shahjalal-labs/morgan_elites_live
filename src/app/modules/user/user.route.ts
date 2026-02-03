@@ -9,12 +9,12 @@ const router = express.Router();
 router.post(
   "/create",
   validateRequest(userValidation.userRegisterValidationSchema),
-  UserControllers.createUser
+  UserControllers.createUser,
 );
 router.post(
   "/signup-verification",
   validateRequest(userValidation.verificationSchema),
-  UserControllers.signupVerification
+  UserControllers.signupVerification,
 );
 router.get("/:id", auth(), UserControllers.getSingleUser);
 

@@ -29,7 +29,7 @@ app.use(cors());
 app.post(
   "/api/v1/webhook",
   express.raw({ type: "application/json" }),
-  stripeWebhookController
+  stripeWebhookController,
 );
 
 // app.post(
@@ -41,7 +41,7 @@ app.post(
 app.post(
   "/api/v1/live/webhook/recording",
   express.json(),
-  recordingWebhookController
+  recordingWebhookController,
 );
 
 app.use(express.json());
@@ -63,7 +63,7 @@ app.use(
     users: { admin: process.env.BULLBOARD_PASSWORD || "supersecret" },
     challenge: true,
   }),
-  bullBoardRouter
+  bullBoardRouter,
 );
 
 // Global Error Handler

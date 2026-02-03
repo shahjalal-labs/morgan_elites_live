@@ -16,7 +16,7 @@ const createUser = async (payload: User) => {
     throw new ApiError(409, "User already exists using this email.");
   }
 
-  const hashedPassword = await bcrypt.hash(payload.password as string, 10);
+  const hashedPassword = await bcrypt.hash(payload.password, 10);
 
   // Prepare pending user object
   const pendingUserData = {
@@ -30,7 +30,7 @@ const createUser = async (payload: User) => {
     `pendingUser:${payload.email}`,
     JSON.stringify(pendingUserData),
     "EX",
-    300
+    300,
   );
 
   const otp = generateOTP();
@@ -88,7 +88,7 @@ const signupVerification = async (payload: { email: string; otp: string }) => {
     "Account Verified",
     "Welcome! Your account has been successfully verified.",
     "AccountVerified",
-    createdUser.id
+    createdUser.id,
   );
 
   return;

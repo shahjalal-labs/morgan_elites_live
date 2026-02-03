@@ -40,19 +40,19 @@ const updatePolls = async (
   id: string,
   data: {
     options: string[];
-  }
+  },
 ) => {
   const pollsInfo = await prisma.polls.findUnique({ where: { id } });
   if (!pollsInfo) throw new ApiError(404, "Polls not found");
 
   const duplicates = data.options.filter((option) =>
-    pollsInfo.options.includes(option)
+    pollsInfo.options.includes(option),
   );
 
   if (duplicates.length > 0) {
     throw new ApiError(
       409,
-      `Options already included: ${duplicates.join(", ")}`
+      `Options already included: ${duplicates.join(", ")}`,
     );
   }
 

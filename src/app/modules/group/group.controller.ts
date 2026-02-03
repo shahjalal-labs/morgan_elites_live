@@ -6,7 +6,7 @@ const createGroup = catchAsync(async (req, res) => {
   const result = await groupServices.createGroup(
     req.body,
     req.user.id,
-    req.file as Express.Multer.File
+    req.file as Express.Multer.File,
   );
   sendResponse(res, {
     success: true,
@@ -58,7 +58,7 @@ const inviteGroup = catchAsync(async (req, res) => {
 const leaveGroup = catchAsync(async (req, res) => {
   const result = await groupServices.leaveGroup(
     req.user.id,
-    req.params.groupId
+    req.params.groupId,
   );
   sendResponse(res, {
     success: true,
@@ -74,7 +74,7 @@ const updateGroup = catchAsync(async (req, res) => {
     req.params.id,
     req.user.id,
     req.body,
-    file
+    file,
   );
   sendResponse(res, {
     success: true,
@@ -97,7 +97,7 @@ const createGroupPost = catchAsync(async (req, res) => {
   await groupServices.createGroupPost(
     req.user.id,
     req.params.groupId,
-    req.body.content
+    req.body.content,
   );
   sendResponse(res, {
     success: true,
@@ -130,7 +130,7 @@ const commentPost = catchAsync(async (req, res) => {
   await groupServices.commentPost(
     req.params.postId,
     req.user.id,
-    req.body.comment
+    req.body.comment,
   );
   sendResponse(res, {
     success: true,
@@ -152,7 +152,7 @@ const replyCommentPost = catchAsync(async (req, res) => {
   await groupServices.replyCommentPost(
     req.params.commentId,
     req.user.id,
-    req.body.replyComment
+    req.body.replyComment,
   );
   sendResponse(res, {
     success: true,
@@ -183,7 +183,7 @@ const allUsers = catchAsync(async (req, res) => {
 const followUnfollow = catchAsync(async (req, res) => {
   const data = await groupServices.followUnfollow(
     req.user.id,
-    req.params.userId
+    req.params.userId,
   );
   sendResponse(res, {
     success: true,

@@ -29,5 +29,5 @@ new Worker(
       console.error("Failed to send email:", err);
     }
   },
-  { connection: redisClient }
+  { connection: redisClient },
 );

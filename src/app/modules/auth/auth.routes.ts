@@ -11,19 +11,19 @@ const router = express.Router();
 router.post(
   "/login",
   validateRequest(authValidation.authLoginSchema),
-  authController.loginUser
+  authController.loginUser,
 );
 router.post(
   "/google-login",
   validateRequest(authValidation.googleLoginSchema),
-  authController.googleLogin
+  authController.googleLogin,
 );
 router.get("/profile", auth(), authController.myProfile);
 router.patch(
   "/update/user-location",
   auth(),
   validateRequest(authValidation.locationUpdateSchema),
-  authController.userLocationUpdateInRedis
+  authController.userLocationUpdateInRedis,
 );
 router.post("/send-otp", authController.sendForgotPasswordOtp);
 router.post("/verify-otp", authController.verifyForgotPasswordOtpCode);
@@ -35,7 +35,7 @@ router.patch(
   fileUploader.profileImage,
   parseBodyData,
   validateRequest(authValidation.updateProfileSchema),
-  authController.updateProfile
+  authController.updateProfile,
 );
 router.delete("/delete-account", auth(), authController.deleteAccount);
 router.post("/logged-out", auth(), authController.logoutAccount);

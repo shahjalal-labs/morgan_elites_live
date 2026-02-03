@@ -19,7 +19,7 @@ export function setupWebSocketServer(server: any) {
   wss = new WebSocketServer({ server });
 
   wss.on("connection", async (ws: CustomWebSocket, req: Request) => {
-    const { query } = parse(req.url!, true);
+    const { query } = parse(req.url, true);
     let authToken = req.headers["x-token"] as string;
     if (!authToken && query["x-token"]) {
       authToken = Array.isArray(query["x-token"])
@@ -51,7 +51,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "receiver ID is required",
-                })
+                }),
               );
             }
 
@@ -66,7 +66,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "Receiver is not online",
-                })
+                }),
               );
             }
 
@@ -85,7 +85,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "Sender not found",
-                })
+                }),
               );
 
             // send ONLY to receiver
@@ -95,7 +95,7 @@ export function setupWebSocketServer(server: any) {
                 from: senderInfo,
                 link: coHostLink,
                 streamId: streamId,
-              })
+              }),
             );
 
             break;
@@ -107,7 +107,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "Event ID is required",
-                })
+                }),
               );
             }
 
@@ -120,7 +120,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "Event not found",
-                })
+                }),
               );
             }
 
@@ -133,7 +133,7 @@ export function setupWebSocketServer(server: any) {
               JSON.stringify({
                 type: "joined-streaming",
                 eventId,
-              })
+              }),
             );
 
             break;
@@ -145,7 +145,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "Event ID is required",
-                })
+                }),
               );
             }
 
@@ -194,7 +194,7 @@ export function setupWebSocketServer(server: any) {
             // }
 
             if (badWordRegex.test(comment)) {
-              let status = userStatus.get(userId) || {
+              const status = userStatus.get(userId) || {
                 warning: 0,
                 banned: false,
               };
@@ -214,7 +214,7 @@ export function setupWebSocketServer(server: any) {
                   JSON.stringify({
                     type: "banned",
                     message: "You have been banned due to repeated violations.",
-                  })
+                  }),
                 );
               }
 
@@ -226,7 +226,7 @@ export function setupWebSocketServer(server: any) {
                   type: "bad-word-warning",
                   message: "Inappropriate language is not allowed",
                   warningCount: status.warning,
-                })
+                }),
               );
             }
 
@@ -246,7 +246,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "Event not found",
-                })
+                }),
               );
             }
 
@@ -255,7 +255,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "You are banned from this stream",
-                })
+                }),
               );
             }
 
@@ -317,7 +317,7 @@ export function setupWebSocketServer(server: any) {
                   JSON.stringify({
                     type: "chat-streaming-comment",
                     message: comments,
-                  })
+                  }),
                 );
               }
             });
@@ -330,7 +330,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "Stream ID is required",
-                })
+                }),
               );
             }
 
@@ -343,7 +343,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "Stream not found",
-                })
+                }),
               );
             }
 
@@ -356,7 +356,7 @@ export function setupWebSocketServer(server: any) {
               JSON.stringify({
                 type: "joined-streaming-free",
                 streamId,
-              })
+              }),
             );
 
             break;
@@ -368,7 +368,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "Stream ID is required",
-                })
+                }),
               );
             }
 
@@ -417,7 +417,7 @@ export function setupWebSocketServer(server: any) {
             // }
 
             if (badWordRegex.test(comment)) {
-              let status = userStatus.get(userId) || {
+              const status = userStatus.get(userId) || {
                 warning: 0,
                 banned: false,
               };
@@ -437,7 +437,7 @@ export function setupWebSocketServer(server: any) {
                   JSON.stringify({
                     type: "banned",
                     message: "You have been banned due to repeated violations.",
-                  })
+                  }),
                 );
               }
 
@@ -449,7 +449,7 @@ export function setupWebSocketServer(server: any) {
                   type: "bad-word-warning",
                   message: "Inappropriate language is not allowed",
                   warningCount: status.warning,
-                })
+                }),
               );
             }
 
@@ -462,7 +462,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "Stream not found",
-                })
+                }),
               );
             }
 
@@ -471,7 +471,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "You are banned from this stream",
-                })
+                }),
               );
             }
 
@@ -489,7 +489,7 @@ export function setupWebSocketServer(server: any) {
                 JSON.stringify({
                   type: "error",
                   message: "User not found",
-                })
+                }),
               );
             }
 
@@ -511,7 +511,7 @@ export function setupWebSocketServer(server: any) {
                   JSON.stringify({
                     type: "chat-streaming-free-comment",
                     message: commentInfo,
-                  })
+                  }),
                 );
               }
             });
@@ -523,12 +523,13 @@ export function setupWebSocketServer(server: any) {
               JSON.stringify({
                 type: "error",
                 message: "Invalid message type",
-              })
+              }),
             );
         }
       } catch (err) {
+        console.log(err);
         ws.send(
-          JSON.stringify({ type: "error", message: "Invalid JSON format" })
+          JSON.stringify({ type: "error", message: "Invalid JSON format" }),
         );
       }
     });
