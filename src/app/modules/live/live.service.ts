@@ -41,6 +41,8 @@ const createLiveStreaming = async (userId: string, payload: LiveStreaming) => {
     data: {
       ...payload,
       userId,
+      isEventLive: false,
+      isFree: true,
     },
   });
   return streamInfo;
@@ -315,27 +317,27 @@ const recordingWebhook = async (req: Request, res: Response) => {
   } else if (req.body.event_type === 1) {
     const fileInfo = req.body.detail.file_info;
     console.log("fileinfo", fileInfo);
-    
+
     // Make recording file public
     if (fileInfo && fileInfo[0]?.file_url) {
       try {
         const fileUrl = fileInfo[0].file_url;
         const urlParts = new URL(fileUrl);
         const filePath = urlParts.pathname.substring(1); // Remove leading slash
-        
+
         const command = new PutObjectAclCommand({
           Bucket: "sickleshieldstorage",
           Key: filePath,
           ACL: "public-read",
         });
-        
+
         await s3Client.send(command);
         console.log("File set to public:", filePath);
       } catch (error) {
         console.error("Error setting file to public:", error);
       }
     }
-    
+
     await prisma.liveStreaming.update({
       where: {
         id: roomId,

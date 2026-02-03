@@ -5,14 +5,25 @@ import { sendSingleNotification } from "../notification/notification.services";
 import { Post } from "@prisma/client";
 
 const createPost = async (data: Post, userId: string) => {
-  const newPost = await prisma.post.create({
-    data: {
-      ...data,
-      userId: userId,
-    },
+  await prisma.$transaction(async (tx) => {
+    await tx.post.create({
+      data: {
+        ...data,
+        userId: userId,
+      },
+    });
+
+    await tx.liveStreaming.updateMany({
+      where: {
+        recordingLink: data.recordedLink,
+      },
+      data: {
+        isSharedPost: true,
+      },
+    });
   });
 
-  return newPost;
+  return;
 };
 
 const allPosts = async (query: any, userId: string) => {

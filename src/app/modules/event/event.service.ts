@@ -708,13 +708,18 @@ const usersEvent = async (userId: string, query: any, myId: string) => {
 
 const usersRecording = async (userId: string) => {
   const recordings = await prisma.liveStreaming.findMany({
-    where: { userId, recordingLink: { not: null } },
+    where: {
+      userId,
+      recordingLink: { not: null },
+      isLive: false,
+      isSharedPost: false,
+    },
     select: {
       id: true,
       recordingLink: true,
       watchCount: true,
     },
-    orderBy: { updatedAt: "desc" },
+    orderBy: { id: "desc" },
   });
   return recordings;
 };

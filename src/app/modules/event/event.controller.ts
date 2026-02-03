@@ -9,7 +9,7 @@ const createEvent = catchAsync(async (req, res) => {
     req.user.id,
     hostLink,
     coHostLink,
-    audienceLink
+    audienceLink,
   );
   sendResponse(res, {
     success: true,
@@ -78,21 +78,11 @@ const getMyEvents = catchAsync(async (req, res) => {
   });
 });
 
-// const getMyFundingEvents = catchAsync(async (req, res) => {
-//   const result = await eventServices.getMyFundingEvents(req.user.id, req.query);
-//   sendResponse(res, {
-//     success: true,
-//     statusCode: 200,
-//     message: "My All funding events has been retrived successfully",
-//     data: result,
-//   });
-// });
-
 const usersEvent = catchAsync(async (req, res) => {
   const result = await eventServices.usersEvent(
     req.params.id,
     req.query,
-    req.user.id
+    req.user.id,
   );
   sendResponse(res, {
     success: true,
@@ -131,20 +121,6 @@ const allRecordings = catchAsync(async (req, res) => {
     data: result,
   });
 });
-
-// const fundingEventsOfUser = catchAsync(async (req, res) => {
-//   const result = await eventServices.fundingEventsOfUser(
-//     req.params.id,
-//     req.query,
-//     req.user.id
-//   );
-//   sendResponse(res, {
-//     success: true,
-//     statusCode: 200,
-//     message: "User's funding events has been retrived successfully",
-//     data: result,
-//   });
-// });
 
 const followingEvents = catchAsync(async (req, res) => {
   const result = await eventServices.followingEvents(req.user.id, req.query);
@@ -188,7 +164,7 @@ const deleteEvent = catchAsync(async (req, res) => {
 const eventLikeUnlike = catchAsync(async (req, res) => {
   const result = await eventServices.eventLikeUnlike(
     req.user.id,
-    req.params.eventId
+    req.params.eventId,
   );
   sendResponse(res, {
     success: true,
@@ -201,7 +177,7 @@ const eventComment = catchAsync(async (req, res) => {
   await eventServices.eventComment(
     req.user.id,
     req.params.eventId,
-    req.body.comment
+    req.body.comment,
   );
   sendResponse(res, {
     success: true,
@@ -214,7 +190,7 @@ const replyComment = catchAsync(async (req, res) => {
   await eventServices.replyComment(
     req.user.id,
     req.params.commentId,
-    req.body.replyComment
+    req.body.replyComment,
   );
   sendResponse(res, {
     success: true,
@@ -226,7 +202,7 @@ const replyComment = catchAsync(async (req, res) => {
 const getEventComments = catchAsync(async (req, res) => {
   const data = await eventServices.getEventComments(
     req.user.id,
-    req.params.eventId
+    req.params.eventId,
   );
   sendResponse(res, {
     success: true,
@@ -245,9 +221,7 @@ export const eventControllers = {
   getMyEvents,
   myRecordings,
   allRecordings,
-  // getMyFundingEvents,
   usersEvent,
-  // fundingEventsOfUser,
   usersRecording,
   followingEvents,
   getEventById,
