@@ -6,6 +6,17 @@ import axios from "axios";
 import crypto from "crypto";
 import config from "../../../config";
 import { Request, Response } from "express";
+import { S3Client, PutObjectAclCommand } from "@aws-sdk/client-s3";
+
+const s3Client = new S3Client({
+  endpoint: "https://lon1.digitaloceanspaces.com",
+  region: "lon1",
+  credentials: {
+    accessKeyId: "DO009B6N2L467B34EW9P",
+    secretAccessKey: "CggKFTKgG77hCIkwjJ0zdmHjE1Y1Dr5bC33WpnbTyxY",
+  },
+  forcePathStyle: false,
+});
 
 const generateToken = async (userId: string, roomId: string) => {
   console.log(userId);
@@ -304,6 +315,27 @@ const recordingWebhook = async (req: Request, res: Response) => {
   } else if (req.body.event_type === 1) {
     const fileInfo = req.body.detail.file_info;
     console.log("fileinfo", fileInfo);
+    
+    // Make recording file public
+    if (fileInfo && fileInfo[0]?.file_url) {
+      try {
+        const fileUrl = fileInfo[0].file_url;
+        const urlParts = new URL(fileUrl);
+        const filePath = urlParts.pathname.substring(1); // Remove leading slash
+        
+        const command = new PutObjectAclCommand({
+          Bucket: "sickleshieldstorage",
+          Key: filePath,
+          ACL: "public-read",
+        });
+        
+        await s3Client.send(command);
+        console.log("File set to public:", filePath);
+      } catch (error) {
+        console.error("Error setting file to public:", error);
+      }
+    }
+    
     await prisma.liveStreaming.update({
       where: {
         id: roomId,
