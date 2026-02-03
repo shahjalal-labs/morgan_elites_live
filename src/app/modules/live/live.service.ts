@@ -147,7 +147,7 @@ const startRecording = async (streamId: string, userId: string) => {
     },
     RecordOutputParams: {
       OutputFileFormat: "mp4",
-      OutputFolder: "record/",
+      OutputFolder: "/",
       CallbackUrl:
         "https://api.elites-livestream.com/api/v1/live/webhook/recording",
     },
