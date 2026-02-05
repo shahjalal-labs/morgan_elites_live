@@ -79,6 +79,60 @@ const allPosts = async (query: any, userId: string) => {
   };
 };
 
+const myPosts = async (query: any, userId: string) => {
+  const { page, limit, skip } = paginationHelper(query);
+  const posts = await prisma.post.findMany({
+    where: { userId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profession: true,
+          profileImage: true,
+        },
+      },
+      _count: {
+        select: {
+          PostLike: true,
+          PostComment: true,
+        },
+      },
+    },
+    orderBy: { id: "desc" },
+    skip,
+    take: limit,
+  });
+
+  const totalCount = await prisma.post.count({ where: { userId } });
+  const totalPages = Math.ceil(totalCount / limit);
+
+  const postWithRelations = await Promise.all(
+    posts.map(async (post) => {
+      const isLiked = await prisma.postLike.findUnique({
+        where: {
+          postId_userId: { postId: post.id, userId },
+        },
+      });
+      const isMyPost = post.userId === userId;
+      const likeStatus = isLiked ? true : false;
+      return {
+        ...post,
+        isLiked: likeStatus,
+        isMyPost,
+      };
+    }),
+  );
+
+  return {
+    posts: postWithRelations,
+    currentPage: page,
+    totalPages,
+    totalCount,
+  };
+};
+
 const myFollowingPosts = async (query: any, userId: string) => {
   const { page, limit, skip } = paginationHelper(query);
   const posts = await prisma.post.findMany({
@@ -113,7 +167,17 @@ const myFollowingPosts = async (query: any, userId: string) => {
     take: limit,
   });
 
-  const totalCount = await prisma.post.count();
+  const totalCount = await prisma.post.count({
+    where: {
+      user: {
+        followersAsUser2: {
+          some: {
+            user1Id: userId,
+          },
+        },
+      },
+    },
+  });
   const totalPages = Math.ceil(totalCount / limit);
 
   const postWithRelations = await Promise.all(
@@ -326,6 +390,7 @@ const likePost = async (postId: string, userId: string) => {
 export const postServices = {
   createPost,
   allPosts,
+  myPosts,
   myFollowingPosts,
   updatePost,
   deletePost,

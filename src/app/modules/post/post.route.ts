@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post("/create", auth(), postControllers.createPost);
 router.get("/all-posts", auth(), postControllers.allPosts);
+router.get("/my-posts", auth(), postControllers.myPosts);
 router.get("/following-posts", auth(), postControllers.myFollowingPosts);
 router.get("/single-post/:postId", auth(), postControllers.postInfo);
 router.patch("/:postId", auth(), postControllers.updatePost);
