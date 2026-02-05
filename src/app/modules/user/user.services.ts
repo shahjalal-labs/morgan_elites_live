@@ -127,23 +127,47 @@ const getSingleUser = async (userId: string, myId: string) => {
     },
   });
 
-  const followingCount = await prisma.follow.count({
+  const following = await prisma.follow.findMany({
     where: {
       user1Id: userId,
     },
+    select: {
+      user2: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
+    },
   });
 
-  const followersCount = await prisma.follow.count({
+  const followers = await prisma.follow.findMany({
     where: {
       user2Id: userId,
+    },
+    select: {
+      user1: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profileImage: true,
+          profession: true,
+        },
+      },
     },
   });
 
   return {
     ...user,
     isFollow: follow?.user2Id === userId ? true : false,
-    followingCount,
-    followersCount,
+    followingCount: following.length,
+    followersCount: followers.length,
+    following: following,
+    followers: followers,
   };
 };
 
