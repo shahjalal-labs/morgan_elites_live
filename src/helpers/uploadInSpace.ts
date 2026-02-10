@@ -2,16 +2,16 @@ import { S3Client, S3ClientConfig, ObjectCannedACL } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import path from "path";
 import ApiError from "../errors/ApiErrors";
+import config from "../config";
 
 const DO_CONFIG = {
-  endpoint: "https://api.zenexcloud.com",
-  region: "s3v4",
-  useSSL: false,
+  endpoint: config.bucket.bucket_url!,
+  region: config.bucket.region!,
   credentials: {
-    accessKeyId: "Be7vSXLGn1EuMzy55jLO",
-    secretAccessKey: "Gw2pW1gqVAG0GH8SXzrRJXi1036IMv5dBdgcwJme",
+    accessKeyId: config.bucket.access_key_id!,
+    secretAccessKey: config.bucket.secret_key_id!,
   },
-  spaceName: "emdadullah",
+  spaceName: config.bucket.bucket_name!,
 };
 
 const s3Config: S3ClientConfig = {
@@ -44,12 +44,6 @@ const ALLOWED_MIME_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
 
-/**
- * Uploads a file buffer to DigitalOcean Spaces and returns the file URL.
- * @param {Express.Multer.File} file - The file object from multer
- * @returns {Promise<string>} - The URL of the uploaded file
- * @throws {Error} - If file validation fails or upload fails
- */
 export const uploadInSpace = async (
   file: Express.Multer.File,
   folder: string,

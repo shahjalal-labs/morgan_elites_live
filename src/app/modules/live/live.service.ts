@@ -9,11 +9,11 @@ import { Request, Response } from "express";
 import { S3Client, PutObjectAclCommand } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({
-  endpoint: "https://lon1.digitaloceanspaces.com",
-  region: "lon1",
+  endpoint: "https://atl1.digitaloceanspaces.com",
+  region: config.bucket.region!,
   credentials: {
-    accessKeyId: "DO009B6N2L467B34EW9P",
-    secretAccessKey: "CggKFTKgG77hCIkwjJ0zdmHjE1Y1Dr5bC33WpnbTyxY",
+    accessKeyId: config.bucket.access_key_id!,
+    secretAccessKey: config.bucket.secret_key_id!,
   },
   forcePathStyle: false,
 });

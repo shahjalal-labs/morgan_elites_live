@@ -29,4 +29,11 @@ export default {
     app_id: process.env.ZEGO_APP_ID,
     server_secret: process.env.ZEGO_SERVER_SECRET,
   },
+  bucket: {
+    access_key_id: process.env.ACCESS_KEY_ID,
+    secret_key_id: process.env.SECRET_KEY_ID,
+    bucket_name: process.env.BUCKET_NAME,
+    region: process.env.REGION,
+    bucket_url: process.env.BUCKET_URL,
+  },
 };
