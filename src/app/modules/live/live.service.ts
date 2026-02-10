@@ -166,11 +166,11 @@ const startRecording = async (streamId: string, userId: string) => {
     },
     StorageParams: {
       Vendor: 10,
-      Region: "lon1",
-      Bucket: "sickleshieldstorage",
-      AccessKeyId: "DO009B6N2L467B34EW9P",
-      AccessKeySecret: "CggKFTKgG77hCIkwjJ0zdmHjE1Y1Dr5bC33WpnbTyxY",
-      EndPoint: "https://lon1.digitaloceanspaces.com",
+      Region: config.bucket.region!,
+      Bucket: config.bucket.bucket_name!,
+      AccessKeyId: config.bucket.access_key_id!,
+      AccessKeySecret: config.bucket.secret_key_id!,
+      EndPoint: "https://atl1.digitaloceanspaces.com",
     },
   };
 
