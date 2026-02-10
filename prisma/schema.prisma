@@ -329,6 +329,7 @@ model Moderator {
 model Post {
   id           String        @id @default(auto()) @map("_id") @db.ObjectId
   userId       String        @db.ObjectId
+  thumbnail    String?
   content      String
   recordedLink String
   createdAt    DateTime      @default(now())

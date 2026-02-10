@@ -1,10 +1,16 @@
 import express from "express";
 import { postControllers } from "./post.controller";
 import auth from "../../middlewares/auth";
+import { fileUploader } from "../../../helpers/fileUploader";
 
 const router = express.Router();
 
-router.post("/create", auth(), postControllers.createPost);
+router.post(
+  "/create",
+  auth(),
+  fileUploader.thumbnail,
+  postControllers.createPost,
+);
 router.get("/all-posts", auth(), postControllers.allPosts);
 router.get("/my-posts", auth(), postControllers.myPosts);
 router.get("/following-posts", auth(), postControllers.myFollowingPosts);

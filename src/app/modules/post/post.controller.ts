@@ -3,7 +3,8 @@ import catchAsync from "../../../shared/catchAsync";
 import { postServices } from "./post.service";
 
 const createPost = catchAsync(async (req, res) => {
-  const result = await postServices.createPost(req.body, req.user.id);
+  const file = req.file as Express.Multer.File;
+  const result = await postServices.createPost(req.body, req.user.id, file);
   sendResponse(res, {
     success: true,
     statusCode: 201,

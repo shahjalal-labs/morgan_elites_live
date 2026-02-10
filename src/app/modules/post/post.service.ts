@@ -1,15 +1,25 @@
 import ApiError from "../../../errors/ApiErrors";
+import { uploadInSpace } from "../../../helpers/uploadInSpace";
 import { paginationHelper } from "../../../shared/pagination";
 import prisma from "../../../shared/prisma";
 import { sendSingleNotification } from "../notification/notification.services";
 import { Post } from "@prisma/client";
 
-const createPost = async (data: Post, userId: string) => {
+const createPost = async (
+  data: Post,
+  userId: string,
+  file: Express.Multer.File,
+) => {
+  let thumbnail: string;
+  if (file) {
+    thumbnail = await uploadInSpace(file, "post-thumbnails");
+  }
   await prisma.$transaction(async (tx) => {
     await tx.post.create({
       data: {
         ...data,
         userId: userId,
+        thumbnail: thumbnail ? thumbnail : undefined,
       },
     });
 
