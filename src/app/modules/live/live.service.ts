@@ -326,7 +326,7 @@ const recordingWebhook = async (req: Request, _res: Response) => {
         const filePath = urlParts.pathname.substring(1); // Remove leading slash
 
         const command = new PutObjectAclCommand({
-          Bucket: "sickleshieldstorage",
+          Bucket: config.bucket.bucket_name!,
           Key: filePath,
           ACL: "public-read",
         });
