@@ -2,6 +2,7 @@ import express from "express";
 import { postControllers } from "./post.controller";
 import auth from "../../middlewares/auth";
 import { fileUploader } from "../../../helpers/fileUploader";
+import { parseBodyData } from "../../middlewares/parseBodyData";
 
 const router = express.Router();
 
@@ -9,6 +10,7 @@ router.post(
   "/create",
   auth(),
   fileUploader.thumbnail,
+  parseBodyData,
   postControllers.createPost,
 );
 router.get("/all-posts", auth(), postControllers.allPosts);
