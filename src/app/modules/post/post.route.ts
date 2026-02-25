@@ -14,6 +14,7 @@ router.post(
   postControllers.createPost,
 );
 router.get("/all-posts", auth(), postControllers.allPosts);
+router.get("/public-posts", postControllers.publicPosts);
 router.get("/my-posts", auth(), postControllers.myPosts);
 router.get("/following-posts", auth(), postControllers.myFollowingPosts);
 router.get("/single-post/:postId", auth(), postControllers.postInfo);

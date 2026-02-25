@@ -89,6 +89,52 @@ const allPosts = async (query: any, userId: string) => {
   };
 };
 
+const publicPosts = async (query: any) => {
+  const { page, limit, skip } = paginationHelper(query);
+  const posts = await prisma.post.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profession: true,
+          profileImage: true,
+        },
+      },
+      _count: {
+        select: {
+          PostLike: true,
+          PostComment: true,
+        },
+      },
+    },
+    orderBy: { id: "desc" },
+    skip,
+    take: limit,
+  });
+
+  const totalCount = await prisma.post.count();
+  const totalPages = Math.ceil(totalCount / limit);
+
+  const postWithRelations = await Promise.all(
+    posts.map(async (post) => {
+      return {
+        ...post,
+        isLiked: false,
+        isMyPost: false,
+      };
+    }),
+  );
+
+  return {
+    posts: postWithRelations,
+    currentPage: page,
+    totalPages,
+    totalCount,
+  };
+};
+
 const myPosts = async (query: any, userId: string) => {
   const { page, limit, skip } = paginationHelper(query);
   const posts = await prisma.post.findMany({
@@ -400,6 +446,7 @@ const likePost = async (postId: string, userId: string) => {
 export const postServices = {
   createPost,
   allPosts,
+  publicPosts,
   myPosts,
   myFollowingPosts,
   updatePost,
