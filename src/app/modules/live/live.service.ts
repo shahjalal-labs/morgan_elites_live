@@ -300,28 +300,27 @@ const stopRecording = async (streamId: string, userId: string) => {
 const recordingWebhook = async (req: Request, _res: Response) => {
   console.log("Recording Webhook Payload:", req.body);
   const roomId = req.body.room_id;
-  // if (req.body.event === "stream_create") {
-  //   await prisma.liveStreaming.update({
-  //     where: {
-  //       id: roomId,
-  //     },
-  //     data: {
-  //       isLive: true,
-  //     },
-  //   });
-  //   return;
-  // } else if (req.body.event === "stream_close") {
-  //   await prisma.liveStreaming.update({
-  //     where: {
-  //       id: roomId,
-  //     },
-  //     data: {
-  //       isLive: false,
-  //     },
-  //   });
-  //   return;
-  // } else
-  if (req.body.event_type === 1) {
+  if (req.body.event === "stream_create") {
+    await prisma.liveStreaming.update({
+      where: {
+        id: roomId,
+      },
+      data: {
+        isLive: true,
+      },
+    });
+    return;
+  } else if (req.body.event === "stream_close") {
+    await prisma.liveStreaming.update({
+      where: {
+        id: roomId,
+      },
+      data: {
+        isLive: false,
+      },
+    });
+    return;
+  } else if (req.body.event_type === 1) {
     const fileInfo = req.body.detail.file_info;
     console.log("fileinfo", fileInfo);
 
