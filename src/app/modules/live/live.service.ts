@@ -60,7 +60,11 @@ const getStreamInfo = async (streamId: string, userId: string) => {
   return streamInfo;
 };
 
-const startLiveStreaming = async (streamId: string, userId: string) => {
+const startLiveStreaming = async (
+  streamId: string,
+  userId: string,
+  payload: LiveStreaming,
+) => {
   const streamInfo = await prisma.liveStreaming.findUnique({
     where: { id: streamId, userId },
   });
@@ -75,6 +79,7 @@ const startLiveStreaming = async (streamId: string, userId: string) => {
       userId,
     },
     data: {
+      ...payload,
       isLive: true,
     },
   });
