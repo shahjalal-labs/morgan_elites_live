@@ -43,6 +43,7 @@ const createLiveStreaming = async (userId: string, payload: LiveStreaming) => {
       userId,
       isEventLive: false,
       isFree: true,
+      isLive: true,
     },
   });
   return streamInfo;
