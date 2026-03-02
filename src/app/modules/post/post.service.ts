@@ -38,28 +38,73 @@ const createPost = async (
 
 const allPosts = async (query: any, userId: string) => {
   const { page, limit, skip, search } = paginationHelper(query);
-  const searchTerm = search?.trim();
 
-  const whereClause: Prisma.PostWhereInput = searchTerm
-    ? {
+  const searchTerm = search?.trim();
+  let whereClause: Prisma.PostWhereInput = {};
+
+  if (searchTerm) {
+    const words = searchTerm.split(" ").filter(Boolean);
+
+    if (words.length >= 2) {
+      whereClause = {
+        OR: [
+          {
+            AND: [
+              {
+                user: {
+                  firstName: {
+                    contains: words[0],
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
+              },
+              {
+                user: {
+                  lastName: {
+                    contains: words[1],
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
+              },
+            ],
+          },
+          {
+            content: {
+              contains: searchTerm,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        ],
+      };
+    } else {
+      whereClause = {
         OR: [
           {
             content: {
               contains: searchTerm,
-              mode: "insensitive",
+              mode: Prisma.QueryMode.insensitive,
             },
           },
           {
             user: {
               firstName: {
                 contains: searchTerm,
-                mode: "insensitive",
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
+          },
+          {
+            user: {
+              lastName: {
+                contains: searchTerm,
+                mode: Prisma.QueryMode.insensitive,
               },
             },
           },
         ],
-      }
-    : {};
+      };
+    }
+  }
 
   const posts = await prisma.post.findMany({
     where: whereClause,
@@ -117,26 +162,71 @@ const publicPosts = async (query: any) => {
   const { page, limit, skip, search } = paginationHelper(query);
   const searchTerm = search?.trim();
 
-  const whereClause: Prisma.PostWhereInput = searchTerm
-    ? {
+  let whereClause: Prisma.PostWhereInput = {};
+
+  if (searchTerm) {
+    const words = searchTerm.split(" ").filter(Boolean);
+
+    if (words.length >= 2) {
+      whereClause = {
+        OR: [
+          {
+            AND: [
+              {
+                user: {
+                  firstName: {
+                    contains: words[0],
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
+              },
+              {
+                user: {
+                  lastName: {
+                    contains: words[1],
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
+              },
+            ],
+          },
+          {
+            content: {
+              contains: searchTerm,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        ],
+      };
+    } else {
+      whereClause = {
         OR: [
           {
             content: {
               contains: searchTerm,
-              mode: "insensitive",
+              mode: Prisma.QueryMode.insensitive,
             },
           },
           {
             user: {
               firstName: {
                 contains: searchTerm,
-                mode: "insensitive",
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
+          },
+          {
+            user: {
+              lastName: {
+                contains: searchTerm,
+                mode: Prisma.QueryMode.insensitive,
               },
             },
           },
         ],
-      }
-    : {};
+      };
+    }
+  }
 
   const posts = await prisma.post.findMany({
     where: whereClause,
