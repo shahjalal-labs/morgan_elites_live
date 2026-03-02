@@ -3,7 +3,7 @@ import { uploadInSpace } from "../../../helpers/uploadInSpace";
 import { paginationHelper } from "../../../shared/pagination";
 import prisma from "../../../shared/prisma";
 import { sendSingleNotification } from "../notification/notification.services";
-import { Post } from "@prisma/client";
+import { Post, Prisma } from "@prisma/client";
 
 const createPost = async (
   data: Post,
@@ -37,8 +37,32 @@ const createPost = async (
 };
 
 const allPosts = async (query: any, userId: string) => {
-  const { page, limit, skip } = paginationHelper(query);
+  const { page, limit, skip, search } = paginationHelper(query);
+  const searchTerm = search?.trim();
+
+  const whereClause: Prisma.PostWhereInput = searchTerm
+    ? {
+        OR: [
+          {
+            content: {
+              contains: searchTerm,
+              mode: "insensitive",
+            },
+          },
+          {
+            user: {
+              firstName: {
+                contains: searchTerm,
+                mode: "insensitive",
+              },
+            },
+          },
+        ],
+      }
+    : {};
+
   const posts = await prisma.post.findMany({
+    where: whereClause,
     include: {
       user: {
         select: {
@@ -61,7 +85,7 @@ const allPosts = async (query: any, userId: string) => {
     take: limit,
   });
 
-  const totalCount = await prisma.post.count();
+  const totalCount = await prisma.post.count({ where: whereClause });
   const totalPages = Math.ceil(totalCount / limit);
 
   const postWithRelations = await Promise.all(
@@ -90,8 +114,32 @@ const allPosts = async (query: any, userId: string) => {
 };
 
 const publicPosts = async (query: any) => {
-  const { page, limit, skip } = paginationHelper(query);
+  const { page, limit, skip, search } = paginationHelper(query);
+  const searchTerm = search?.trim();
+
+  const whereClause: Prisma.PostWhereInput = searchTerm
+    ? {
+        OR: [
+          {
+            content: {
+              contains: searchTerm,
+              mode: "insensitive",
+            },
+          },
+          {
+            user: {
+              firstName: {
+                contains: searchTerm,
+                mode: "insensitive",
+              },
+            },
+          },
+        ],
+      }
+    : {};
+
   const posts = await prisma.post.findMany({
+    where: whereClause,
     include: {
       user: {
         select: {
@@ -114,7 +162,7 @@ const publicPosts = async (query: any) => {
     take: limit,
   });
 
-  const totalCount = await prisma.post.count();
+  const totalCount = await prisma.post.count({ where: whereClause });
   const totalPages = Math.ceil(totalCount / limit);
 
   const postWithRelations = await Promise.all(
