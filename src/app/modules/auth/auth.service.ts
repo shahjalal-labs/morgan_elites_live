@@ -173,7 +173,7 @@ const sendForgotPasswordOtpDB = async (email: string) => {
   const forgetToken = jwtHelpers.generateToken(
     { id: existringUser.id, email },
     config.jwt.jwt_secret as string,
-    config.jwt.expires_in as string,
+    "5m",
   );
 
   await emailQueue.add("forgotPasswordLink", {
@@ -213,7 +213,7 @@ const verifyForgotPasswordOtpCodeDB = async (payload: {
   const forgetToken = jwtHelpers.generateToken(
     { id: userId, email },
     config.jwt.jwt_secret as string,
-    config.jwt.expires_in as string,
+    "5m",
   );
 
   return { forgetToken };
