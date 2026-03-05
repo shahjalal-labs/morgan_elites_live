@@ -10,6 +10,7 @@ import redisClient from "../../../helpers/redis";
 import { uploadInSpace } from "../../../helpers/uploadInSpace";
 import { sendSingleNotification } from "../notification/notification.services";
 import { emailQueue } from "../../../queues/emailQueue";
+import { link } from "node:fs";
 
 //login user
 const loginUserIntoDB = async (payload: {
@@ -158,17 +159,29 @@ const sendForgotPasswordOtpDB = async (email: string) => {
     throw new ApiError(404, "User not found");
   }
   // Generate OTP and expiry time
-  const otp = generateOTP(); // 4-digit OTP
+  // const otp = generateOTP(); // 4-digit OTP
 
-  await emailQueue.add("forgotPasswordOtp", {
+  // await emailQueue.add("forgotPasswordOtp", {
+  //   email: email,
+  //   firstName: existringUser.firstName,
+  //   otp,
+  // });
+
+  // await redisClient.set(`otp:${email}`, otp, "EX", 300);
+
+  // return otp;
+  const forgetToken = jwtHelpers.generateToken(
+    { id: existringUser.id, email },
+    config.jwt.jwt_secret as string,
+    config.jwt.expires_in as string,
+  );
+
+  await emailQueue.add("forgotPasswordLink", {
     email: email,
     firstName: existringUser.firstName,
-    otp,
+    link: `https://elites-livestream.com/reset-password?token=${forgetToken}`,
   });
-
-  await redisClient.set(`otp:${email}`, otp, "EX", 300);
-
-  return otp;
+  return;
 };
 
 // verify otp code

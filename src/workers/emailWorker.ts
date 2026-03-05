@@ -3,11 +3,12 @@ import sendEmail from "../helpers/sendEmail";
 import redisClient from "../helpers/redis";
 import { verificationHtml } from "../helpers/verificationHtml";
 import { forgotPasswordHtml } from "../helpers/forgetPasswordHtml";
+import { forgotPasswordLink } from "../helpers/forgotPasswordLink";
 
 new Worker(
   "emails",
   async (job) => {
-    const { email, firstName, otp } = job.data;
+    const { email, firstName, otp, link } = job.data;
 
     let subject = "";
     let html = "";
@@ -18,6 +19,12 @@ new Worker(
     } else if (job.name === "forgotPasswordOtp") {
       subject = "Your Password Reset OTP";
       html = forgotPasswordHtml(firstName, otp);
+    } else if (job.name === "forgotPasswordOtp") {
+      subject = "Your Password Reset OTP";
+      html = forgotPasswordHtml(firstName, otp);
+    } else if (job.name === "forgotPasswordLink") {
+      subject = "Your Password Reset Link";
+      html = forgotPasswordLink(firstName, link);
     } else {
       console.warn(`Unknown job name: ${job.name}`);
       return;
