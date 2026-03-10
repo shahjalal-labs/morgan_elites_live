@@ -19,11 +19,20 @@ const sendEmail = async (
 
   // Email options
   const mailOptions = {
-    from: `"Elites-Live Stream" <${config.emailSender.email}>`,
+    from: `"Elites-Live Stream" < ${config.emailSender.email}>`,
     to,
     subject,
     html,
     text,
+
+    // Prevent replies
+    replyTo: "no-reply@elites-livestream.com",
+
+    headers: {
+      "Auto-Submitted": "auto-generated",
+      Precedence: "bulk",
+      "X-Auto-Response-Suppress": "All",
+    },
   };
   await transporter.sendMail(mailOptions);
 };
