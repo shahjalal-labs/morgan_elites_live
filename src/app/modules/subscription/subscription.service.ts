@@ -19,7 +19,7 @@ const subscriptionPlans = async () => {
       {
         id: "premiumplan",
         planName: "Premium",
-        price: 10,
+        price: 20,
         features: [
           "Access to all live streams",
           "Entry to VIP events",
