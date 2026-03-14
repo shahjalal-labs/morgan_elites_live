@@ -2,6 +2,16 @@ import { subscriptionServices } from "./subscription.service";
 import sendResponse from "../../../shared/sendResponse";
 import catchAsync from "../../../shared/catchAsync";
 
+const subscriptionPlans = catchAsync(async (req, res) => {
+  const data = await subscriptionServices.subscriptionPlans();
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "The subscription plans have been retrieved successfully",
+    data,
+  });
+});
+
 const createSubscription = catchAsync(async (req, res) => {
   const data = await subscriptionServices.createSubscription(
     req.body.plan,
@@ -101,6 +111,7 @@ const inAppSubscription = catchAsync(async (req, res) => {
   });
 });
 export const subscriptionControllers = {
+  subscriptionPlans,
   createSubscription,
   getAllSubscriptions,
   getSubscriptionById,

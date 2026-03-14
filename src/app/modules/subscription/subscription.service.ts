@@ -3,6 +3,35 @@ import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
 import { Platform } from "@prisma/client";
 
+const subscriptionPlans = async () => {
+  return {
+    plans: [
+      {
+        id: "basicplan",
+        planName: "Basic",
+        price: 5,
+        features: [
+          "Access to live streams",
+          "Standard chat privileges",
+          "Basic badges",
+        ],
+      },
+      {
+        id: "premiumplan",
+        planName: "Premium",
+        price: 10,
+        features: [
+          "Access to all live streams",
+          "Entry to VIP events",
+          "Join streamers live on stage",
+          "Exclusive chat privileges",
+          "Special badges",
+        ],
+      },
+    ],
+  };
+};
+
 const createSubscription = async (
   plan: string,
   priceId: string,
@@ -111,6 +140,7 @@ const deleteSubscription = async (subscriptionId: string, userId: string) => {
 };
 
 export const subscriptionServices = {
+  subscriptionPlans,
   createSubscription,
   // subscriptionWebhookHandler,
   getAllSubscriptions,

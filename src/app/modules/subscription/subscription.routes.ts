@@ -4,6 +4,7 @@ import auth from "../../middlewares/auth";
 
 const router = express.Router();
 
+router.get("/all/plans", subscriptionControllers.subscriptionPlans);
 router.post("/", auth(), subscriptionControllers.createSubscription);
 router.get("/", subscriptionControllers.getAllSubscriptions);
 router.get("/:id", subscriptionControllers.getSubscriptionById);
