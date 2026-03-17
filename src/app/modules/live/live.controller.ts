@@ -148,6 +148,21 @@ const banUser = catchAsync(async (req, res) => {
   });
 });
 
+const trimVideo = catchAsync(async (req, res) => {
+  const { startTime, endTime } = req.body;
+  const data = await liveServices.trimVideo(
+    req.params.streamId,
+    startTime,
+    endTime,
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Video trimmed successfully",
+    data,
+  });
+});
+
 export const liveControllers = {
   generateToken,
   createLiveStreaming,
@@ -160,4 +175,6 @@ export const liveControllers = {
   watchCountUpdate,
   topInfluencersLive,
   banUser,
+  recordingWebhookController,
+  trimVideo,
 };

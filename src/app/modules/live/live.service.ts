@@ -2,11 +2,60 @@ import { LiveStreaming } from "@prisma/client";
 import ApiError from "../../../errors/ApiErrors";
 import { generateZegoToken } from "../../../helpers/zegoToken";
 import prisma from "../../../shared/prisma";
-import axios from "axios";
 import crypto from "crypto";
 import config from "../../../config";
 import { Request, Response } from "express";
 import { S3Client, PutObjectAclCommand } from "@aws-sdk/client-s3";
+import path from "path";
+import ffmpeg from "fluent-ffmpeg";
+import fs from "fs";
+import ffmpegPath from "ffmpeg-static";
+import axios from "axios";
+import os from "os";
+import { uploadFileFromPath } from "../../../helpers/uploadInSpace";
+
+ffmpeg.setFfmpegPath(ffmpegPath as string);
+
+const downloadVideo = async (
+  url: string,
+  outputPath: string,
+): Promise<void> => {
+  const response = await axios({
+    url,
+    method: "GET",
+    responseType: "stream",
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    const writer = fs.createWriteStream(outputPath);
+
+    response.data.pipe(writer);
+
+    writer.on("finish", resolve);
+    writer.on("error", reject);
+    response.data.on("error", reject);
+  });
+};
+
+const processTrimVideo = async (
+  inputPath: string,
+  outputPath: string,
+  startTime: number,
+  endTime: number,
+): Promise<any> => {
+  const duration = endTime - startTime;
+
+  await new Promise<any>((resolve, reject) => {
+    ffmpeg(inputPath)
+      .setStartTime(startTime)
+      .setDuration(duration)
+      .outputOptions(["-movflags +faststart"])
+      .output(outputPath)
+      .on("end", resolve)
+      .on("error", reject)
+      .run();
+  });
+};
 
 const s3Client = new S3Client({
   endpoint: "https://atl1.digitaloceanspaces.com",
@@ -512,6 +561,62 @@ const banUser = async (
   return;
 };
 
+const trimVideo = async (
+  streamId: string,
+  startTime: number,
+  endTime: number,
+): Promise<any> => {
+  if (startTime < 0 || endTime <= startTime) {
+    throw new ApiError(400, "Invalid trim range");
+  }
+
+  const streamInfo = await prisma.liveStreaming.findUnique({
+    where: { id: streamId },
+  });
+
+  if (!streamInfo) {
+    throw new ApiError(404, "Streaming not found");
+  }
+
+  if (!streamInfo.recordingLink) {
+    throw new ApiError(400, "Recording link not found");
+  }
+
+  const tempDir = os.tmpdir();
+  const fileName = `trim-${streamId}-${Date.now()}.mp4`;
+  const inputPath = path.join(tempDir, `input-${fileName}`);
+  const outputPath = path.join(tempDir, fileName);
+
+  try {
+    await downloadVideo(streamInfo.recordingLink, inputPath);
+    await processTrimVideo(inputPath, outputPath, startTime, endTime);
+
+    const uploadedUrl = await uploadFileFromPath(outputPath, "record");
+
+    await prisma.liveStreaming.update({
+      where: { id: streamId },
+      data: {
+        recordingLink: uploadedUrl,
+      },
+    });
+
+    return {
+      success: true,
+      url: uploadedUrl,
+    };
+  } catch (error) {
+    console.error("trimVideo error:", error);
+    throw new ApiError(500, "Failed to trim video");
+  } finally {
+    if (fs.existsSync(inputPath)) {
+      fs.unlinkSync(inputPath);
+    }
+    if (fs.existsSync(outputPath)) {
+      fs.unlinkSync(outputPath);
+    }
+  }
+};
+
 export const liveServices = {
   generateToken,
   createLiveStreaming,
@@ -525,4 +630,5 @@ export const liveServices = {
   topInfluencersLive,
   recordingWebhook,
   banUser,
+  trimVideo,
 };

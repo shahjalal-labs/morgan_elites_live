@@ -1,6 +1,7 @@
 import { S3Client, S3ClientConfig, ObjectCannedACL } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import path from "path";
+import fs from "fs";
 import ApiError from "../errors/ApiErrors";
 import config from "../config";
 
@@ -99,6 +100,49 @@ export const uploadInSpace = async (
       error instanceof Error
         ? `Failed to upload file: ${error.message}`
         : "Failed to upload file to DigitalOcean Spaces",
+    );
+  }
+};
+export const uploadFileFromPath = async (
+  filePath: string,
+  folder: string,
+): Promise<string> => {
+  try {
+    if (!fs.existsSync(filePath)) {
+      throw new ApiError(404, "File not found locally");
+    }
+
+    const fileBuffer = fs.readFileSync(filePath);
+    const fileName = path.basename(filePath);
+    const mimeType = "video/mp4"; // Assuming mp4 for trimmed videos
+
+    const key = `uploads/${folder}/${Date.now()}-${fileName}`;
+
+    const uploadParams = {
+      Bucket: DO_CONFIG.spaceName,
+      Key: key,
+      Body: fileBuffer,
+      ACL: "public-read" as ObjectCannedACL,
+      ContentType: mimeType,
+    };
+
+    const upload = new Upload({
+      client: s3,
+      params: uploadParams,
+    });
+
+    const data = await upload.done();
+
+    const fileUrl =
+      data.Location || `${DO_CONFIG.endpoint}/${DO_CONFIG.spaceName}/${key}`;
+
+    return fileUrl;
+  } catch (error) {
+    throw new ApiError(
+      400,
+      error instanceof Error
+        ? `Failed to upload file: ${error.message}`
+        : "Failed to upload file",
     );
   }
 };
