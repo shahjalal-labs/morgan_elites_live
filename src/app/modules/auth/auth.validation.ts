@@ -8,7 +8,7 @@ const googleLoginSchema = z.object({
   email: z.string().email("Invalid email address"),
   firstName: z.string().min(1, "First Name is required"),
   lastName: z.string().min(1, "Last Name is required"),
-  fcmToken: z.string().min(1, "FCM token is required"),
+  fcmToken: z.string().optional(),
 });
 
 const locationUpdateSchema = z.object({
@@ -26,7 +26,7 @@ const updateProfileSchema = z
   .object({
     firstName: z.string().min(1, "First name is required"),
     lastName: z.string().min(1, "Last name is required"),
-    profession: z.string(),
+    profession: z.string().optional(),
     bio: z.string().max(1000, "Bio too long"),
     dob: z.preprocess(
       (v) => (typeof v === "string" || v instanceof Date ? new Date(v) : v),

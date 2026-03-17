@@ -4,19 +4,16 @@ import ApiError from "../../../errors/ApiErrors";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import config from "../../../config";
 import { User, Prisma } from "@prisma/client";
-import generateOTP from "../../../helpers/generateOtp";
-import sendEmail from "../../../helpers/sendEmail";
 import redisClient from "../../../helpers/redis";
 import { uploadInSpace } from "../../../helpers/uploadInSpace";
 import { sendSingleNotification } from "../notification/notification.services";
 import { emailQueue } from "../../../queues/emailQueue";
-import { link } from "node:fs";
 
 //login user
 const loginUserIntoDB = async (payload: {
   email: string;
   password: string;
-  fcmToken: string;
+  fcmToken?: string;
 }) => {
   const user = await prisma.user.findUnique({
     where: {
@@ -73,7 +70,7 @@ const googleLogin = async (payload: {
   email: string;
   firstName: string;
   lastName: string;
-  fcmToken: string;
+  fcmToken?: string;
 }) => {
   const user = await prisma.user.findUnique({
     where: {
