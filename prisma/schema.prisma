@@ -22,6 +22,8 @@ model User {
   address               String?
   stripeAccountId       String?
   customerId            String?
+  isSubscribed          Boolean                 @default(false)
+  plan                  PlanStatus              @default(NA)
   gender                Gender                  @default(Other)
   role                  UserRole                @default(User)
   status                UserStatus              @default(Active)
@@ -48,6 +50,12 @@ model User {
   replyPostComments     ReplyPostComment[]
 
   @@map("users")
+}
+
+enum PlanStatus {
+  NA
+  Basic
+  Premium
 }
 
 model PendingUser {

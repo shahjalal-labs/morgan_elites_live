@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get("/all/plans", subscriptionControllers.subscriptionPlans);
 router.post("/", auth(), subscriptionControllers.createSubscription);
+router.post("/status", auth(), subscriptionControllers.subscriptionStatus);
 router.get("/", subscriptionControllers.getAllSubscriptions);
 router.get("/:id", subscriptionControllers.getSubscriptionById);
 router.patch("/:id", subscriptionControllers.updateSubscription);

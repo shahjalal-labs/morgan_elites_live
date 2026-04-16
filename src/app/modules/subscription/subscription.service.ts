@@ -1,7 +1,7 @@
 import { stripe } from "../../../helpers/stripe";
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
-import { Platform } from "@prisma/client";
+import { Platform, User } from "@prisma/client";
 
 const subscriptionPlans = async () => {
   return {
@@ -30,6 +30,14 @@ const subscriptionPlans = async () => {
       },
     ],
   };
+};
+
+const subscriptionStatus = async (userId: string, payload: User) => {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { isSubscribed: payload.isSubscribed, plan: payload.plan },
+  });
+  return;
 };
 
 const createSubscription = async (
@@ -141,6 +149,7 @@ const deleteSubscription = async (subscriptionId: string, userId: string) => {
 
 export const subscriptionServices = {
   subscriptionPlans,
+  subscriptionStatus,
   createSubscription,
   // subscriptionWebhookHandler,
   getAllSubscriptions,
