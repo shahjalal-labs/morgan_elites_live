@@ -1,0 +1,78 @@
+### Create a new post (JSON version, no thumbnail file)
+
+POST {{baseUrl}}/posts/create HTTP/1.1
+Authorization: {{userToken}}
+Content-Type: application/json
+
+{
+  "content": "This is my new post content about live streaming tips.",
+  "recordedLink": "https://example.com/recordings/abc123"
+}
+
+
+### Get public posts (no auth required, paginated + search)
+
+GET {{baseUrl}}/posts/public-posts?page=1&limit=10&search=tech HTTP/1.1
+
+
+### Get my own posts (authenticated)
+
+GET {{baseUrl}}/posts/my-posts?page=1&limit=10 HTTP/1.1
+Authorization: {{userToken}}
+
+
+### Get posts from users I follow (authenticated)
+
+GET {{baseUrl}}/post/following-posts?page=1&limit=10 HTTP/1.1
+Authorization: {{user}}
+
+
+### Get a single post by ID (authenticated)
+
+GET {{baseUrl}}/posts/single-post/67a1b2c3d4e5f6g7h8i9j0k1 HTTP/1.1
+Authorization: {{userToken}}
+
+
+### Update a post (authenticated, JSON)
+
+PATCH {{baseUrl}}/posts/67a1b2c3d4e5f6g7h8i9j0k1 HTTP/1.1
+Authorization: {{userToken}}
+Content-Type: application/json
+
+{
+  "content": "Updated post content with new insights."
+}
+
+
+### Delete a post (authenticated)
+
+DELETE {{baseUrl}}/posts/67a1b2c3d4e5f6g7h8i9j0k1 HTTP/1.1
+Authorization: {{userToken}}
+
+
+### Comment on a post (authenticated)
+
+POST {{baseUrl}}/posts/comment/67a1b2c3d4e5f6g7h8i9j0k1 HTTP/1.1
+Authorization: {{userToken}}
+Content-Type: application/json
+
+{
+  "comment": "Great post! Very informative."
+}
+
+
+### Like or unlike a post (toggle, authenticated)
+
+POST {{baseUrl}}/posts/like/67a1b2c3d4e5f6g7h8i9j0k1 HTTP/1.1
+Authorization: {{userToken}}
+
+
+### Reply to a comment on a post (authenticated)
+
+POST {{baseUrl}}/posts/reply-comment/67a1b2c3d4e5f6g7h8i9j0k2 HTTP/1.1
+Authorization: {{userToken}}
+Content-Type: application/json
+
+{
+  "replyComment": "Thank you! I appreciate it."
+}
