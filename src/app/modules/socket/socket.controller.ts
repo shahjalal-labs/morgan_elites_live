@@ -101,7 +101,7 @@ export function setupWebSocketServer(server: any) {
             break;
           }
 
-          case "join-streaming": {
+          /* case "join-streaming": {
             if (!eventId) {
               return ws.send(
                 JSON.stringify({
@@ -133,6 +133,98 @@ export function setupWebSocketServer(server: any) {
               JSON.stringify({
                 type: "joined-streaming",
                 eventId,
+              }),
+            );
+
+            break;
+          } */
+
+          //  return  chat-streaming-comment whenever joined
+          case "join-streaming": {
+            if (!eventId) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Event ID is required",
+                }),
+              );
+            }
+
+            // Verify event exists
+            const eventInfo = await prisma.event.findUnique({
+              where: { id: eventId },
+              select: { id: true },
+            });
+            if (!eventInfo) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Event not found",
+                }),
+              );
+            }
+
+            // Add user to the room
+            if (!connectedEvents.has(eventId)) {
+              connectedEvents.set(eventId, new Set<string>());
+            }
+            connectedEvents.get(eventId)!.add(userId);
+
+            // 1. Send confirmation
+            ws.send(
+              JSON.stringify({
+                type: "joined-streaming",
+                eventId,
+              }),
+            );
+
+            // 2. Fetch latest 20 comments (same query as in chat-streaming)
+            const comments = await prisma.event.findUnique({
+              where: { id: eventId },
+              select: {
+                id: true,
+                EventComment: {
+                  orderBy: { createdAt: "desc" },
+                  take: 20,
+                  select: {
+                    id: true,
+                    comment: true,
+                    createdAt: true,
+                    user: {
+                      select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                      },
+                    },
+                    ReplyComment: {
+                      orderBy: { createdAt: "desc" },
+                      take: 20,
+                      select: {
+                        id: true,
+                        replyComment: true,
+                        createdAt: true,
+                        user: {
+                          select: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                            profileImage: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            });
+
+            // 3. Send history ONLY to the joining user (not broadcast)
+            ws.send(
+              JSON.stringify({
+                type: "chat-streaming-comment",
+                message: comments,
               }),
             );
 
