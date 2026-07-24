@@ -41,15 +41,7 @@ const loginUserIntoDB = async (payload: {
     },
   });
 
-  const isSetup =
-    user.firstName !== null &&
-    user.lastName !== null &&
-    user.profession !== null &&
-    user.bio !== null &&
-    user.phoneNumber !== null &&
-    user.gender !== "Other" &&
-    user.dob !== null &&
-    user.address !== null;
+  const isSetup = user.profession ? true : false;
 
   const accessToken = jwtHelpers.generateToken(
     { id: user.id, email: user.email, role: user.role },
@@ -61,7 +53,7 @@ const loginUserIntoDB = async (payload: {
     accessToken,
     id: user.id,
     role: user.role,
-    isSetup: isSetup,
+    isSetup,
   };
 };
 
