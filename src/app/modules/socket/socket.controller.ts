@@ -45,6 +45,17 @@ export function setupWebSocketServer(server: any) {
           JSON.parse(message.toString());
 
         switch (type) {
+          case "ping": {
+            ws.send(
+              JSON.stringify({
+                type: "pong",
+                message:
+                  "No need to send the 'ping' event, Musfik. It's redundant already handled by server. I only added this handler to resolve the client-side event type mismatch.",
+              }),
+            );
+            break;
+          }
+
           case "add-contributor": {
             if (!receiverId) {
               return ws.send(
