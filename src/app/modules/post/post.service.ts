@@ -116,22 +116,7 @@ const allPosts = async (query: any, userId: string) => {
           lastName: true,
           profession: true,
           profileImage: true,
-          followersAsUser1: {
-            // select: {
-            //   user1Id: true,
-            // },
-            where: {
-              user1Id: userId,
-            },
-          },
-          followersAsUser2: {
-            // select: {
-            //   user2Id: true,
-            // },
-            where: {
-              user2Id: userId,
-            },
-          },
+        
         },
       },
       _count: {
@@ -156,12 +141,20 @@ const allPosts = async (query: any, userId: string) => {
           postId_userId: { postId: post.id, userId },
         },
       });
+      const follow = await prisma.follow.findFirst({
+        where: {
+          user1Id: userId,
+          user2Id: post.userId,
+        },
+      });
       const isMyPost = post.userId === userId;
       const likeStatus = isLiked ? true : false;
+      const isFollowing = follow ? true : false;
       return {
         ...post,
         isLiked: likeStatus,
         isMyPost,
+        isFollowing,
       };
     }),
   );
@@ -277,6 +270,7 @@ const publicPosts = async (query: any) => {
         ...post,
         isLiked: false,
         isMyPost: false,
+        isFollowing: false,
       };
     }),
   );
@@ -331,6 +325,7 @@ const myPosts = async (query: any, userId: string) => {
         ...post,
         isLiked: likeStatus,
         isMyPost,
+        isFollowing: false,
       };
     }),
   );
@@ -403,6 +398,7 @@ const myFollowingPosts = async (query: any, userId: string) => {
         ...post,
         isLiked: likeStatus,
         isMyPost,
+        isFollowing: true,
       };
     }),
   );
@@ -508,11 +504,19 @@ const postInfo = async (postId: string, userId: string) => {
   // ✅ Convert like array → boolean
   const isLiked = post.PostLike.length > 0;
   const isMyPost = post.userId === userId;
+  const follow = await prisma.follow.findFirst({
+    where: {
+      user1Id: userId,
+      user2Id: post.userId,
+    },
+  });
+  const isFollowing = follow ? true : false;
 
   return {
     ...post,
     isLiked,
     isMyPost,
+    isFollowing,
   };
 };
 
