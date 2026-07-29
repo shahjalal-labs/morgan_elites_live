@@ -116,6 +116,22 @@ const allPosts = async (query: any, userId: string) => {
           lastName: true,
           profession: true,
           profileImage: true,
+          followersAsUser1: {
+            // select: {
+            //   user1Id: true,
+            // },
+            where: {
+              user1Id: userId,
+            },
+          },
+          followersAsUser2: {
+            // select: {
+            //   user2Id: true,
+            // },
+            where: {
+              user2Id: userId,
+            },
+          },
         },
       },
       _count: {
