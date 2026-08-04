@@ -444,6 +444,7 @@ const postInfo = async (postId: string, userId: string) => {
       id: true,
       content: true,
       userId: true,
+      recordedLink: true,
       user: {
         select: {
           id: true,
