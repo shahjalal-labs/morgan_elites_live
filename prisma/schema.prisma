@@ -48,6 +48,7 @@ model User {
   postLikes             PostLike[]
   postComments          PostComment[]
   replyPostComments     ReplyPostComment[]
+  notInterestedPosts    NotInterestedPost[]
 
   @@map("users")
 }
@@ -335,18 +336,32 @@ model Moderator {
 }
 
 model Post {
-  id           String        @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String        @db.ObjectId
-  thumbnail    String?
-  content      String
-  recordedLink String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  PostLike     PostLike[]
-  PostComment  PostComment[]
+  id              String              @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String              @db.ObjectId
+  thumbnail       String?
+  content         String
+  recordedLink    String
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  PostLike        PostLike[]
+  PostComment     PostComment[]
+  notInterestedBy NotInterestedPost[]
 
   @@map("posts")
+}
+
+model NotInterestedPost {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  postId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@map("not_interested_posts")
 }
 
 model PostLike {

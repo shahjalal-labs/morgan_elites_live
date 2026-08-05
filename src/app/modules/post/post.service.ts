@@ -36,7 +36,7 @@ const createPost = async (
   return;
 };
 
-const allPosts = async (query: any, userId: string) => {
+/* const allPosts = async (query: any, userId: string) => {
   const { page, limit, skip, search } = paginationHelper(query);
 
   const searchTerm = search?.trim();
@@ -116,7 +116,6 @@ const allPosts = async (query: any, userId: string) => {
           lastName: true,
           profession: true,
           profileImage: true,
-        
         },
       },
       _count: {
@@ -150,6 +149,156 @@ const allPosts = async (query: any, userId: string) => {
       const isMyPost = post.userId === userId;
       const likeStatus = isLiked ? true : false;
       const isFollowing = follow ? true : false;
+      return {
+        ...post,
+        isLiked: likeStatus,
+        isMyPost,
+        isFollowing,
+      };
+    }),
+  );
+
+  return {
+    posts: postWithRelations,
+    currentPage: page,
+    totalPages,
+    totalCount,
+  };
+}; */
+
+// remove not interested post
+
+const allPosts = async (query: any, userId: string) => {
+  const { page, limit, skip, search } = paginationHelper(query);
+  const searchTerm = search?.trim();
+
+  // 1. Base exclusion filter (always applied)
+  const exclusionFilter: Prisma.PostWhereInput = {
+    NOT: {
+      notInterestedBy: {
+        some: {
+          userId,
+        },
+      },
+    },
+  };
+
+  // 2. Build search filter (if search term provided)
+  let searchFilter: Prisma.PostWhereInput = {};
+  if (searchTerm) {
+    const words = searchTerm.split(" ").filter(Boolean);
+    if (words.length >= 2) {
+      searchFilter = {
+        OR: [
+          {
+            AND: [
+              {
+                user: {
+                  firstName: {
+                    contains: words[0],
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
+              },
+              {
+                user: {
+                  lastName: {
+                    contains: words[1],
+                    mode: Prisma.QueryMode.insensitive,
+                  },
+                },
+              },
+            ],
+          },
+          {
+            content: {
+              contains: searchTerm,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+        ],
+      };
+    } else {
+      searchFilter = {
+        OR: [
+          {
+            content: {
+              contains: searchTerm,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+          {
+            user: {
+              firstName: {
+                contains: searchTerm,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
+          },
+          {
+            user: {
+              lastName: {
+                contains: searchTerm,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
+          },
+        ],
+      };
+    }
+  }
+
+  // 3. Combine: always exclude, AND search if exists
+  const whereClause: Prisma.PostWhereInput = {
+    AND: [exclusionFilter, ...(searchTerm ? [searchFilter] : [])],
+  };
+
+  // 4. Fetch posts with pagination
+  const posts = await prisma.post.findMany({
+    where: whereClause,
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          profession: true,
+          profileImage: true,
+        },
+      },
+      _count: {
+        select: {
+          PostLike: true,
+          PostComment: true,
+        },
+      },
+    },
+    orderBy: { id: "desc" },
+    skip,
+    take: limit,
+  });
+
+  // 5. Total count (with same filter)
+  const totalCount = await prisma.post.count({ where: whereClause });
+  const totalPages = Math.ceil(totalCount / limit);
+
+  // 6. Enrich each post with like/follow status
+  const postWithRelations = await Promise.all(
+    posts.map(async (post) => {
+      const isLiked = await prisma.postLike.findUnique({
+        where: {
+          postId_userId: { postId: post.id, userId },
+        },
+      });
+      const follow = await prisma.follow.findFirst({
+        where: {
+          user1Id: userId,
+          user2Id: post.userId,
+        },
+      });
+      const isMyPost = post.userId === userId;
+      const likeStatus = !!isLiked;
+      const isFollowing = !!follow;
       return {
         ...post,
         isLiked: likeStatus,
@@ -602,6 +751,27 @@ const likePost = async (postId: string, userId: string) => {
   return "Liked this post";
 };
 
+const markNotInterested = async (userId: string, postId: string) => {
+  // Optional: check if post exists
+  const post = await prisma.post.findUnique({ where: { id: postId } });
+  if (!post) throw new ApiError(404, "Post not found");
+
+  // Create record – if it already exists, Prisma will throw unique constraint error.
+  // You can safely ignore it (or return 409) – we'll just try-catch and ignore if duplicate.
+  try {
+    await prisma.notInterestedPost.create({
+      data: { userId, postId },
+    });
+  } catch (error: any) {
+    // If duplicate key error, it's already marked – do nothing.
+    if (error.code === "P2002") {
+      // unique constraint violation – ignore
+      return;
+    }
+    throw error;
+  }
+};
+
 export const postServices = {
   createPost,
   allPosts,
@@ -614,4 +784,5 @@ export const postServices = {
   commentPost,
   replyCommentPost,
   likePost,
+  markNotInterested,
 };

@@ -121,6 +121,15 @@ const replyCommentPost = catchAsync(async (req, res) => {
   });
 });
 
+const markNotInterested = catchAsync(async (req, res) => {
+  await postServices.markNotInterested(req.user.id, req.params.postId);
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "Post marked as not interested",
+  });
+});
+
 export const postControllers = {
   createPost,
   allPosts,
@@ -133,4 +142,5 @@ export const postControllers = {
   commentPost,
   replyCommentPost,
   likePost,
+  markNotInterested,
 };

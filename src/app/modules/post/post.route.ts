@@ -27,4 +27,11 @@ router.post(
   auth(),
   postControllers.replyCommentPost,
 );
+
+router.post(
+  "/not-interested/:postId",
+  auth(),
+  postControllers.markNotInterested,
+);
+
 export const postRoute = router;
