@@ -47,7 +47,7 @@ const createReport = async (
     return { message: "Report submitted successfully" };
   } catch (error: any) {
     if (error.code === "P2002") {
-      throw new ApiError(409, "You have already reported this item");
+      throw new ApiError(409, "You have already reported.");
     }
     throw error;
   }
