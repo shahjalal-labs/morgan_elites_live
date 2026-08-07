@@ -49,6 +49,7 @@ model User {
   postComments          PostComment[]
   replyPostComments     ReplyPostComment[]
   notInterestedPosts    NotInterestedPost[]
+  reports               Report[]
 
   @@map("users")
 }
@@ -468,4 +469,34 @@ enum Gender {
   Other
   Male
   Female
+}
+
+enum ReportTargetType {
+  Post
+  Comment
+  User
+  Event
+  // add more as needed
+}
+
+model Report {
+  id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  reporterId String           @db.ObjectId
+  targetType ReportTargetType
+  targetId   String           @db.ObjectId
+  reason     String
+  status     ReportStatus     @default(Pending)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  reporter User @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@unique([reporterId, targetType, targetId])
+  @@map("reports")
+}
+
+enum ReportStatus {
+  Pending
+  Resolved
+  Dismissed
 }

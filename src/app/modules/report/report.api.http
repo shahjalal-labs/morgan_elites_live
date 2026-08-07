@@ -1,0 +1,10 @@
+### Make Report 
+POST {{baseUrl}}/report
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "targetType": "Post",
+  "targetId": "6a696d5768aed35a165980bb",
+  "reason": "This post contains inappropriate content."
+}
