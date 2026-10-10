@@ -3,8 +3,11 @@
 ![Morgan Elites Live Architecture Banner](./assets/banner.jpg)
 
 <p align="center">
-  <a href="https://app.getpostman.com/run-collection/48491387-4c3c59b0-90ad-4c82-a997-efc666b89020?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D48491387-4c3c59b0-90ad-4c82-a997-efc666b89020%26entityType%3Dcollection%26workspaceId%3D9f9f8d90-6e2c-4bea-81e2-30710035ed17">
-    <img src="https://run.pstmn.io/button.svg" alt="Run in Postman" />
+  <a href="https://www.postman.com/shahjalal-backend-9458759/morgan-elits-live/collection/7mc4624/elites-live" target="_blank">
+    <img src="https://run.pstmn.io/button.svg" alt="View in Postman" />
+  </a>
+  <a href="https://www.postman.com/shahjalal-backend-9458759/morgan-elits-live/collection/7mc4624/elites-live" target="_blank">
+    <img src="https://img.shields.io/badge/Postman-Instant_Live_API_Docs-FF6C37?style=for-the-badge&logo=postman&logoColor=white" alt="Live API Documentation" />
   </a>
 </p>
 
@@ -58,7 +61,7 @@ Designed with a scalable modular architecture, the system coordinates low-latenc
 
 The complete REST API collection is published and available for interactive testing:
 
-* 🌐 **Live Postman Web Collection**: [Explore Morgan Elites Live in Postman](https://www.postman.com/shahjalal-backend/workspace/morgan-elits-live/collection/48491387-4c3c59b0-90ad-4c82-a997-efc666b89020)
+* 🌐 **Instant Live API Documentation**: [Explore Morgan Elites Live in Postman (Instant Web View)](https://www.postman.com/shahjalal-backend-9458759/morgan-elits-live/collection/7mc4624/elites-live)
 * 📁 **Local Collection File**: [`docs/postman_collection.json`](./docs/postman_collection.json) (import directly into Postman Desktop or CLI).
 
 ### Core Endpoint Modules
